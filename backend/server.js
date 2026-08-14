@@ -1,5 +1,4 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
@@ -39,17 +38,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Connect to MongoDB and start server
-const PORT = process.env.PORT || 5000;
+const connectDB = require('./db');
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log('✅ Connected to MongoDB Atlas');
-    app.listen(PORT, () => {
-      console.log(`🚀 FoodNest server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('❌ MongoDB connection error:', err.message);
-    process.exit(1);
-  });
+// Connect to the database
+connectDB();
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 FoodNest server running on port ${PORT}`);
+});

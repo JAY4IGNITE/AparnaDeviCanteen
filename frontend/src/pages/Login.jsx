@@ -53,8 +53,8 @@ const Login = () => {
       <div className="auth-container">
         <div className="auth-card">
           <div className="auth-header">
-            <div className="auth-logo">ADC</div>
-            <h1 className="auth-title">AparnaDeviCanteen</h1>
+            <div className="auth-logo">FN</div>
+            <h1 className="auth-title">FoodNest</h1>
             <p className="auth-subtitle">Sign in to your account</p>
           </div>
 

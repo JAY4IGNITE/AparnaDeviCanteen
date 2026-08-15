@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const supabase = require('../db');
 
 const router = express.Router();
 
@@ -27,27 +28,45 @@ router.post('/register', async (req, res) => {
     }
 
     // Check if phone already exists
-    const existingUser = await User.findOne({ phone });
-    if (existingUser) {
+    const { data: existingPhone } = await supabase
+      .from('users')
+      .select('id')
+      .eq('phone', phone)
+      .maybeSingle();
+
+    if (existingPhone) {
       return res.status(400).json({ success: false, message: 'Phone number already registered' });
     }
 
     // Check if email already exists (if provided)
     if (email) {
-      const existingEmail = await User.findOne({ email });
+      const { data: existingEmail } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', email.toLowerCase())
+        .maybeSingle();
+
       if (existingEmail) {
         return res.status(400).json({ success: false, message: 'Email already registered' });
       }
     }
 
-    const user = await User.create({
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const { error } = await supabase.from('users').insert({
       name,
       phone,
-      email: email || undefined,
-      password,
-      hostelBlock,
+      email: email ? email.toLowerCase() : null,
+      password: hashedPassword,
+      hostel_block: hostelBlock || null,
       role: 'customer'
     });
+
+    if (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
 
     res.status(201).json({
       success: true,
@@ -68,45 +87,47 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Password is required' });
     }
 
-    let user;
+    let query = supabase.from('users').select('*');
 
     if (role === 'admin') {
       if (!email) {
         return res.status(400).json({ success: false, message: 'Email is required for admin login' });
       }
-      user = await User.findOne({ email, role: 'admin' });
+      query = query.eq('email', email.toLowerCase()).eq('role', 'admin');
     } else {
       if (!phone) {
         return res.status(400).json({ success: false, message: 'Phone number is required' });
       }
-      user = await User.findOne({ phone, role: 'customer' });
+      query = query.eq('phone', phone).eq('role', 'customer');
     }
 
-    if (!user) {
+    const { data: user, error } = await query.maybeSingle();
+
+    if (error || !user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    if (user.isBlocked) {
+    if (user.is_blocked) {
       return res.status(403).json({ success: false, message: 'Your account has been blocked' });
     }
 
-    const isMatch = await user.comparePassword(password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    const token = generateToken(user._id, user.role);
+    const token = generateToken(user.id, user.role);
 
     res.json({
       success: true,
       token,
       user: {
-        id: user._id,
+        id: user.id,
         name: user.name,
         role: user.role,
         phone: user.phone,
         email: user.email,
-        hostelBlock: user.hostelBlock
+        hostelBlock: user.hostel_block
       }
     });
 

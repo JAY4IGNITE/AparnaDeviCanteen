@@ -26,7 +26,7 @@ app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'FoodNest API is running' });
+  res.json({ status: 'ok', message: 'FoodNest API is running (Supabase)' });
 });
 
 // Global error handler
@@ -38,12 +38,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-const connectDB = require('./db');
-
-// Connect to the database
-connectDB();
-
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 FoodNest server running on port ${PORT}`);
+  console.log(`🚀 FoodNest server running on port ${PORT} (Supabase)`);
 });

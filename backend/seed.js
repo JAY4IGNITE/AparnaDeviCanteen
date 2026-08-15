@@ -1,25 +1,36 @@
-const mongoose = require('mongoose');
-const User = require('./models/User');
+const bcrypt = require('bcryptjs');
+const supabase = require('./db');
 require('dotenv').config();
 
 const seedAdmin = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log('Connected to MongoDB');
-
     // Check if admin already exists
-    const existingAdmin = await User.findOne({ role: 'admin' });
+    const { data: existingAdmin } = await supabase
+      .from('users')
+      .select('id, email')
+      .eq('role', 'admin')
+      .maybeSingle();
+
     if (existingAdmin) {
       console.log('Admin already exists:', existingAdmin.email);
       process.exit(0);
     }
 
-    const admin = await User.create({
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash('admin123', salt);
+
+    const { error } = await supabase.from('users').insert({
       name: 'Admin',
       email: 'admin@foodnest.com',
-      password: 'admin123',
+      password: hashedPassword,
       role: 'admin'
     });
+
+    if (error) {
+      console.error('❌ Error creating admin:', error.message);
+      process.exit(1);
+    }
 
     console.log('✅ Admin account created:');
     console.log('   Email: admin@foodnest.com');

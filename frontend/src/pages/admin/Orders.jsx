@@ -7,6 +7,7 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [dateFilter, setDateFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [blockFilter, setBlockFilter] = useState('');
 
   useEffect(() => {
     fetchOrders();
@@ -99,10 +100,23 @@ const AdminOrders = () => {
             <option value="Completed">Completed</option>
           </select>
         </div>
-        {(dateFilter || statusFilter) && (
+        <div className="form-group" style={{ margin: 0 }}>
+          <label className="form-label">Filter by Block</label>
+          <select
+            className="form-input"
+            value={blockFilter}
+            onChange={(e) => setBlockFilter(e.target.value)}
+            id="order-block-filter"
+          >
+            <option value="">All Blocks</option>
+            <option value="F Block">F Block</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        {(dateFilter || statusFilter || blockFilter) && (
           <button
             className="btn btn-ghost btn-sm"
-            onClick={() => { setDateFilter(''); setStatusFilter(''); }}
+            onClick={() => { setDateFilter(''); setStatusFilter(''); setBlockFilter(''); }}
             style={{ marginTop: 'auto' }}
           >
             Clear Filters
@@ -110,7 +124,7 @@ const AdminOrders = () => {
         )}
       </div>
 
-      {orders.length === 0 ? (
+      {orders.filter(order => !blockFilter || order.customer?.hostel_block === blockFilter).length === 0 ? (
         <div className="empty-state">
           <Package size={64} />
           <h3>No orders found</h3>
@@ -133,7 +147,9 @@ const AdminOrders = () => {
               </tr>
             </thead>
             <tbody>
-              {orders.map(order => (
+              {orders
+                .filter(order => !blockFilter || order.customer?.hostel_block === blockFilter)
+                .map(order => (
                 <tr key={order.id}>
                   <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
                     #{order.id.slice(-8).toUpperCase()}

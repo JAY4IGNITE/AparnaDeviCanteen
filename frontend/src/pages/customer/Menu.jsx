@@ -17,9 +17,10 @@ const MenuPage = () => {
   const fetchMenu = async () => {
     try {
       const res = await axios.get('/menu');
-      setMenuItems(res.data.data);
+      setMenuItems(res.data.data || []);
     } catch (err) {
-      setMessage({ type: 'error', text: 'Failed to load menu' });
+      const detail = err.response?.data?.message || err.message || 'Unknown error';
+      setMessage({ type: 'error', text: `Failed to load menu: ${detail}` });
     } finally {
       setLoading(false);
     }

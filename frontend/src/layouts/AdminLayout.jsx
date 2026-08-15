@@ -35,8 +35,8 @@ const AdminLayout = () => {
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
-          <div className="sidebar-logo">FN</div>
-          <span className="sidebar-brand">FoodNest</span>
+          <div className="sidebar-logo">ADC</div>
+          <span className="sidebar-brand">AparnaDeviCanteen</span>
           <span className="badge badge-completed" style={{ marginLeft: 'auto', fontSize: '0.65rem' }}>
             <Shield size={12} style={{ marginRight: '0.2rem' }} /> Admin
           </span>

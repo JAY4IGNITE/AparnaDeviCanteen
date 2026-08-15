@@ -102,15 +102,17 @@ const Register = () => {
 
             <div className="form-group">
               <label className="form-label">Hostel Block</label>
-              <input
-                type="text"
+              <select
                 name="hostelBlock"
                 className="form-input"
-                placeholder="e.g., Block A, Block B"
                 value={formData.hostelBlock}
                 onChange={handleChange}
                 id="register-block"
-              />
+              >
+                <option value="">Select Block (Optional)</option>
+                <option value="F Block">F Block</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
 
             <div className="form-group">

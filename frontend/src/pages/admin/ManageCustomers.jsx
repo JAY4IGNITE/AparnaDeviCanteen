@@ -6,6 +6,7 @@ const ManageCustomers = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [blockFilter, setBlockFilter] = useState('');
 
   useEffect(() => {
     fetchCustomers();
@@ -66,6 +67,31 @@ const ManageCustomers = () => {
         </div>
       )}
 
+      <div className="date-picker-row" style={{ marginBottom: '1.5rem' }}>
+        <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+          <label className="form-label">Filter by Block</label>
+          <select
+            className="form-input"
+            value={blockFilter}
+            onChange={(e) => setBlockFilter(e.target.value)}
+            id="customer-block-filter"
+          >
+            <option value="">All Blocks</option>
+            <option value="F Block">F Block</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        {blockFilter && (
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => setBlockFilter('')}
+            style={{ marginTop: 'auto' }}
+          >
+            Clear Filter
+          </button>
+        )}
+      </div>
+
       <div className="table-wrapper">
         <table className="table">
           <thead>
@@ -80,7 +106,9 @@ const ManageCustomers = () => {
             </tr>
           </thead>
           <tbody>
-            {customers.map((cust) => (
+            {customers
+              .filter(cust => !blockFilter || cust.hostel_block === blockFilter)
+              .map((cust) => (
               <tr key={cust.id}>
                 <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{cust.name}</td>
                 <td>{cust.phone}</td>
@@ -116,10 +144,10 @@ const ManageCustomers = () => {
                 </td>
               </tr>
             ))}
-            {customers.length === 0 && (
+            {customers.filter(cust => !blockFilter || cust.hostel_block === blockFilter).length === 0 && (
               <tr>
                 <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                  No registered customers yet.
+                  No registered customers found.
                 </td>
               </tr>
             )}

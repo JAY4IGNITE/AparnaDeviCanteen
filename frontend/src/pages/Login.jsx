@@ -53,9 +53,9 @@ const Login = () => {
       <div className="auth-container">
         <div className="auth-card">
           <div className="auth-header">
-            <div className="auth-logo">FN</div>
-            <h1 className="auth-title">FoodNest</h1>
-            <p className="auth-subtitle">Sign in to your account</p>
+            <div className="auth-logo">AC</div>
+            <h1 className="auth-title">AparnaCanteen</h1>
+            <p className="auth-subtitle">Welcome back</p>
           </div>
 
           <div className="auth-tabs">

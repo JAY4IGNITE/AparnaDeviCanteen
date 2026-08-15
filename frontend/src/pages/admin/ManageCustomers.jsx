@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ShieldAlert, Trash2, CheckCircle, AlertCircle, Users } from 'lucide-react';
+import { ShieldAlert, Trash2, CheckCircle, AlertCircle, Users, Search } from 'lucide-react';
 
 const ManageCustomers = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [blockFilter, setBlockFilter] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchCustomers();
@@ -67,7 +68,23 @@ const ManageCustomers = () => {
         </div>
       )}
 
-      <div className="date-picker-row" style={{ marginBottom: '1.5rem' }}>
+      <div className="date-picker-row" style={{ marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="form-group" style={{ margin: 0, flex: 1, minWidth: '250px' }}>
+          <label className="form-label">Universal Search</label>
+          <div style={{ position: 'relative' }}>
+            <div style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex' }}>
+              <Search size={18} />
+            </div>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="Search by name, phone, or block..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ paddingLeft: '2.75rem' }}
+            />
+          </div>
+        </div>
         <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
           <label className="form-label">Filter by Block</label>
           <select
@@ -81,13 +98,13 @@ const ManageCustomers = () => {
             <option value="Other">Other</option>
           </select>
         </div>
-        {blockFilter && (
+        {(blockFilter || searchQuery) && (
           <button
             className="btn btn-ghost btn-sm"
-            onClick={() => setBlockFilter('')}
+            onClick={() => { setBlockFilter(''); setSearchQuery(''); }}
             style={{ marginTop: 'auto' }}
           >
-            Clear Filter
+            Clear Filters
           </button>
         )}
       </div>
@@ -107,6 +124,15 @@ const ManageCustomers = () => {
           <tbody>
             {customers
               .filter(cust => !blockFilter || cust.hostel_block === blockFilter)
+              .filter(cust => {
+                if (!searchQuery) return true;
+                const lowerQuery = searchQuery.toLowerCase();
+                return (
+                  (cust.name && cust.name.toLowerCase().includes(lowerQuery)) ||
+                  (cust.phone && cust.phone.includes(lowerQuery)) ||
+                  (cust.hostel_block && cust.hostel_block.toLowerCase().includes(lowerQuery))
+                );
+              })
               .map((cust) => (
               <tr key={cust.id}>
                 <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{cust.name}</td>
@@ -142,10 +168,20 @@ const ManageCustomers = () => {
                 </td>
               </tr>
             ))}
-            {customers.filter(cust => !blockFilter || cust.hostel_block === blockFilter).length === 0 && (
+            {customers
+              .filter(cust => !blockFilter || cust.hostel_block === blockFilter)
+              .filter(cust => {
+                if (!searchQuery) return true;
+                const lowerQuery = searchQuery.toLowerCase();
+                return (
+                  (cust.name && cust.name.toLowerCase().includes(lowerQuery)) ||
+                  (cust.phone && cust.phone.includes(lowerQuery)) ||
+                  (cust.hostel_block && cust.hostel_block.toLowerCase().includes(lowerQuery))
+                );
+              }).length === 0 && (
               <tr>
                 <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                  No registered customers found.
+                  No matching customers found.
                 </td>
               </tr>
             )}

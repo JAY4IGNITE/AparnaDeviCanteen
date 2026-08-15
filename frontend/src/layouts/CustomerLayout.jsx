@@ -34,8 +34,8 @@ const CustomerLayout = () => {
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
-          <div className="sidebar-logo">FN</div>
-          <span className="sidebar-brand">FoodNest</span>
+          <div className="sidebar-logo">AC</div>
+          <span className="sidebar-brand">AparnaCanteen</span>
         </div>
 
         <nav className="sidebar-nav">

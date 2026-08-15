@@ -51,9 +51,9 @@ const Register = () => {
       <div className="auth-container">
         <div className="auth-card">
           <div className="auth-header">
-            <div className="auth-logo">FN</div>
+            <div className="auth-logo">AC</div>
             <h1 className="auth-title">Create Account</h1>
-            <p className="auth-subtitle">Join FoodNest today</p>
+            <p className="auth-subtitle">Join AparnaCanteen today</p>
           </div>
 
           {error && (

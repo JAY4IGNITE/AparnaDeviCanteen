@@ -3,6 +3,7 @@ services:
   - type: web
     name: foodnest-backend
     env: node
+    plan: free
     rootDir: backend
     buildCommand: npm install
     startCommand: npm start

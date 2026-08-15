@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { UserPlus, AlertCircle, CheckCircle } from 'lucide-react';
+import { UserPlus, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +15,7 @@ const Register = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
 
@@ -125,12 +126,13 @@ const Register = () => {
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group" style={{ position: 'relative' }}>
               <label className="form-label">Password *</label>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 className="form-input"
+                style={{ paddingRight: '2.5rem' }}
                 placeholder="Min. 6 characters"
                 value={formData.password}
                 onChange={handleChange}
@@ -138,14 +140,22 @@ const Register = () => {
                 minLength={6}
                 id="register-password"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute', right: '0.75rem', bottom: '0.5rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
 
-            <div className="form-group">
+            <div className="form-group" style={{ position: 'relative' }}>
               <label className="form-label">Confirm Password *</label>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="confirmPassword"
                 className="form-input"
+                style={{ paddingRight: '2.5rem' }}
                 placeholder="Re-enter password"
                 value={formData.confirmPassword}
                 onChange={handleChange}

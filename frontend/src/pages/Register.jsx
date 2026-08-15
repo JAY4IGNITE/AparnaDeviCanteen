@@ -7,7 +7,6 @@ const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    email: '',
     hostelBlock: '',
     password: '',
     confirmPassword: ''
@@ -115,18 +114,7 @@ const Register = () => {
               </select>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Email (Optional)</label>
-              <input
-                type="email"
-                name="email"
-                className="form-input"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleChange}
-                id="register-email"
-              />
-            </div>
+
 
             <div className="form-group" style={{ position: 'relative' }}>
               <label className="form-label">Password *</label>

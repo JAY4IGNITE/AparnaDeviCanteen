@@ -46,13 +46,7 @@ const Profile = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.85rem 1rem', background: 'var(--bg-input)', borderRadius: 'var(--radius-md)' }}>
-            <Mail size={20} style={{ color: 'var(--text-muted)' }} />
-            <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Email</div>
-              <div style={{ fontWeight: 600 }}>{user?.email || 'Not provided'}</div>
-            </div>
-          </div>
+
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.85rem 1rem', background: 'var(--bg-input)', borderRadius: 'var(--radius-md)' }}>
             <Building size={20} style={{ color: 'var(--text-muted)' }} />

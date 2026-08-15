@@ -98,7 +98,6 @@ const ManageCustomers = () => {
             <tr>
               <th>Name</th>
               <th>Phone</th>
-              <th>Email</th>
               <th>Hostel Block</th>
               <th>Status</th>
               <th>Joined Date</th>
@@ -112,7 +111,6 @@ const ManageCustomers = () => {
               <tr key={cust.id}>
                 <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{cust.name}</td>
                 <td>{cust.phone}</td>
-                <td>{cust.email || '—'}</td>
                 <td>{cust.hostel_block || '—'}</td>
                 <td>
                   <span className={`badge ${cust.is_blocked ? 'badge-blocked' : 'badge-active'}`}>

@@ -13,7 +13,7 @@ const generateToken = (id, role) => {
 // POST /api/auth/register — Register a new customer
 router.post('/register', async (req, res) => {
   try {
-    const { name, phone, email, password, confirmPassword, hostelBlock } = req.body;
+    const { name, phone, password, confirmPassword, hostelBlock } = req.body;
 
     if (!name || !phone || !password || !confirmPassword) {
       return res.status(400).json({ success: false, message: 'Please fill all required fields' });
@@ -38,18 +38,7 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Phone number already registered' });
     }
 
-    // Check if email already exists (if provided)
-    if (email) {
-      const { data: existingEmail } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', email.toLowerCase())
-        .maybeSingle();
 
-      if (existingEmail) {
-        return res.status(400).json({ success: false, message: 'Email already registered' });
-      }
-    }
 
     // Hash password
     const salt = await bcrypt.genSalt(10);
@@ -58,7 +47,7 @@ router.post('/register', async (req, res) => {
     const { error } = await supabase.from('users').insert({
       name,
       phone,
-      email: email ? email.toLowerCase() : null,
+      email: null,
       password: hashedPassword,
       hostel_block: hostelBlock || null,
       role: 'customer'

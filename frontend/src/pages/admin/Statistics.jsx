@@ -4,6 +4,7 @@ import { Calendar, BarChart3, Package } from 'lucide-react';
 
 const Statistics = () => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [block, setBlock] = useState('');
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(false);
@@ -12,7 +13,9 @@ const Statistics = () => {
     if (!date) return;
     setLoading(true);
     try {
-      const res = await axios.get(`/admin/statistics?date=${date}`);
+      let url = `/admin/statistics?date=${date}`;
+      if (block) url += `&block=${block}`;
+      const res = await axios.get(url);
       setItems(res.data.data);
       setFetched(true);
     } catch (err) {
@@ -39,6 +42,19 @@ const Statistics = () => {
             onChange={(e) => setDate(e.target.value)}
             id="stats-date"
           />
+        </div>
+        <div className="form-group" style={{ margin: 0 }}>
+          <label className="form-label">Filter by Block</label>
+          <select
+            className="form-input"
+            value={block}
+            onChange={(e) => setBlock(e.target.value)}
+            id="stats-block"
+          >
+            <option value="">All Blocks</option>
+            <option value="F Block">F Block</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
         <button className="btn btn-primary" onClick={fetchStats} style={{ marginTop: 'auto' }} id="get-stats">
           <Calendar size={18} /> Get Statistics

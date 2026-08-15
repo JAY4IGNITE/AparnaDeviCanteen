@@ -12,6 +12,7 @@ import CustomerHome from './pages/customer/Home';
 import CustomerMenu from './pages/customer/Menu';
 import CustomerOrders from './pages/customer/Orders';
 import CustomerProfile from './pages/customer/Profile';
+import CustomerSupport from './pages/customer/Support';
 
 // Admin Pages
 import AdminLayout from './layouts/AdminLayout';
@@ -44,6 +45,7 @@ function App() {
             <Route path="menu" element={<CustomerMenu />} />
             <Route path="orders" element={<CustomerOrders />} />
             <Route path="profile" element={<CustomerProfile />} />
+            <Route path="support" element={<CustomerSupport />} />
             <Route path="" element={<Navigate to="home" replace />} />
           </Route>
 

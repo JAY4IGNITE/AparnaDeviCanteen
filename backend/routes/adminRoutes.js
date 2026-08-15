@@ -13,7 +13,7 @@ router.use(protect, adminOnly);
 // POST /api/admin/menu — Add a new menu item
 router.post('/menu', async (req, res) => {
   try {
-    const { itemName, price, category, isAvailable } = req.body;
+    const { itemName, price, category, isAvailable, isVeg } = req.body;
 
     if (!itemName || price === undefined) {
       return res.status(400).json({ success: false, message: 'Item name and price are required' });
@@ -25,7 +25,8 @@ router.post('/menu', async (req, res) => {
         item_name: itemName,
         price,
         category: category || 'General',
-        is_available: isAvailable !== undefined ? isAvailable : true
+        is_available: isAvailable !== undefined ? isAvailable : true,
+        is_veg: isVeg !== undefined ? isVeg : true
       })
       .select()
       .single();
@@ -63,7 +64,7 @@ router.get('/menu', async (req, res) => {
 // PUT /api/admin/menu/:id — Edit a menu item
 router.put('/menu/:id', async (req, res) => {
   try {
-    const { itemName, price, category, isAvailable } = req.body;
+    const { itemName, price, category, isAvailable, isVeg } = req.body;
 
     const { data: menuItem, error } = await supabase
       .from('menu_items')
@@ -71,7 +72,8 @@ router.put('/menu/:id', async (req, res) => {
         item_name: itemName,
         price,
         category,
-        is_available: isAvailable
+        is_available: isAvailable,
+        is_veg: isVeg
       })
       .eq('id', req.params.id)
       .select()
@@ -121,6 +123,7 @@ router.get('/orders', async (req, res) => {
   try {
     const { date, status } = req.query;
 
+    // 1. Fetch ALL orders to determine global index
     let query = supabase
       .from('orders')
       .select(`
@@ -128,37 +131,72 @@ router.get('/orders', async (req, res) => {
         users!orders_customer_id_fkey (name, phone, hostel_block),
         order_items (*)
       `)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: true }); // Oldest first to match #1
 
-    if (date) {
-      const startOfDay = new Date(date);
-      startOfDay.setHours(0, 0, 0, 0);
-      const endOfDay = new Date(date);
-      endOfDay.setHours(23, 59, 59, 999);
-      query = query
-        .gte('created_at', startOfDay.toISOString())
-        .lte('created_at', endOfDay.toISOString());
-    }
-
-    if (status) {
-      query = query.eq('status', status);
-    }
-
-    const { data: orders, error } = await query;
+    const { data: allOrders, error } = await query;
 
     if (error) {
       return res.status(500).json({ success: false, message: error.message });
     }
 
-    // Normalize to match original response shape (customer instead of users)
-    const normalized = orders.map(o => ({
+    // 2. Attach order_number
+    let processed = allOrders.map((o, idx) => ({
       ...o,
+      order_number: idx + 1,
       customer: o.users,
       users: undefined
     }));
 
-    res.json({ success: true, data: normalized });
+    // 3. Apply Filters in JS (so index isn't affected by filters)
+    if (date) {
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      processed = processed.filter(o => {
+        const d = new Date(o.created_at);
+        return d >= startOfDay && d <= endOfDay;
+      });
+    }
 
+    if (status) {
+      processed = processed.filter(o => o.status === status);
+    }
+
+    // 4. Reverse sort for display (newest first)
+    processed.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    res.json({ success: true, data: processed });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// DELETE /api/admin/orders — Clear all orders
+router.delete('/orders', async (req, res) => {
+  try {
+    // Delete order_items first (child records), then orders
+    const { error: itemsError } = await supabase
+      .from('order_items')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000'); // delete all rows
+
+    if (itemsError) {
+      return res.status(500).json({ success: false, message: itemsError.message });
+    }
+
+    const { error: ordersError } = await supabase
+      .from('orders')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000'); // delete all rows
+
+    if (ordersError) {
+      return res.status(500).json({ success: false, message: ordersError.message });
+    }
+
+    res.json({ success: true, message: 'All orders cleared successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -292,7 +330,8 @@ router.get('/revenue', async (req, res) => {
       .from('orders')
       .select('total_amount')
       .gte('created_at', startOfDay.toISOString())
-      .lte('created_at', endOfDay.toISOString());
+      .lte('created_at', endOfDay.toISOString())
+      .eq('status', 'Completed');
 
     if (error) {
       return res.status(500).json({ success: false, message: error.message });
@@ -316,7 +355,7 @@ router.get('/revenue', async (req, res) => {
 // GET /api/admin/statistics?date=YYYY-MM-DD — Item quantity statistics
 router.get('/statistics', async (req, res) => {
   try {
-    const { date } = req.query;
+    const { date, block } = req.query;
 
     if (!date) {
       return res.status(400).json({ success: false, message: 'Date parameter is required' });
@@ -327,10 +366,10 @@ router.get('/statistics', async (req, res) => {
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
-    // Fetch orders in date range, with their items
+    // Fetch orders in date range, with their items and customer block
     const { data: orders, error } = await supabase
       .from('orders')
-      .select('order_items (item_name, quantity, price)')
+      .select('order_items (item_name, quantity, price), users!orders_customer_id_fkey (hostel_block)')
       .gte('created_at', startOfDay.toISOString())
       .lte('created_at', endOfDay.toISOString());
 
@@ -338,9 +377,12 @@ router.get('/statistics', async (req, res) => {
       return res.status(500).json({ success: false, message: error.message });
     }
 
-    // Aggregate item statistics in JS (replaces MongoDB $unwind + $group)
+    // Filter by block if provided
+    const filteredOrders = block ? orders.filter(o => o.users?.hostel_block === block) : orders;
+
+    // Aggregate item statistics in JS
     const statsMap = {};
-    for (const order of orders) {
+    for (const order of filteredOrders) {
       for (const item of (order.order_items || [])) {
         if (!statsMap[item.item_name]) {
           statsMap[item.item_name] = { _id: item.item_name, totalQuantity: 0, totalRevenue: 0 };

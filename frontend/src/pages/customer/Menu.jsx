@@ -98,33 +98,57 @@ const MenuPage = () => {
           <p>Check back later for new menu items.</p>
         </div>
       ) : (
-        <div className="menu-grid">
-          {menuItems.map(item => (
-            <div className="menu-card" key={item.id}>
-              <div className="menu-card-header">
-                <div>
-                  <div className="menu-item-name">{item.item_name}</div>
-                  <div className="menu-item-category">{item.category || 'General'}</div>
-                </div>
-                <div className="menu-item-price">₹{item.price}</div>
-              </div>
+        <div className="menu-categories">
+          {Object.entries(
+            menuItems.reduce((acc, item) => {
+              const cat = item.category || 'General';
+              if (!acc[cat]) acc[cat] = [];
+              acc[cat].push(item);
+              return acc;
+            }, {})
+          ).map(([category, items]) => (
+            <div key={category} className="menu-category-section">
+              <h2 className="category-title" style={{ marginTop: '2rem', marginBottom: '1rem', borderBottom: '2px solid var(--border)', paddingBottom: '0.5rem', color: 'var(--primary-400)' }}>
+                {category}
+              </h2>
+              <div className="menu-grid">
+                {items.map(item => (
+                  <div className="menu-card" key={item.id}>
+                    <div className="menu-card-header">
+                      <div>
+                        <div className="menu-item-name" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <div style={{
+                            width: '12px', height: '12px', borderRadius: '2px', flexShrink: 0,
+                            backgroundColor: item.is_veg !== false ? '#22c55e' : '#ef4444',
+                            border: '1px solid #fff',
+                            boxShadow: '0 0 0 1px ' + (item.is_veg !== false ? '#22c55e' : '#ef4444')
+                          }} title={item.is_veg !== false ? 'Veg' : 'Non-Veg'} />
+                          {item.item_name}
+                        </div>
+                        <div className="menu-item-category">{item.category || 'General'}</div>
+                      </div>
+                      <div className="menu-item-price">₹{item.price}</div>
+                    </div>
 
-              <div className="menu-card-actions">
-                {cart[item.id] ? (
-                  <div className="quantity-control">
-                    <button className="quantity-btn" onClick={() => removeFromCart(item.id)} id={`decrease-${item.id}`}>
-                      <Minus size={16} />
-                    </button>
-                    <span className="quantity-value">{cart[item.id].quantity}</span>
-                    <button className="quantity-btn" onClick={() => addToCart(item)} id={`increase-${item.id}`}>
-                      <Plus size={16} />
-                    </button>
+                    <div className="menu-card-actions">
+                      {cart[item.id] ? (
+                        <div className="quantity-control">
+                          <button className="quantity-btn" onClick={() => removeFromCart(item.id)} id={`decrease-${item.id}`}>
+                            <Minus size={16} />
+                          </button>
+                          <span className="quantity-value">{cart[item.id].quantity}</span>
+                          <button className="quantity-btn" onClick={() => addToCart(item)} id={`increase-${item.id}`}>
+                            <Plus size={16} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button className="btn btn-primary btn-sm" onClick={() => addToCart(item)} id={`add-${item.id}`}>
+                          <Plus size={16} /> Add
+                        </button>
+                      )}
+                    </div>
                   </div>
-                ) : (
-                  <button className="btn btn-primary btn-sm" onClick={() => addToCart(item)} id={`add-${item.id}`}>
-                    <Plus size={16} /> Add
-                  </button>
-                )}
+                ))}
               </div>
             </div>
           ))}
@@ -168,7 +192,7 @@ const MenuPage = () => {
                         <p>₹{item.price} × {item.quantity}</p>
                       </div>
                       <div className="quantity-control">
-                        <button className="quantity-btn" onClick={() => removeFromCart(item._id)}>
+                        <button className="quantity-btn" onClick={() => removeFromCart(item.id)}>
                           <Minus size={14} />
                         </button>
                         <span className="quantity-value">{item.quantity}</span>

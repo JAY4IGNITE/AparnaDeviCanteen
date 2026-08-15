@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, UtensilsCrossed, ClipboardList, User, LogOut, Menu, X } from 'lucide-react';
+import { Home, UtensilsCrossed, ClipboardList, User, HelpCircle, LogOut, Menu, X } from 'lucide-react';
 
 const CustomerLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -18,6 +18,7 @@ const CustomerLayout = () => {
     { to: '/customer/menu', icon: UtensilsCrossed, label: 'Menu' },
     { to: '/customer/orders', icon: ClipboardList, label: 'My Orders' },
     { to: '/customer/profile', icon: User, label: 'Profile' },
+    { to: '/customer/support', icon: HelpCircle, label: 'Support' },
   ];
 
   return (

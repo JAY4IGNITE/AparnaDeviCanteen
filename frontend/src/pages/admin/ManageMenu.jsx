@@ -7,7 +7,7 @@ const ManageMenu = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState(null);
-  const [formData, setFormData] = useState({ itemName: '', price: '', category: '', isAvailable: true });
+  const [formData, setFormData] = useState({ itemName: '', price: '', category: '', isAvailable: true, isVeg: true });
   const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const ManageMenu = () => {
 
   const openAddModal = () => {
     setEditItem(null);
-    setFormData({ itemName: '', price: '', category: '', isAvailable: true });
+    setFormData({ itemName: '', price: '', category: '', isAvailable: true, isVeg: true });
     setShowModal(true);
   };
 
@@ -37,7 +37,8 @@ const ManageMenu = () => {
       itemName: item.item_name,
       price: item.price.toString(),
       category: item.category || '',
-      isAvailable: item.is_available
+      isAvailable: item.is_available,
+      isVeg: item.is_veg !== false
     });
     setShowModal(true);
   };
@@ -124,7 +125,15 @@ const ManageMenu = () => {
           <tbody>
             {menuItems.map(item => (
               <tr key={item.id}>
-                <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{item.item_name}</td>
+                <td style={{ fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <div style={{
+                    width: '12px', height: '12px', borderRadius: '2px', flexShrink: 0,
+                    backgroundColor: item.is_veg !== false ? '#22c55e' : '#ef4444',
+                    border: '1px solid #fff',
+                    boxShadow: '0 0 0 1px ' + (item.is_veg !== false ? '#22c55e' : '#ef4444')
+                  }} title={item.is_veg !== false ? 'Veg' : 'Non-Veg'} />
+                  {item.item_name}
+                </td>
                 <td style={{ color: 'var(--primary-400)', fontWeight: 600 }}>₹{item.price}</td>
                 <td>{item.category || 'General'}</td>
                 <td>
@@ -204,6 +213,18 @@ const ManageMenu = () => {
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     id="menu-item-category"
                   />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Type *</label>
+                  <select
+                    className="form-input"
+                    value={formData.isVeg ? 'veg' : 'non-veg'}
+                    onChange={(e) => setFormData({ ...formData, isVeg: e.target.value === 'veg' })}
+                    required
+                  >
+                    <option value="veg">Veg</option>
+                    <option value="non-veg">Non-Veg</option>
+                  </select>
                 </div>
                 <div className="form-group">
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>

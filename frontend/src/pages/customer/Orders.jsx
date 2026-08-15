@@ -50,7 +50,7 @@ const Orders = () => {
           <div className="order-card" key={order.id}>
             <div className="order-header">
               <div>
-                <div className="order-id">#{order.id.slice(-8).toUpperCase()}</div>
+                <div className="order-id">#{order.order_number}</div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                   {formatDate(order.created_at)}
                 </div>

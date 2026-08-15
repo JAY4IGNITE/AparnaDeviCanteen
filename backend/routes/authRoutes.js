@@ -15,7 +15,7 @@ router.post('/register', async (req, res) => {
   try {
     const { name, phone, password, confirmPassword, hostelBlock } = req.body;
 
-    if (!name || !phone || !password || !confirmPassword) {
+    if (!name || !phone || !password || !confirmPassword || !hostelBlock) {
       return res.status(400).json({ success: false, message: 'Please fill all required fields' });
     }
 
@@ -28,10 +28,11 @@ router.post('/register', async (req, res) => {
     }
 
     // Check if phone already exists
+    const trimmedPhone = phone.trim();
     const { data: existingPhone } = await supabase
       .from('users')
       .select('id')
-      .eq('phone', phone)
+      .eq('phone', trimmedPhone)
       .maybeSingle();
 
     if (existingPhone) {
@@ -45,11 +46,11 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const { error } = await supabase.from('users').insert({
-      name,
-      phone,
+      name: name.trim(),
+      phone: trimmedPhone,
       email: null,
       password: hashedPassword,
-      hostel_block: hostelBlock || null,
+      hostel_block: hostelBlock,
       role: 'customer'
     });
 
@@ -82,12 +83,12 @@ router.post('/login', async (req, res) => {
       if (!email) {
         return res.status(400).json({ success: false, message: 'Email is required for admin login' });
       }
-      query = query.eq('email', email.toLowerCase()).eq('role', 'admin');
+      query = query.eq('email', email.trim().toLowerCase()).eq('role', 'admin');
     } else {
       if (!phone) {
         return res.status(400).json({ success: false, message: 'Phone number is required' });
       }
-      query = query.eq('phone', phone).eq('role', 'customer');
+      query = query.eq('phone', phone.trim()).eq('role', 'customer');
     }
 
     const { data: user, error } = await query.maybeSingle();

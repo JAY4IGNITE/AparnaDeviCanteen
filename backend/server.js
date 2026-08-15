@@ -12,7 +12,10 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: function (origin, callback) {
+    // Allow all origins to seamlessly support Render live URLs and localhost
+    callback(null, true); 
+  },
   credentials: true
 }));
 app.use(express.json());

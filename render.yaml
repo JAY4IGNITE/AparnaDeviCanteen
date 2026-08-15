@@ -24,7 +24,10 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
-        value: https://foodnest-backend.onrender.com/api
+        fromService:
+          type: web
+          name: foodnest-backend
+          envVarKey: RENDER_EXTERNAL_URL
     routes:
       - type: rewrite
         source: /*

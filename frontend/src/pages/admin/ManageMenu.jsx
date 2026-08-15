@@ -125,14 +125,16 @@ const ManageMenu = () => {
           <tbody>
             {menuItems.map(item => (
               <tr key={item.id}>
-                <td style={{ fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <div style={{
-                    width: '12px', height: '12px', borderRadius: '2px', flexShrink: 0,
-                    backgroundColor: item.is_veg !== false ? '#22c55e' : '#ef4444',
-                    border: '1px solid #fff',
-                    boxShadow: '0 0 0 1px ' + (item.is_veg !== false ? '#22c55e' : '#ef4444')
-                  }} title={item.is_veg !== false ? 'Veg' : 'Non-Veg'} />
-                  {item.item_name}
+                <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{
+                      width: '12px', height: '12px', borderRadius: '2px', flexShrink: 0,
+                      backgroundColor: item.is_veg !== false ? '#22c55e' : '#ef4444',
+                      border: '1px solid #fff',
+                      boxShadow: '0 0 0 1px ' + (item.is_veg !== false ? '#22c55e' : '#ef4444')
+                    }} title={item.is_veg !== false ? 'Veg' : 'Non-Veg'} />
+                    {item.item_name}
+                  </div>
                 </td>
                 <td style={{ color: 'var(--primary-400)', fontWeight: 600 }}>₹{item.price}</td>
                 <td>{item.category || 'General'}</td>

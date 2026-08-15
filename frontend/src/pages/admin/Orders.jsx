@@ -134,30 +134,30 @@ const AdminOrders = () => {
             </thead>
             <tbody>
               {orders.map(order => (
-                <tr key={order._id}>
+                <tr key={order.id}>
                   <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
-                    #{order._id.slice(-8).toUpperCase()}
+                    #{order.id.slice(-8).toUpperCase()}
                   </td>
                   <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
                     {order.customer?.name || 'N/A'}
                   </td>
                   <td>{order.customer?.phone || 'N/A'}</td>
-                  <td>{order.customer?.hostelBlock || '—'}</td>
+                  <td>{order.customer?.hostel_block || '—'}</td>
                   <td style={{ maxWidth: '200px' }}>
-                    {order.items.map(i => `${i.itemName}×${i.quantity}`).join(', ')}
+                    {(order.order_items || []).map(i => `${i.item_name}×${i.quantity}`).join(', ')}
                   </td>
-                  <td style={{ color: 'var(--primary-400)', fontWeight: 600 }}>₹{order.totalAmount}</td>
+                  <td style={{ color: 'var(--primary-400)', fontWeight: 600 }}>₹{order.total_amount}</td>
                   <td>
                     <span className={`badge badge-${order.status.toLowerCase()}`}>
                       {order.status}
                     </span>
                   </td>
-                  <td style={{ fontSize: '0.85rem' }}>{formatDate(order.createdAt)}</td>
+                  <td style={{ fontSize: '0.85rem' }}>{formatDate(order.created_at)}</td>
                   <td>
                     {order.status === 'Pending' ? (
                       <button
                         className="btn btn-success btn-sm"
-                        onClick={() => updateStatus(order._id, 'Completed')}
+                        onClick={() => updateStatus(order.id, 'Completed')}
                         title="Mark as Completed"
                       >
                         <CheckCircle size={14} />
@@ -165,7 +165,7 @@ const AdminOrders = () => {
                     ) : (
                       <button
                         className="btn btn-ghost btn-sm"
-                        onClick={() => updateStatus(order._id, 'Pending')}
+                        onClick={() => updateStatus(order.id, 'Pending')}
                         title="Revert to Pending"
                       >
                         <Clock size={14} />

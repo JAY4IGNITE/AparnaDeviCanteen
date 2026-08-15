@@ -24,10 +24,10 @@ const ManageCustomers = () => {
 
   const toggleBlockStatus = async (customer) => {
     try {
-      await axios.put(`/admin/customers/${customer._id}/block`);
+      await axios.put(`/admin/customers/${customer.id}/block`);
       setMessage({
         type: 'success',
-        text: `Customer ${customer.isBlocked ? 'unblocked' : 'blocked'} successfully!`
+        text: `Customer ${customer.is_blocked ? 'unblocked' : 'blocked'} successfully!`
       });
       fetchCustomers();
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
@@ -36,10 +36,10 @@ const ManageCustomers = () => {
     }
   };
 
-  const deleteCustomer = async (id) => {
+  const deleteCustomer = async (customerId) => {
     if (!window.confirm('Are you sure you want to delete this customer? This action is permanent.')) return;
     try {
-      await axios.delete(`/admin/customers/${id}`);
+      await axios.delete(`/admin/customers/${customerId}`);
       setMessage({ type: 'success', text: 'Customer account deleted' });
       fetchCustomers();
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
@@ -81,32 +81,32 @@ const ManageCustomers = () => {
           </thead>
           <tbody>
             {customers.map((cust) => (
-              <tr key={cust._id}>
+              <tr key={cust.id}>
                 <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{cust.name}</td>
                 <td>{cust.phone}</td>
                 <td>{cust.email || '—'}</td>
-                <td>{cust.hostelBlock || '—'}</td>
+                <td>{cust.hostel_block || '—'}</td>
                 <td>
-                  <span className={`badge ${cust.isBlocked ? 'badge-blocked' : 'badge-active'}`}>
-                    {cust.isBlocked ? 'Blocked' : 'Active'}
+                  <span className={`badge ${cust.is_blocked ? 'badge-blocked' : 'badge-active'}`}>
+                    {cust.is_blocked ? 'Blocked' : 'Active'}
                   </span>
                 </td>
                 <td style={{ fontSize: '0.85rem' }}>
-                  {new Date(cust.createdAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                  {new Date(cust.created_at).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
                 </td>
                 <td>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <button
                       className="btn btn-secondary btn-sm"
                       onClick={() => toggleBlockStatus(cust)}
-                      style={{ color: cust.isBlocked ? 'var(--success)' : 'var(--warning)', borderColor: cust.isBlocked ? 'rgba(34, 197, 94, 0.2)' : 'rgba(234, 179, 8, 0.2)' }}
-                      title={cust.isBlocked ? 'Unblock' : 'Block'}
+                      style={{ color: cust.is_blocked ? 'var(--success)' : 'var(--warning)', borderColor: cust.is_blocked ? 'rgba(34, 197, 94, 0.2)' : 'rgba(234, 179, 8, 0.2)' }}
+                      title={cust.is_blocked ? 'Unblock' : 'Block'}
                     >
-                      <ShieldAlert size={14} /> {cust.isBlocked ? 'Unblock' : 'Block'}
+                      <ShieldAlert size={14} /> {cust.is_blocked ? 'Unblock' : 'Block'}
                     </button>
                     <button
                       className="btn btn-ghost btn-sm"
-                      onClick={() => deleteCustomer(cust._id)}
+                      onClick={() => deleteCustomer(cust.id)}
                       style={{ color: 'var(--danger)' }}
                       title="Delete Permanently"
                     >

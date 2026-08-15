@@ -28,9 +28,9 @@ const MenuPage = () => {
   const addToCart = (item) => {
     setCart(prev => ({
       ...prev,
-      [item._id]: {
+      [item.id]: {
         ...item,
-        quantity: (prev[item._id]?.quantity || 0) + 1
+        quantity: (prev[item.id]?.quantity || 0) + 1
       }
     }));
   };
@@ -53,7 +53,7 @@ const MenuPage = () => {
 
   const placeOrder = async () => {
     const items = Object.values(cart).map(item => ({
-      menuItem: item._id,
+      menuItem: item.id,
       quantity: item.quantity
     }));
 
@@ -100,28 +100,28 @@ const MenuPage = () => {
       ) : (
         <div className="menu-grid">
           {menuItems.map(item => (
-            <div className="menu-card" key={item._id}>
+            <div className="menu-card" key={item.id}>
               <div className="menu-card-header">
                 <div>
-                  <div className="menu-item-name">{item.itemName}</div>
+                  <div className="menu-item-name">{item.item_name}</div>
                   <div className="menu-item-category">{item.category || 'General'}</div>
                 </div>
                 <div className="menu-item-price">₹{item.price}</div>
               </div>
 
               <div className="menu-card-actions">
-                {cart[item._id] ? (
+                {cart[item.id] ? (
                   <div className="quantity-control">
-                    <button className="quantity-btn" onClick={() => removeFromCart(item._id)} id={`decrease-${item._id}`}>
+                    <button className="quantity-btn" onClick={() => removeFromCart(item.id)} id={`decrease-${item.id}`}>
                       <Minus size={16} />
                     </button>
-                    <span className="quantity-value">{cart[item._id].quantity}</span>
-                    <button className="quantity-btn" onClick={() => addToCart(item)} id={`increase-${item._id}`}>
+                    <span className="quantity-value">{cart[item.id].quantity}</span>
+                    <button className="quantity-btn" onClick={() => addToCart(item)} id={`increase-${item.id}`}>
                       <Plus size={16} />
                     </button>
                   </div>
                 ) : (
-                  <button className="btn btn-primary btn-sm" onClick={() => addToCart(item)} id={`add-${item._id}`}>
+                  <button className="btn btn-primary btn-sm" onClick={() => addToCart(item)} id={`add-${item.id}`}>
                     <Plus size={16} /> Add
                   </button>
                 )}
@@ -162,9 +162,9 @@ const MenuPage = () => {
               ) : (
                 <>
                   {Object.values(cart).map(item => (
-                    <div className="cart-item" key={item._id}>
+                    <div className="cart-item" key={item.id}>
                       <div className="cart-item-info">
-                        <h4>{item.itemName}</h4>
+                        <h4>{item.item_name}</h4>
                         <p>₹{item.price} × {item.quantity}</p>
                       </div>
                       <div className="quantity-control">

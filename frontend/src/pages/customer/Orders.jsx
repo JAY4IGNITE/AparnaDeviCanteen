@@ -47,12 +47,12 @@ const Orders = () => {
         </div>
       ) : (
         orders.map(order => (
-          <div className="order-card" key={order._id}>
+          <div className="order-card" key={order.id}>
             <div className="order-header">
               <div>
-                <div className="order-id">#{order._id.slice(-8).toUpperCase()}</div>
+                <div className="order-id">#{order.id.slice(-8).toUpperCase()}</div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                  {formatDate(order.createdAt)}
+                  {formatDate(order.created_at)}
                 </div>
               </div>
               <span className={`badge badge-${order.status.toLowerCase()}`}>
@@ -61,9 +61,9 @@ const Orders = () => {
             </div>
 
             <div className="order-items">
-              {order.items.map((item, idx) => (
+              {(order.order_items || []).map((item, idx) => (
                 <div className="order-item-row" key={idx}>
-                  <span>{item.itemName} × {item.quantity}</span>
+                  <span>{item.item_name} × {item.quantity}</span>
                   <span>₹{item.price * item.quantity}</span>
                 </div>
               ))}
@@ -71,7 +71,7 @@ const Orders = () => {
 
             <div className="order-total">
               <span>Total</span>
-              <span>₹{order.totalAmount}</span>
+              <span>₹{order.total_amount}</span>
             </div>
           </div>
         ))

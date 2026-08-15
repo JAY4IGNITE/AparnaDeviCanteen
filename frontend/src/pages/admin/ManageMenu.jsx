@@ -34,10 +34,10 @@ const ManageMenu = () => {
   const openEditModal = (item) => {
     setEditItem(item);
     setFormData({
-      itemName: item.itemName,
+      itemName: item.item_name,
       price: item.price.toString(),
       category: item.category || '',
-      isAvailable: item.isAvailable
+      isAvailable: item.is_available
     });
     setShowModal(true);
   };
@@ -51,7 +51,7 @@ const ManageMenu = () => {
       };
 
       if (editItem) {
-        await axios.put(`/admin/menu/${editItem._id}`, data);
+        await axios.put(`/admin/menu/${editItem.id}`, data);
         setMessage({ type: 'success', text: 'Menu item updated!' });
       } else {
         await axios.post('/admin/menu', data);
@@ -80,7 +80,7 @@ const ManageMenu = () => {
 
   const toggleAvailability = async (item) => {
     try {
-      await axios.put(`/admin/menu/${item._id}`, { ...item, isAvailable: !item.isAvailable });
+      await axios.put(`/admin/menu/${item.id}`, { ...item, isAvailable: !item.is_available });
       fetchMenu();
     } catch (err) {
       setMessage({ type: 'error', text: 'Update failed' });
@@ -123,24 +123,24 @@ const ManageMenu = () => {
           </thead>
           <tbody>
             {menuItems.map(item => (
-              <tr key={item._id}>
-                <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{item.itemName}</td>
+              <tr key={item.id}>
+                <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{item.item_name}</td>
                 <td style={{ color: 'var(--primary-400)', fontWeight: 600 }}>₹{item.price}</td>
                 <td>{item.category || 'General'}</td>
                 <td>
-                  <span className={`badge ${item.isAvailable ? 'badge-active' : 'badge-blocked'}`}>
-                    {item.isAvailable ? 'Available' : 'Hidden'}
+                  <span className={`badge ${item.is_available ? 'badge-active' : 'badge-blocked'}`}>
+                    {item.is_available ? 'Available' : 'Hidden'}
                   </span>
                 </td>
                 <td>
                   <div style={{ display: 'flex', gap: '0.35rem' }}>
-                    <button className="btn btn-ghost btn-sm" onClick={() => toggleAvailability(item)} title={item.isAvailable ? 'Hide' : 'Show'}>
-                      {item.isAvailable ? <EyeOff size={16} /> : <Eye size={16} />}
+                    <button className="btn btn-ghost btn-sm" onClick={() => toggleAvailability(item)} title={item.is_available ? 'Hide' : 'Show'}>
+                      {item.is_available ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                     <button className="btn btn-ghost btn-sm" onClick={() => openEditModal(item)} title="Edit">
                       <Edit2 size={16} />
                     </button>
-                    <button className="btn btn-ghost btn-sm" onClick={() => deleteItem(item._id)} title="Delete" style={{ color: 'var(--danger)' }}>
+                    <button className="btn btn-ghost btn-sm" onClick={() => deleteItem(item.id)} title="Delete" style={{ color: 'var(--danger)' }}>
                       <Trash2 size={16} />
                     </button>
                   </div>

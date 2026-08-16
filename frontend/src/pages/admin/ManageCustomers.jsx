@@ -56,9 +56,25 @@ const ManageCustomers = () => {
 
   return (
     <div>
-      <div className="page-header">
-        <h1>Manage Customers</h1>
-        <p>View, block, or delete registered customer accounts</p>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            Manage Customers
+            <span style={{ 
+              fontSize: '0.85rem', 
+              background: 'rgba(249, 115, 22, 0.15)', 
+              color: 'var(--primary-400)', 
+              border: '1px solid rgba(249, 115, 22, 0.25)',
+              padding: '0.25rem 0.75rem',
+              borderRadius: 'var(--radius-full)',
+              fontWeight: '600',
+              fontFamily: 'var(--font-sans)'
+            }}>
+              {customers.length} {customers.length === 1 ? 'Customer' : 'Customers'}
+            </span>
+          </h1>
+          <p>View, block, or delete registered customer accounts</p>
+        </div>
       </div>
 
       {message.text && (

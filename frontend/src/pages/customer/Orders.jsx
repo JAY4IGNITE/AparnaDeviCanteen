@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ClipboardList, Package } from 'lucide-react';
+import { ClipboardList, Package, XCircle } from 'lucide-react';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -18,6 +18,20 @@ const Orders = () => {
       console.error('Failed to fetch orders:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const cancelOrder = async (orderId) => {
+    if (!window.confirm('⚠️ Are you sure you want to cancel this order? This action cannot be undone.')) return;
+    try {
+      const res = await axios.put(`/orders/${orderId}/cancel`);
+      if (res.data.success) {
+        // Refresh local orders list
+        fetchOrders();
+      }
+    } catch (err) {
+      console.error('Failed to cancel order:', err);
+      alert(err.response?.data?.message || 'Failed to cancel order. Please try again.');
     }
   };
 
@@ -69,10 +83,23 @@ const Orders = () => {
               ))}
             </div>
 
-            <div className="order-total">
+            <div className="order-total" style={{ borderBottom: order.status === 'Pending' ? '1px solid var(--border-color)' : 'none', paddingBottom: order.status === 'Pending' ? '1rem' : '0' }}>
               <span>Total</span>
               <span>₹{order.total_amount}</span>
             </div>
+
+            {order.status === 'Pending' && (
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                <button
+                  className="btn btn-danger btn-sm"
+                  onClick={() => cancelOrder(order.id)}
+                  id={`cancel-order-${order.id}`}
+                  style={{ gap: '0.35rem' }}
+                >
+                  <XCircle size={14} /> Cancel Order
+                </button>
+              </div>
+            )}
           </div>
         ))
       )}

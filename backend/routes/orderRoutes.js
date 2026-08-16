@@ -108,4 +108,46 @@ router.get('/me', protect, async (req, res) => {
   }
 });
 
+// PUT /api/orders/:id/cancel — Cancel customer's order
+router.put('/:id/cancel', protect, async (req, res) => {
+  try {
+    // 1. Fetch order
+    const { data: order, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', req.params.id)
+      .maybeSingle();
+
+    if (error || !order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // 2. Validate ownership
+    if (order.customer_id !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Unauthorized to cancel this order' });
+    }
+
+    // 3. Validate status (must be Pending)
+    if (order.status !== 'Pending') {
+      return res.status(400).json({ success: false, message: `Cannot cancel an order that is already ${order.status.toLowerCase()}` });
+    }
+
+    // 4. Update status to Cancelled
+    const { data: updatedOrder, error: updateError } = await supabase
+      .from('orders')
+      .update({ status: 'Cancelled' })
+      .eq('id', req.params.id)
+      .select()
+      .single();
+
+    if (updateError) {
+      return res.status(500).json({ success: false, message: updateError.message });
+    }
+
+    res.json({ success: true, data: updatedOrder });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 module.exports = router;

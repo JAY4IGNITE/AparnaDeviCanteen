@@ -652,6 +652,12 @@ select.form-input {
   border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
+.badge-cancelled {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
 .badge-active {
   background: var(--success-bg);
   color: var(--success);

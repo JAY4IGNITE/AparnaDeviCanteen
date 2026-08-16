@@ -126,6 +126,7 @@ const AdminOrders = () => {
             <option value="">All</option>
             <option value="Pending">Pending</option>
             <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
           </select>
         </div>
         <div className="form-group" style={{ margin: 0 }}>
@@ -264,6 +265,20 @@ const AdminOrders = () => {
                             title="Revert to Pending"
                           >
                             <Clock size={14} />
+                          </button>
+                        )}
+                        {order.status !== 'Cancelled' && (
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => {
+                              if (window.confirm('⚠️ Are you sure you want to cancel (delete) this order? This keeps the order ID intact.')) {
+                                updateStatus(order.id, 'Cancelled');
+                              }
+                            }}
+                            title="Cancel (Delete) Order"
+                            id={`delete-order-${order.id}`}
+                          >
+                            <Trash2 size={14} />
                           </button>
                         )}
                         {order.customer?.phone && (

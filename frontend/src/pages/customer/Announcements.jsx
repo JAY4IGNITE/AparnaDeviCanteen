@@ -23,7 +23,7 @@ const CustomerAnnouncements = () => {
         setError(res.data.message);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch announcements');
+      setError(err.response?.data?.message || err.message || 'Failed to fetch announcements');
     } finally {
       setLoading(false);
     }

@@ -26,7 +26,7 @@ const AdminAnnouncements = () => {
         setError(res.data.message);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch announcements');
+      setError(err.response?.data?.message || err.message || 'Failed to fetch announcements');
     } finally {
       setLoading(false);
     }
@@ -51,7 +51,7 @@ const AdminAnnouncements = () => {
         alert(res.data.message);
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'Error saving announcement');
+      alert(err.response?.data?.message || err.message || 'Error saving announcement');
     }
   };
 
@@ -67,7 +67,7 @@ const AdminAnnouncements = () => {
       const res = await axios.delete(`/admin/announcements/${id}`);
       if (res.data.success) fetchAnnouncements();
     } catch (err) {
-      alert(err.response?.data?.message || 'Error deleting announcement');
+      alert(err.response?.data?.message || err.message || 'Error deleting announcement');
     }
   };
 
@@ -77,7 +77,7 @@ const AdminAnnouncements = () => {
       const res = await axios.delete('/admin/announcements');
       if (res.data.success) fetchAnnouncements();
     } catch (err) {
-      alert(err.response?.data?.message || 'Error clearing announcements');
+      alert(err.response?.data?.message || err.message || 'Error clearing announcements');
     }
   };
 

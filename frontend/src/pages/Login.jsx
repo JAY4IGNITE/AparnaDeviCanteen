@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogIn, Phone, Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { LogIn, Phone, Mail, Lock, AlertCircle, Eye, EyeOff, MessageCircle } from 'lucide-react';
 
 const Login = () => {
   const [activeTab, setActiveTab] = useState('customer');
@@ -152,7 +152,54 @@ const Login = () => {
           </form>
 
           <div className="auth-footer">
-            Don't have an account? <Link to="/register">Sign Up</Link>
+            <div>
+              Don't have an account? <Link to="/register">Sign Up</Link>
+            </div>
+            <div style={{ marginTop: '1.25rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
+                If any Password related queries contact to this number
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <span style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '1rem' }}>9989092333</span>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <a
+                    href="tel:9989092333"
+                    className="btn btn-secondary"
+                    style={{
+                      padding: '0.4rem 0.8rem',
+                      fontSize: '0.8rem',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      height: 'auto',
+                      borderRadius: 'var(--radius-md)',
+                      borderColor: 'var(--border-color)'
+                    }}
+                  >
+                    <Phone size={14} style={{ width: '14px', height: '14px' }} /> Call
+                  </a>
+                  <a
+                    href="https://wa.me/919989092333"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-secondary"
+                    style={{
+                      padding: '0.4rem 0.8rem',
+                      fontSize: '0.8rem',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      height: 'auto',
+                      borderColor: '#25D366',
+                      color: '#25D366',
+                      borderRadius: 'var(--radius-md)'
+                    }}
+                  >
+                    <MessageCircle size={14} style={{ width: '14px', height: '14px' }} /> WhatsApp
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -18,7 +18,7 @@ const seedAdmin = async () => {
 
     // Hash password
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash('admin123', salt);
+    const hashedPassword = await bcrypt.hash('Admin@1508', salt);
 
     const { error } = await supabase.from('users').insert({
       name: 'Admin',
@@ -34,7 +34,7 @@ const seedAdmin = async () => {
 
     console.log('✅ Admin account created:');
     console.log('   Email: admin@foodnest.com');
-    console.log('   Password: admin123');
+    console.log('   Password: Admin@1508');
     console.log('   ⚠️  Change the password after first login!');
 
     process.exit(0);

@@ -72,7 +72,7 @@ async function test() {
     console.log('Logging in as admin...');
     const loginRes = await post('http://localhost:5000/api/auth/login', {
       email: 'admin@foodnest.com',
-      password: 'admin123',
+      password: 'Admin@1508',
       role: 'admin'
     });
     

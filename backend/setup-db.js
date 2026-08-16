@@ -37,7 +37,7 @@ const run = async () => {
 
     console.log('🎉 Database setup complete!');
     console.log('   Admin email:    admin@foodnest.com');
-    console.log('   Admin password: admin123');
+    console.log('   Admin password: Admin@1508');
     console.log('   ⚠️  Change the password after first login!');
 
   } catch (err) {

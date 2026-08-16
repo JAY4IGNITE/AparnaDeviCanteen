@@ -526,4 +526,108 @@ router.put('/customers/:id/block', async (req, res) => {
   }
 });
 
+// ==========================================
+// 📢 ANNOUNCEMENTS MANAGEMENT
+// ==========================================
+
+// GET /api/admin/announcements
+// Get all announcements (active and inactive)
+router.get('/announcements', async (req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('announcements')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json({ success: true, count: data.length, data });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/admin/announcements
+// Create a new announcement
+router.post('/announcements', async (req, res, next) => {
+  try {
+    const { message, is_active } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ success: false, message: 'Announcement message is required.' });
+    }
+
+    const { data, error } = await supabase
+      .from('announcements')
+      .insert([{ message, is_active: is_active !== undefined ? is_active : true }])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.status(201).json({ success: true, message: 'Announcement created successfully.', data });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PUT /api/admin/announcements/:id
+// Update an announcement
+router.put('/announcements/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { message, is_active } = req.body;
+
+    const { data, error } = await supabase
+      .from('announcements')
+      .update({ message, is_active })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ success: true, message: 'Announcement updated successfully.', data });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// DELETE /api/admin/announcements/:id
+// Delete a specific announcement
+router.delete('/announcements/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const { error } = await supabase
+      .from('announcements')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    res.json({ success: true, message: 'Announcement deleted successfully.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// DELETE /api/admin/announcements
+// Clear all announcements
+router.delete('/announcements', async (req, res, next) => {
+  try {
+    // Delete all announcements by not specifying an ID
+    const { error } = await supabase
+      .from('announcements')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000'); // small hack to delete all rows
+
+    if (error) throw error;
+
+    res.json({ success: true, message: 'All announcements cleared successfully.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

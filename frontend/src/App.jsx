@@ -13,6 +13,7 @@ import CustomerMenu from './pages/customer/Menu';
 import CustomerOrders from './pages/customer/Orders';
 import CustomerProfile from './pages/customer/Profile';
 import CustomerSupport from './pages/customer/Support';
+import CustomerAnnouncements from './pages/customer/Announcements';
 
 // Admin Pages
 import AdminLayout from './layouts/AdminLayout';
@@ -22,6 +23,7 @@ import AdminOrders from './pages/admin/Orders';
 import Revenue from './pages/admin/Revenue';
 import Statistics from './pages/admin/Statistics';
 import ManageCustomers from './pages/admin/ManageCustomers';
+import AdminAnnouncements from './pages/admin/Announcements';
 
 function App() {
   return (
@@ -46,6 +48,7 @@ function App() {
             <Route path="orders" element={<CustomerOrders />} />
             <Route path="profile" element={<CustomerProfile />} />
             <Route path="support" element={<CustomerSupport />} />
+            <Route path="announcements" element={<CustomerAnnouncements />} />
             <Route path="" element={<Navigate to="home" replace />} />
           </Route>
 
@@ -64,6 +67,7 @@ function App() {
             <Route path="revenue" element={<Revenue />} />
             <Route path="statistics" element={<Statistics />} />
             <Route path="manage-customers" element={<ManageCustomers />} />
+            <Route path="announcements" element={<AdminAnnouncements />} />
             <Route path="" element={<Navigate to="home" replace />} />
           </Route>
 

@@ -66,6 +66,17 @@ CREATE TABLE IF NOT EXISTS order_items (
 CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items (order_id);
 
 -- ============================================================
+-- ANNOUNCEMENTS
+-- ============================================================
+CREATE TABLE IF NOT EXISTS announcements (
+  id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  message       TEXT        NOT NULL,
+  is_active     BOOLEAN     NOT NULL DEFAULT TRUE,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================
 -- Auto-update updated_at via trigger
 -- ============================================================
 CREATE OR REPLACE FUNCTION update_updated_at()
@@ -88,6 +99,10 @@ CREATE OR REPLACE TRIGGER trg_orders_updated_at
   BEFORE UPDATE ON orders
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+CREATE OR REPLACE TRIGGER trg_announcements_updated_at
+  BEFORE UPDATE ON announcements
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
 -- ============================================================
 -- Disable Row Level Security (auth is handled by Express/JWT)
 -- ============================================================
@@ -95,3 +110,4 @@ ALTER TABLE users       DISABLE ROW LEVEL SECURITY;
 ALTER TABLE menu_items  DISABLE ROW LEVEL SECURITY;
 ALTER TABLE orders      DISABLE ROW LEVEL SECURITY;
 ALTER TABLE order_items DISABLE ROW LEVEL SECURITY;
+ALTER TABLE announcements DISABLE ROW LEVEL SECURITY;

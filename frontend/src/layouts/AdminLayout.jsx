@@ -35,13 +35,13 @@ const AdminLayout = () => {
 
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-header">
-          <div className="sidebar-logo">
+        <div className="sidebar-header" style={{ padding: '1.25rem 1rem' }}>
+          <div className="sidebar-logo" style={{ flexShrink: 0 }}>
             <img src="/favicon.jpg" alt="Logo" style={{ width: '100%', height: '100%', borderRadius: 'inherit', objectFit: 'cover' }} />
           </div>
-          <span className="sidebar-brand">AparnaCanteen</span>
-          <span className="badge badge-completed" style={{ marginLeft: 'auto', fontSize: '0.65rem' }}>
-            <Shield size={12} style={{ marginRight: '0.2rem' }} /> Admin
+          <span className="sidebar-brand" style={{ fontSize: '1.2rem' }}>AparnaCanteen</span>
+          <span className="badge badge-completed" style={{ marginLeft: 'auto', fontSize: '0.6rem', padding: '0.15rem 0.45rem', flexShrink: 0 }}>
+            <Shield size={10} style={{ marginRight: '0.15rem' }} /> Admin
           </span>
         </div>
 

@@ -3,17 +3,18 @@ import axios from 'axios';
 import { Calendar, BarChart3, Package } from 'lucide-react';
 
 const Statistics = () => {
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [block, setBlock] = useState('');
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(false);
 
   const fetchStats = async () => {
-    if (!date) return;
+    if (!startDate || !endDate) return;
     setLoading(true);
     try {
-      let url = `/admin/statistics?date=${date}`;
+      let url = `/admin/statistics?startDate=${startDate}&endDate=${endDate}`;
       if (block) url += `&block=${block}`;
       const res = await axios.get(url);
       setItems(res.data.data);
@@ -29,18 +30,28 @@ const Statistics = () => {
     <div>
       <div className="page-header">
         <h1>Item Statistics</h1>
-        <p>Analyze quantity ordered for each menu item on a specific day</p>
+        <p>Analyze quantity ordered for each menu item over a date range</p>
       </div>
 
       <div className="date-picker-row">
         <div className="form-group" style={{ margin: 0 }}>
-          <label className="form-label">Select Date</label>
+          <label className="form-label">Start Date</label>
           <input
             type="date"
             className="form-input"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            id="stats-date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            id="stats-start-date"
+          />
+        </div>
+        <div className="form-group" style={{ margin: 0 }}>
+          <label className="form-label">End Date</label>
+          <input
+            type="date"
+            className="form-input"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            id="stats-end-date"
           />
         </div>
         <div className="form-group" style={{ margin: 0 }}>
@@ -84,7 +95,7 @@ const Statistics = () => {
               {items.length === 0 && (
                 <tr>
                   <td colSpan="3" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                    No orders placed on this date.
+                    No orders placed in this date range.
                   </td>
                 </tr>
               )}

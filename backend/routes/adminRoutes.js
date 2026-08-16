@@ -121,7 +121,7 @@ router.delete('/menu/:id', async (req, res) => {
 // NOTE: This route must come BEFORE /orders/export to avoid route conflict
 router.get('/orders', async (req, res) => {
   try {
-    const { date, status } = req.query;
+    const { startDate, endDate, date, status } = req.query;
 
     // 1. Fetch ALL orders to determine global index
     let query = supabase
@@ -148,7 +148,17 @@ router.get('/orders', async (req, res) => {
     }));
 
     // 3. Apply Filters in JS (so index isn't affected by filters)
-    if (date) {
+    if (startDate && endDate) {
+      const startOfDay = new Date(startDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      processed = processed.filter(o => {
+        const d = new Date(o.created_at);
+        return d >= startOfDay && d <= endOfDay;
+      });
+    } else if (date) {
       const startOfDay = new Date(date);
       startOfDay.setHours(0, 0, 0, 0);
       const endOfDay = new Date(date);
@@ -233,7 +243,7 @@ router.put('/orders/:id', async (req, res) => {
 // GET /api/admin/orders/export — Export orders to Excel
 router.get('/orders/export', async (req, res) => {
   try {
-    const { date } = req.query;
+    const { startDate, endDate, date } = req.query;
 
     let query = supabase
       .from('orders')
@@ -244,7 +254,15 @@ router.get('/orders/export', async (req, res) => {
       `)
       .order('created_at', { ascending: false });
 
-    if (date) {
+    if (startDate && endDate) {
+      const startOfDay = new Date(startDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      query = query
+        .gte('created_at', startOfDay.toISOString())
+        .lte('created_at', endOfDay.toISOString());
+    } else if (date) {
       const startOfDay = new Date(date);
       startOfDay.setHours(0, 0, 0, 0);
       const endOfDay = new Date(date);
@@ -300,7 +318,7 @@ router.get('/orders/export', async (req, res) => {
     });
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', `attachment; filename=orders_${date || 'all'}.xlsx`);
+    res.setHeader('Content-Disposition', `attachment; filename=orders_${startDate ? startDate + '_to_' + endDate : date || 'all'}.xlsx`);
 
     await workbook.xlsx.write(res);
     res.end();
@@ -312,26 +330,31 @@ router.get('/orders/export', async (req, res) => {
 
 // ============== REVENUE ==============
 
-// GET /api/admin/revenue?date=YYYY-MM-DD — Daily revenue aggregation
+// GET /api/admin/revenue?date=YYYY-MM-DD OR ?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
 router.get('/revenue', async (req, res) => {
   try {
-    const { date } = req.query;
+    const { startDate, endDate, date } = req.query;
 
-    if (!date) {
-      return res.status(400).json({ success: false, message: 'Date parameter is required' });
-    }
-
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    const { data: orders, error } = await supabase
+    let query = supabase
       .from('orders')
       .select('total_amount')
-      .gte('created_at', startOfDay.toISOString())
-      .lte('created_at', endOfDay.toISOString())
       .eq('status', 'Completed');
+
+    if (startDate && endDate) {
+      const startOfDay = new Date(startDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      query = query.gte('created_at', startOfDay.toISOString()).lte('created_at', endOfDay.toISOString());
+    } else if (date) {
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+      query = query.gte('created_at', startOfDay.toISOString()).lte('created_at', endOfDay.toISOString());
+    }
+
+    const { data: orders, error } = await query;
 
     if (error) {
       return res.status(500).json({ success: false, message: error.message });
@@ -342,7 +365,12 @@ router.get('/revenue', async (req, res) => {
 
     res.json({
       success: true,
-      data: { date, totalRevenue, orderCount }
+      data: { 
+        startDate: startDate || date, 
+        endDate: endDate || date, 
+        totalRevenue, 
+        orderCount 
+      }
     });
 
   } catch (error) {
@@ -352,26 +380,31 @@ router.get('/revenue', async (req, res) => {
 
 // ============== STATISTICS ==============
 
-// GET /api/admin/statistics?date=YYYY-MM-DD — Item quantity statistics
+// GET /api/admin/statistics?date=YYYY-MM-DD OR ?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
 router.get('/statistics', async (req, res) => {
   try {
-    const { date, block } = req.query;
+    const { startDate, endDate, date, block } = req.query;
 
-    if (!date) {
-      return res.status(400).json({ success: false, message: 'Date parameter is required' });
+    let query = supabase
+      .from('orders')
+      .select('order_items (item_name, quantity, price), users!orders_customer_id_fkey (hostel_block)');
+
+    if (startDate && endDate) {
+      const startOfDay = new Date(startDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      query = query.gte('created_at', startOfDay.toISOString()).lte('created_at', endOfDay.toISOString());
+    } else if (date) {
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+      query = query.gte('created_at', startOfDay.toISOString()).lte('created_at', endOfDay.toISOString());
     }
 
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    // Fetch orders in date range, with their items and customer block
-    const { data: orders, error } = await supabase
-      .from('orders')
-      .select('order_items (item_name, quantity, price), users!orders_customer_id_fkey (hostel_block)')
-      .gte('created_at', startOfDay.toISOString())
-      .lte('created_at', endOfDay.toISOString());
+    // Fetch orders with their items and customer block
+    const { data: orders, error } = await query;
 
     if (error) {
       return res.status(500).json({ success: false, message: error.message });

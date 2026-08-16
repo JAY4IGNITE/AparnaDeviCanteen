@@ -5,7 +5,8 @@ import { Download, CheckCircle, Clock, Package, Phone, Trash2, Search, X } from 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [dateFilter, setDateFilter] = useState('');
+  const [startDateFilter, setStartDateFilter] = useState('');
+  const [endDateFilter, setEndDateFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [blockFilter, setBlockFilter] = useState('');
   const [orderIdFilter, setOrderIdFilter] = useState('');
@@ -13,12 +14,12 @@ const AdminOrders = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, [dateFilter, statusFilter]);
+  }, [startDateFilter, endDateFilter, statusFilter]);
 
   const fetchOrders = async () => {
     try {
       let url = '/admin/orders?';
-      if (dateFilter) url += `date=${dateFilter}&`;
+      if (startDateFilter && endDateFilter) url += `startDate=${startDateFilter}&endDate=${endDateFilter}&`;
       if (statusFilter) url += `status=${statusFilter}&`;
       const res = await axios.get(url);
       setOrders(res.data.data);
@@ -51,12 +52,12 @@ const AdminOrders = () => {
   const downloadExcel = async () => {
     try {
       let url = '/admin/orders/export?';
-      if (dateFilter) url += `date=${dateFilter}`;
+      if (startDateFilter && endDateFilter) url += `startDate=${startDateFilter}&endDate=${endDateFilter}`;
       const res = await axios.get(url, { responseType: 'blob' });
       const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `orders_${dateFilter || 'all'}.xlsx`;
+      link.download = `orders_${startDateFilter ? startDateFilter + '_to_' + endDateFilter : 'all'}.xlsx`;
       link.click();
       URL.revokeObjectURL(link.href);
     } catch (err) {
@@ -95,13 +96,23 @@ const AdminOrders = () => {
       {/* Filters */}
       <div className="date-picker-row">
         <div className="form-group" style={{ margin: 0 }}>
-          <label className="form-label">Filter by Date</label>
+          <label className="form-label">Start Date</label>
           <input
             type="date"
             className="form-input"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            id="order-date-filter"
+            value={startDateFilter}
+            onChange={(e) => setStartDateFilter(e.target.value)}
+            id="order-start-date-filter"
+          />
+        </div>
+        <div className="form-group" style={{ margin: 0 }}>
+          <label className="form-label">End Date</label>
+          <input
+            type="date"
+            className="form-input"
+            value={endDateFilter}
+            onChange={(e) => setEndDateFilter(e.target.value)}
+            id="order-end-date-filter"
           />
         </div>
         <div className="form-group" style={{ margin: 0 }}>
@@ -142,10 +153,10 @@ const AdminOrders = () => {
             style={{ width: '120px' }}
           />
         </div>
-        {(dateFilter || statusFilter || blockFilter || orderIdFilter || searchQuery) && (
+        {(startDateFilter || endDateFilter || statusFilter || blockFilter || orderIdFilter || searchQuery) && (
           <button
             className="btn btn-ghost btn-sm"
-            onClick={() => { setDateFilter(''); setStatusFilter(''); setBlockFilter(''); setOrderIdFilter(''); setSearchQuery(''); }}
+            onClick={() => { setStartDateFilter(''); setEndDateFilter(''); setStatusFilter(''); setBlockFilter(''); setOrderIdFilter(''); setSearchQuery(''); }}
             style={{ marginTop: 'auto' }}
           >
             Clear Filters

@@ -7,15 +7,14 @@ const AdminHome = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTodayStats();
+    fetchAllStats();
   }, []);
 
-  const fetchTodayStats = async () => {
+  const fetchAllStats = async () => {
     try {
-      const today = new Date().toISOString().split('T')[0];
       const [ordersRes, revenueRes] = await Promise.all([
-        axios.get(`/admin/orders?date=${today}`),
-        axios.get(`/admin/revenue?date=${today}`)
+        axios.get(`/admin/orders`),
+        axios.get(`/admin/revenue`)
       ]);
 
       const orders = ordersRes.data.data;
@@ -43,7 +42,7 @@ const AdminHome = () => {
     <div>
       <div className="page-header">
         <h1>Admin Dashboard</h1>
-        <p>Overview of today's activity</p>
+        <p>Overview of all activity</p>
       </div>
 
       <div className="stats-grid">
@@ -53,7 +52,7 @@ const AdminHome = () => {
           </div>
           <div>
             <div className="stat-value">{stats.totalOrders}</div>
-            <div className="stat-label">Total Orders Today</div>
+            <div className="stat-label">Total Orders</div>
           </div>
         </div>
 
@@ -63,7 +62,7 @@ const AdminHome = () => {
           </div>
           <div>
             <div className="stat-value">₹{stats.totalRevenue}</div>
-            <div className="stat-label">Today's Revenue</div>
+            <div className="stat-label">Total Revenue</div>
           </div>
         </div>
 

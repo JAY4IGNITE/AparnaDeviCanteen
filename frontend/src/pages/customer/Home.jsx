@@ -91,7 +91,7 @@ const Home = () => {
               height: '20px',
               display: 'flex',
               alignItems: 'center',
-              justify-content: 'center',
+              justifyContent: 'center',
               boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
             }}>
               {announcementCount}

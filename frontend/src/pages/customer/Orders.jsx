@@ -22,7 +22,7 @@ const Orders = () => {
   };
 
   const cancelOrder = async (orderId) => {
-    if (!window.confirm('⚠️ Are you sure you want to cancel this order? This action cannot be undone.')) return;
+    if (!window.confirm('Are you sure?')) return;
     try {
       const res = await axios.put(`/orders/${orderId}/cancel`);
       if (res.data.success) {

@@ -271,7 +271,7 @@ const AdminOrders = () => {
                           <button
                             className="btn btn-danger btn-sm"
                             onClick={() => {
-                              if (window.confirm('⚠️ Are you sure you want to cancel (delete) this order? This keeps the order ID intact.')) {
+                              if (window.confirm('Are you sure?')) {
                                 updateStatus(order.id, 'Cancelled');
                               }
                             }}

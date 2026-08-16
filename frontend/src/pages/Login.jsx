@@ -53,7 +53,9 @@ const Login = () => {
       <div className="auth-container">
         <div className="auth-card">
           <div className="auth-header">
-            <div className="auth-logo">AC</div>
+            <div className="auth-logo">
+              <img src="/favicon.jpg" alt="Logo" style={{ width: '100%', height: '100%', borderRadius: 'inherit', objectFit: 'cover' }} />
+            </div>
             <h1 className="auth-title">AparnaCanteen</h1>
             <p className="auth-subtitle">Welcome back</p>
           </div>

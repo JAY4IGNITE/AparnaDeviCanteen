@@ -578,9 +578,13 @@ router.put('/announcements/:id', async (req, res, next) => {
     const { id } = req.params;
     const { message, is_active } = req.body;
 
+    const updateFields = {};
+    if (message !== undefined) updateFields.message = message;
+    if (is_active !== undefined) updateFields.is_active = is_active;
+
     const { data, error } = await supabase
       .from('announcements')
-      .update({ message, is_active })
+      .update(updateFields)
       .eq('id', id)
       .select()
       .single();

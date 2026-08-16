@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Megaphone, AlertCircle, Sparkles } from 'lucide-react';
 import './Announcements.css'; // We'll create this or use index.css
 
@@ -14,15 +15,15 @@ const CustomerAnnouncements = () => {
   const fetchAnnouncements = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/announcements');
-      const data = await res.json();
-      if (data.success) {
-        setAnnouncements(data.data);
+      setError(null);
+      const res = await axios.get('/announcements');
+      if (res.data.success) {
+        setAnnouncements(res.data.data);
       } else {
-        setError(data.message);
+        setError(res.data.message);
       }
     } catch (err) {
-      setError('Failed to fetch announcements');
+      setError(err.response?.data?.message || 'Failed to fetch announcements');
     } finally {
       setLoading(false);
     }

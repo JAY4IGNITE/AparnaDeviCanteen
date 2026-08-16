@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Megaphone, Plus, Trash2, Edit2, AlertCircle } from 'lucide-react';
 
 const AdminAnnouncements = () => {
@@ -10,33 +11,22 @@ const AdminAnnouncements = () => {
   const [isActive, setIsActive] = useState(true);
   const [editingId, setEditingId] = useState(null);
 
-  // Use relative URL for API calls so it works with proxy/production
-  const apiUrl = '/api/admin/announcements';
-
   useEffect(() => {
     fetchAnnouncements();
   }, []);
 
-  // For admin we might want all announcements, active or not. Wait, the GET route I made only gets active ones for customer. 
-  // Wait, I need an admin route to get all announcements. I didn't create a GET for admin. Let's just use a direct Supabase query or create the route. 
-  // Let me just fetch from the same /api/announcements for now, but wait, the customer one only returns active. Let's just add an admin GET route.
-  // I will just add the fetch logic here, assuming I will update the backend quickly or just write a fetch to the customer route (if admin only sees active). 
-  // No, admin should see all. I'll add GET /api/admin/announcements.
-  
   const fetchAnnouncements = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/admin/announcements', {
-        headers: { 'Content-Type': 'application/json' }
-      });
-      const data = await res.json();
-      if (data.success) {
-        setAnnouncements(data.data);
+      setError(null);
+      const res = await axios.get('/admin/announcements');
+      if (res.data.success) {
+        setAnnouncements(res.data.data);
       } else {
-        setError(data.message);
+        setError(res.data.message);
       }
     } catch (err) {
-      setError('Failed to fetch announcements');
+      setError(err.response?.data?.message || 'Failed to fetch announcements');
     } finally {
       setLoading(false);
     }
@@ -47,26 +37,21 @@ const AdminAnnouncements = () => {
     if (!message.trim()) return;
 
     try {
-      const method = editingId ? 'PUT' : 'POST';
-      const url = editingId ? `${apiUrl}/${editingId}` : apiUrl;
+      const url = editingId ? `/admin/announcements/${editingId}` : '/admin/announcements';
+      const res = editingId 
+        ? await axios.put(url, { message, is_active: isActive })
+        : await axios.post(url, { message, is_active: isActive });
       
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, is_active: isActive })
-      });
-      
-      const data = await res.json();
-      if (data.success) {
+      if (res.data.success) {
         setMessage('');
         setIsActive(true);
         setEditingId(null);
         fetchAnnouncements();
       } else {
-        alert(data.message);
+        alert(res.data.message);
       }
     } catch (err) {
-      alert('Error saving announcement');
+      alert(err.response?.data?.message || 'Error saving announcement');
     }
   };
 
@@ -79,20 +64,20 @@ const AdminAnnouncements = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this announcement?')) return;
     try {
-      const res = await fetch(`${apiUrl}/${id}`, { method: 'DELETE' });
-      if (res.ok) fetchAnnouncements();
+      const res = await axios.delete(`/admin/announcements/${id}`);
+      if (res.data.success) fetchAnnouncements();
     } catch (err) {
-      alert('Error deleting announcement');
+      alert(err.response?.data?.message || 'Error deleting announcement');
     }
   };
 
   const handleClearAll = async () => {
     if (!window.confirm('Are you sure you want to clear all announcements? This cannot be undone.')) return;
     try {
-      const res = await fetch(apiUrl, { method: 'DELETE' });
-      if (res.ok) fetchAnnouncements();
+      const res = await axios.delete('/admin/announcements');
+      if (res.data.success) fetchAnnouncements();
     } catch (err) {
-      alert('Error clearing announcements');
+      alert(err.response?.data?.message || 'Error clearing announcements');
     }
   };
 

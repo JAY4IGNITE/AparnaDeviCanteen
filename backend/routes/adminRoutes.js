@@ -387,7 +387,8 @@ router.get('/statistics', async (req, res) => {
 
     let query = supabase
       .from('orders')
-      .select('order_items (item_name, quantity, price), users!orders_customer_id_fkey (hostel_block)');
+      .select('order_items (item_name, quantity, price), users!orders_customer_id_fkey (hostel_block)')
+      .neq('status', 'Cancelled');
 
     if (startDate && endDate) {
       const startOfDay = new Date(startDate);

@@ -18,11 +18,12 @@ const AdminHome = () => {
       ]);
 
       const orders = ordersRes.data.data;
+      const activeOrders = orders.filter(o => o.status !== 'Cancelled');
       const pending = orders.filter(o => o.status === 'Pending').length;
       const completed = orders.filter(o => o.status === 'Completed').length;
 
       setStats({
-        totalOrders: orders.length,
+        totalOrders: activeOrders.length,
         totalRevenue: revenueRes.data.data.totalRevenue,
         pendingOrders: pending,
         completedOrders: completed

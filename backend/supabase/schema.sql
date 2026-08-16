@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS orders (
   id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   customer_id   UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   total_amount  NUMERIC(10,2) NOT NULL,
-  status        TEXT        NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending', 'Completed')),
+  status        TEXT        NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending', 'Completed', 'Cancelled')),
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

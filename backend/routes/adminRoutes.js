@@ -123,7 +123,6 @@ router.get('/orders', async (req, res) => {
   try {
     const { startDate, endDate, date, status } = req.query;
 
-    // 1. Fetch ALL orders to determine global index
     let query = supabase
       .from('orders')
       .select(`
@@ -131,51 +130,39 @@ router.get('/orders', async (req, res) => {
         users!orders_customer_id_fkey (name, phone, hostel_block),
         order_items (*)
       `)
-      .order('created_at', { ascending: true }); // Oldest first to match #1
+      .order('created_at', { ascending: false });
 
-    const { data: allOrders, error } = await query;
-
-    if (error) {
-      return res.status(500).json({ success: false, message: error.message });
+    // Apply database filters
+    if (status) {
+      query = query.eq('status', status);
     }
 
-    // 2. Attach order_number
-    let processed = allOrders.map((o, idx) => ({
-      ...o,
-      order_number: idx + 1,
-      customer: o.users,
-      users: undefined
-    }));
-
-    // 3. Apply Filters in JS (so index isn't affected by filters)
     if (startDate && endDate) {
       const startOfDay = new Date(startDate);
       startOfDay.setHours(0, 0, 0, 0);
       const endOfDay = new Date(endDate);
       endOfDay.setHours(23, 59, 59, 999);
-      
-      processed = processed.filter(o => {
-        const d = new Date(o.created_at);
-        return d >= startOfDay && d <= endOfDay;
-      });
+      query = query.gte('created_at', startOfDay.toISOString()).lte('created_at', endOfDay.toISOString());
     } else if (date) {
       const startOfDay = new Date(date);
       startOfDay.setHours(0, 0, 0, 0);
       const endOfDay = new Date(date);
       endOfDay.setHours(23, 59, 59, 999);
-      
-      processed = processed.filter(o => {
-        const d = new Date(o.created_at);
-        return d >= startOfDay && d <= endOfDay;
-      });
+      query = query.gte('created_at', startOfDay.toISOString()).lte('created_at', endOfDay.toISOString());
     }
 
-    if (status) {
-      processed = processed.filter(o => o.status === status);
+    const { data: orders, error } = await query;
+
+    if (error) {
+      return res.status(500).json({ success: false, message: error.message });
     }
 
-    // 4. Reverse sort for display (newest first)
-    processed.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    // Map DB properties to expected frontend customer model
+    const processed = orders.map(o => ({
+      ...o,
+      customer: o.users,
+      users: undefined
+    }));
 
     res.json({ success: true, data: processed });
 

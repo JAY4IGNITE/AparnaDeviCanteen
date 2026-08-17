@@ -24,6 +24,7 @@ import Revenue from './pages/admin/Revenue';
 import Statistics from './pages/admin/Statistics';
 import ManageCustomers from './pages/admin/ManageCustomers';
 import AdminAnnouncements from './pages/admin/Announcements';
+import CounterSale from './pages/admin/CounterSale';
 
 function App() {
   return (
@@ -68,6 +69,7 @@ function App() {
             <Route path="statistics" element={<Statistics />} />
             <Route path="manage-customers" element={<ManageCustomers />} />
             <Route path="announcements" element={<AdminAnnouncements />} />
+            <Route path="counter-sale" element={<CounterSale />} />
             <Route path="" element={<Navigate to="home" replace />} />
           </Route>
 

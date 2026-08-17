@@ -83,23 +83,16 @@ router.post('/', protect, async (req, res) => {
 // GET /api/orders/me — Get logged-in customer's orders
 router.get('/me', protect, async (req, res) => {
   try {
-    // Fetch ALL orders to assign a global sequential ID (e.g. #1, #2)
-    const { data: allOrders, error } = await supabase
+    // Fetch only the logged-in customer's orders directly using the database auto-incrementing order_number
+    const { data: customerOrders, error } = await supabase
       .from('orders')
       .select('*, order_items(*, menu_items(item_name, price))')
-      .order('created_at', { ascending: true }); // Oldest first to match #1
+      .eq('customer_id', req.user.id)
+      .order('created_at', { ascending: false });
 
     if (error) {
       return res.status(500).json({ success: false, message: error.message });
     }
-
-    // Attach order_number (global sequence)
-    const withNumbers = allOrders.map((o, idx) => ({ ...o, order_number: idx + 1 }));
-
-    // Filter to just this customer's orders and reverse sort for display (newest first)
-    const customerOrders = withNumbers
-      .filter(o => o.customer_id === req.user.id)
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
     res.json({ success: true, data: customerOrders });
 

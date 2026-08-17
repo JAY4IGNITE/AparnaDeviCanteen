@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, UtensilsCrossed, ClipboardList, DollarSign, BarChart3, Users, LogOut, Menu, X, Shield, Megaphone } from 'lucide-react';
+import { Home, UtensilsCrossed, ClipboardList, DollarSign, BarChart3, Users, LogOut, Menu, X, Shield, Megaphone, Store } from 'lucide-react';
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -21,6 +21,7 @@ const AdminLayout = () => {
     { to: '/admin/statistics', icon: BarChart3, label: 'Statistics' },
     { to: '/admin/manage-customers', icon: Users, label: 'Customers' },
     { to: '/admin/announcements', icon: Megaphone, label: 'Announcements' },
+    { to: '/admin/counter-sale', icon: Store, label: 'Counter Sale' },
   ];
 
   return (

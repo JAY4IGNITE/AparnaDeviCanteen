@@ -204,7 +204,7 @@ const AdminOrders = () => {
             (order.order_items || []).some(i => i.item_name.toLowerCase().includes(q));
           return matchesBlock && matchesOrderId && matchesSearch;
         });
-        const sorted = [...filtered].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        const sorted = [...filtered].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         return sorted.length === 0 ? (
         <div className="empty-state">
           <Package size={64} />

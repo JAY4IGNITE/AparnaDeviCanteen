@@ -17,7 +17,7 @@ services:
 
   # 2. React/Vite Frontend (Static Site)
   - type: web
-    name: aparnadevicanteen
+    name: foodnest-frontend
     env: static
     rootDir: frontend
     buildCommand: npm install && npm run build

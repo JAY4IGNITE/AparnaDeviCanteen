@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const supabase = require('../db');
+const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -120,6 +121,120 @@ router.post('/login', async (req, res) => {
         hostelBlock: user.hostel_block
       }
     });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// PUT /api/auth/profile — Update user profile details
+router.put('/profile', protect, async (req, res) => {
+  try {
+    const { name, phone, hostelBlock } = req.body;
+
+    if (!name || !phone || !hostelBlock) {
+      return res.status(400).json({ success: false, message: 'Please fill all required fields' });
+    }
+
+    const trimmedPhone = phone.trim();
+
+    // Check if phone number is already registered by another user
+    if (trimmedPhone !== req.user.phone) {
+      const { data: existingUser, error: checkError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('phone', trimmedPhone)
+        .neq('id', req.user.id)
+        .maybeSingle();
+
+      if (existingUser) {
+        return res.status(400).json({ success: false, message: 'Phone number already in use by another account' });
+      }
+    }
+
+    // Update details in database
+    const { data: updatedUser, error: updateError } = await supabase
+      .from('users')
+      .update({
+        name: name.trim(),
+        phone: trimmedPhone,
+        hostel_block: hostelBlock
+      })
+      .eq('id', req.user.id)
+      .select()
+      .single();
+
+    if (updateError) {
+      return res.status(500).json({ success: false, message: updateError.message });
+    }
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully!',
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        role: updatedUser.role,
+        phone: updatedUser.phone,
+        email: updatedUser.email,
+        hostelBlock: updatedUser.hostel_block
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// PUT /api/auth/password — Change user password
+router.put('/password', protect, async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ success: false, message: 'All password fields are required' });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ success: false, message: 'New passwords do not match' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'New password must be at least 6 characters long' });
+    }
+
+    // Retrieve user password hash from DB
+    const { data: dbUser, error: dbError } = await supabase
+      .from('users')
+      .select('password')
+      .eq('id', req.user.id)
+      .single();
+
+    if (dbError || !dbUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, dbUser.password);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: 'Incorrect current password' });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update password in DB
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ password: hashedPassword })
+      .eq('id', req.user.id);
+
+    if (updateError) {
+      return res.status(500).json({ success: false, message: updateError.message });
+    }
+
+    res.json({ success: true, message: 'Password changed successfully!' });
 
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

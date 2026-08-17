@@ -50,11 +50,16 @@ export const AuthProvider = ({ children }) => {
     delete axios.defaults.headers.common['Authorization'];
   };
 
+  const updateUser = (userData) => {
+    setUser(userData);
+    localStorage.setItem('foodnest_user', JSON.stringify(userData));
+  };
+
   const isAuthenticated = !!token && !!user;
   const isAdmin = user?.role === 'admin';
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, isAuthenticated, isAdmin }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateUser, isAuthenticated, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

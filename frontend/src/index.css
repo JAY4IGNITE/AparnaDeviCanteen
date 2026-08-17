@@ -270,6 +270,7 @@ h4 { font-size: 1.25rem; }
   transition: all var(--transition-fast);
   cursor: pointer;
   border: none;
+  border-left: 3px solid transparent;
   background: none;
   width: 100%;
   text-align: left;

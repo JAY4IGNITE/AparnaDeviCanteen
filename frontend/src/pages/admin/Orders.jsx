@@ -230,8 +230,11 @@ const AdminOrders = () => {
             <tbody>
               {sorted.map((order, index) => (
                   <tr key={order.id}>
-                    <td style={{ fontWeight: 700, color: 'var(--primary-400)', fontFamily: 'monospace' }}>
+                    <td style={{ fontWeight: 700, color: 'var(--primary-400)', fontFamily: 'monospace' }} title={`Full ID: ${order.id}`}>
                       #{order.order_number}
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 400, marginTop: '0.15rem' }}>
+                        {order.id.substring(0, 8)}
+                      </div>
                     </td>
                     <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
                       {order.customer?.name || 'N/A'}

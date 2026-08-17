@@ -64,7 +64,12 @@ const Orders = () => {
           <div className="order-card" key={order.id}>
             <div className="order-header">
               <div>
-                <div className="order-id">#{order.order_number}</div>
+                <div className="order-id" title={`Full ID: ${order.id}`}>
+                  #{order.order_number}
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 'normal', marginLeft: '0.5rem', fontFamily: 'monospace' }}>
+                    ({order.id.substring(0, 8)})
+                  </span>
+                </div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                   {formatDate(order.created_at)}
                 </div>

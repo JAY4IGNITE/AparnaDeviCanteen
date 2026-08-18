@@ -1731,6 +1731,8 @@ select.form-input {
   max-width: 600px;
   margin: 0 auto 1.5rem;
 }
+
+.auth-card {
   position: relative;
   overflow: hidden;
 }

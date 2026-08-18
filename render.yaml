@@ -1,7 +1,7 @@
 services:
   # 1. Node.js Backend (Web Service)
   - type: web
-    name: foodnest-backend
+    name: aparnadevicanteen-backend
     env: node
     plan: free
     rootDir: backend
@@ -17,7 +17,7 @@ services:
 
   # 2. React/Vite Frontend (Static Site)
   - type: web
-    name: foodnest-frontend
+    name: aparnadevicanteen-frontend
     env: static
     rootDir: frontend
     buildCommand: npm install && npm run build
@@ -26,7 +26,7 @@ services:
       - key: VITE_API_URL
         fromService:
           type: web
-          name: foodnest-backend
+          name: aparnadevicanteen-backend
           envVarKey: RENDER_EXTERNAL_URL
     routes:
       - type: rewrite

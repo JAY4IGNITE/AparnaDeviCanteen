@@ -37,7 +37,7 @@ app.use('/api/announcements', announcementRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'FoodNest API is running (Supabase)' });
+  res.json({ status: 'ok', message: 'AparnaDeviCanteen API is running (Supabase)' });
 });
 
 // Global error handler
@@ -51,5 +51,5 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 FoodNest server running on port ${PORT} (Supabase)`);
+  console.log(`🚀 AparnaDeviCanteen server running on port ${PORT} (Supabase)`);
 });

@@ -31,7 +31,18 @@ const Login = () => {
       if (activeTab === 'admin') {
         credentials.email = formData.email;
       } else {
-        credentials.phone = formData.phone;
+        const cleanPhone = formData.phone.replace(/\D/g, '');
+        let finalPhone = cleanPhone;
+        if (cleanPhone.length === 12 && cleanPhone.startsWith('91')) {
+          finalPhone = cleanPhone.slice(2);
+        }
+        const phoneRegex = /^[6-9]\d{9}$/;
+        if (!phoneRegex.test(finalPhone)) {
+          setError('Please enter a valid 10-digit phone number');
+          setLoading(false);
+          return;
+        }
+        credentials.phone = finalPhone;
       }
 
       const user = await login(credentials);

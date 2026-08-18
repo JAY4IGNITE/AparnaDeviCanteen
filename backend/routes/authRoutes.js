@@ -11,6 +11,30 @@ const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
+// Validate and clean phone number
+const validateAndCleanPhone = (phone) => {
+  if (!phone) {
+    return { isValid: false, message: 'Phone number is required' };
+  }
+  
+  // Remove all non-digit characters
+  const cleaned = phone.replace(/\D/g, '');
+  
+  // Strip country code if 12 digits starting with 91
+  let finalPhone = cleaned;
+  if (cleaned.length === 12 && cleaned.startsWith('91')) {
+    finalPhone = cleaned.slice(2);
+  }
+  
+  // Check if exactly 10 digits starting with 6, 7, 8, or 9
+  const phoneRegex = /^[6-9]\d{9}$/;
+  if (!phoneRegex.test(finalPhone)) {
+    return { isValid: false, message: 'Please enter a valid 10-digit phone number' };
+  }
+  
+  return { isValid: true, cleaned: finalPhone };
+};
+
 // POST /api/auth/register — Register a new customer
 router.post('/register', async (req, res) => {
   try {
@@ -28,8 +52,14 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
     }
 
+        // Clean and validate phone number
+    const phoneValidation = validateAndCleanPhone(phone);
+    if (!phoneValidation.isValid) {
+      return res.status(400).json({ success: false, message: phoneValidation.message });
+    }
+    const trimmedPhone = phoneValidation.cleaned;
+
     // Check if phone already exists
-    const trimmedPhone = phone.trim();
     const { data: existingPhone } = await supabase
       .from('users')
       .select('id')
@@ -86,10 +116,11 @@ router.post('/login', async (req, res) => {
       }
       query = query.eq('email', email.trim().toLowerCase()).eq('role', 'admin');
     } else {
-      if (!phone) {
-        return res.status(400).json({ success: false, message: 'Phone number is required' });
+      const phoneValidation = validateAndCleanPhone(phone);
+      if (!phoneValidation.isValid) {
+        return res.status(400).json({ success: false, message: phoneValidation.message });
       }
-      query = query.eq('phone', phone.trim()).eq('role', 'customer');
+      query = query.eq('phone', phoneValidation.cleaned).eq('role', 'customer');
     }
 
     const { data: user, error } = await query.maybeSingle();
@@ -136,7 +167,11 @@ router.put('/profile', protect, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please fill all required fields' });
     }
 
-    const trimmedPhone = phone.trim();
+    const phoneValidation = validateAndCleanPhone(phone);
+    if (!phoneValidation.isValid) {
+      return res.status(400).json({ success: false, message: phoneValidation.message });
+    }
+    const trimmedPhone = phoneValidation.cleaned;
 
     // Check if phone number is already registered by another user
     if (trimmedPhone !== req.user.phone) {

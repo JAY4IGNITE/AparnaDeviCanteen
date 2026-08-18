@@ -724,4 +724,21 @@ router.get('/counter-sales/stats', async (req, res, next) => {
   }
 });
 
+// DELETE /api/admin/counter-sales — Clear all counter sales
+router.delete('/counter-sales', async (req, res, next) => {
+  try {
+    // Delete all counter orders (counter_order_items will be deleted automatically due to CASCADE constraint)
+    const { error } = await supabase
+      .from('counter_orders')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000'); // small hack to delete all rows
+
+    if (error) throw error;
+
+    res.json({ success: true, message: 'All counter sales cleared successfully.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

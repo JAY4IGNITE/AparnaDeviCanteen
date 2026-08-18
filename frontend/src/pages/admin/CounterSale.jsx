@@ -106,18 +106,43 @@ const CounterSale = () => {
     }
   };
 
+  const handleClearStats = async () => {
+    if (!window.confirm('⚠️ Are you sure you want to clear ALL counter sales statistics? This action is permanent and cannot be undone.')) return;
+    try {
+      const res = await axios.delete('/admin/counter-sales');
+      if (res.data.success) {
+        setMessage({ type: 'success', text: 'Counter sale statistics cleared successfully!' });
+        setStats({ items: [], grandTotalRevenue: 0 });
+        setTimeout(() => setMessage({ type: '', text: '' }), 4000);
+      }
+    } catch (err) {
+      console.error('Failed to clear statistics:', err);
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to clear statistics' });
+    }
+  };
+
   if (loading) {
     return <div className="loading-spinner"><div className="spinner"></div></div>;
   }
 
   return (
     <div>
-      <div className="page-header">
-        <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Store size={28} />
-          Counter Sale
-        </h1>
-        <p>Record direct walk-in sales and view real-time statistics</p>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Store size={28} />
+            Counter Sale
+          </h1>
+          <p>Record direct walk-in sales and view real-time statistics</p>
+        </div>
+        <button 
+          type="button"
+          className="btn btn-ghost" 
+          onClick={handleClearStats}
+          style={{ color: 'var(--danger)', borderColor: 'rgba(239, 68, 68, 0.3)', alignSelf: 'center' }}
+        >
+          Clear Counter History
+        </button>
       </div>
 
       {message.text && (

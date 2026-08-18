@@ -130,6 +130,7 @@ router.get('/orders', async (req, res) => {
         users!orders_customer_id_fkey (name, phone, hostel_block),
         order_items (*)
       `)
+      .eq('is_cleared_by_admin', false)
       .order('created_at', { ascending: false });
 
     // Apply database filters
@@ -174,23 +175,13 @@ router.get('/orders', async (req, res) => {
 // DELETE /api/admin/orders — Clear all orders
 router.delete('/orders', async (req, res) => {
   try {
-    // Delete order_items first (child records), then orders
-    const { error: itemsError } = await supabase
-      .from('order_items')
-      .delete()
-      .neq('id', '00000000-0000-0000-0000-000000000000'); // delete all rows
-
-    if (itemsError) {
-      return res.status(500).json({ success: false, message: itemsError.message });
-    }
-
-    const { error: ordersError } = await supabase
+    const { error } = await supabase
       .from('orders')
-      .delete()
-      .neq('id', '00000000-0000-0000-0000-000000000000'); // delete all rows
+      .update({ is_cleared_by_admin: true })
+      .eq('is_cleared_by_admin', false);
 
-    if (ordersError) {
-      return res.status(500).json({ success: false, message: ordersError.message });
+    if (error) {
+      return res.status(500).json({ success: false, message: error.message });
     }
 
     res.json({ success: true, message: 'All orders cleared successfully' });
@@ -239,6 +230,7 @@ router.get('/orders/export', async (req, res) => {
         users!orders_customer_id_fkey (name, phone, hostel_block),
         order_items (*)
       `)
+      .eq('is_cleared_by_admin', false)
       .order('created_at', { ascending: false });
 
     if (startDate && endDate) {
@@ -325,7 +317,8 @@ router.get('/revenue', async (req, res) => {
     let query = supabase
       .from('orders')
       .select('total_amount')
-      .eq('status', 'Completed');
+      .eq('status', 'Completed')
+      .eq('is_cleared_by_admin', false);
 
     if (startDate && endDate) {
       const startOfDay = new Date(startDate);
@@ -375,7 +368,8 @@ router.get('/statistics', async (req, res) => {
     let query = supabase
       .from('orders')
       .select('order_items (item_name, quantity, price), users!orders_customer_id_fkey (hostel_block)')
-      .neq('status', 'Cancelled');
+      .neq('status', 'Cancelled')
+      .eq('is_cleared_by_admin', false);
 
     if (startDate && endDate) {
       const startOfDay = new Date(startDate);

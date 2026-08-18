@@ -43,13 +43,20 @@ router.post('/', protect, async (req, res) => {
       });
     }
 
+    // Get atomic next order number from counter
+    const { data: nextOrderNum, error: rpcError } = await supabase.rpc('get_next_order_number');
+    if (rpcError) {
+      return res.status(500).json({ success: false, message: 'Failed to generate order ID: ' + rpcError.message });
+    }
+
     // Insert the order
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
         customer_id: req.user.id,
         total_amount: totalAmount,
-        status: 'Pending'
+        status: 'Pending',
+        order_number: nextOrderNum
       })
       .select()
       .single();
@@ -64,6 +71,26 @@ router.post('/', protect, async (req, res) => {
 
     if (itemsError) {
       return res.status(500).json({ success: false, message: itemsError.message });
+    }
+
+    // Capping customer orders to 15: delete the oldest ones in the DB
+    try {
+      const { data: userOrders, error: fetchErr } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('customer_id', req.user.id)
+        .order('created_at', { ascending: false });
+
+      if (!fetchErr && userOrders && userOrders.length > 15) {
+        const oldestOrders = userOrders.slice(15);
+        const idsToDelete = oldestOrders.map(o => o.id);
+        await supabase
+          .from('orders')
+          .delete()
+          .in('id', idsToDelete);
+      }
+    } catch (capError) {
+      console.error('Failed to cap user orders:', capError.message);
     }
 
     // Fetch complete order with items for response

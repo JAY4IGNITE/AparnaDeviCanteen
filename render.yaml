@@ -1,0 +1,15 @@
+services:
+  # Combined Full-Stack Web Service (aparnadevicanteen)
+  - type: web
+    name: aparnadevicanteen
+    env: node
+    plan: free
+    buildCommand: npm install && npm run install-all && npm run build --prefix frontend
+    startCommand: node backend/server.js
+    envVars:
+      - key: SUPABASE_URL
+        sync: false # Render will prompt you for this value during deployment
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false # Render will prompt you for this value during deployment
+      - key: JWT_SECRET
+        generateValue: true # Render will automatically generate a secure secret

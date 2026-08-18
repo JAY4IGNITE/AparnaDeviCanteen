@@ -5,7 +5,7 @@ const AuthContext = createContext(null);
 
 const API_URL = import.meta.env.VITE_API_URL 
   ? `${import.meta.env.VITE_API_URL}/api` 
-  : 'http://localhost:5000/api';
+  : (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
 
 // Configure axios defaults
 axios.defaults.baseURL = API_URL;

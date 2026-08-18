@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
@@ -38,6 +39,14 @@ app.use('/api/announcements', announcementRoutes);
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'FoodNest API is running (Supabase)' });
+});
+
+// Serve Static Frontend Assets
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+// Fallback to React Router index.html for any non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
 // Global error handler

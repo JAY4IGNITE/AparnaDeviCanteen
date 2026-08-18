@@ -12,13 +12,13 @@ axios.defaults.baseURL = API_URL;
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('aparnadevicanteen_token'));
+  const [token, setToken] = useState(localStorage.getItem('foodnest_token'));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      const savedUser = localStorage.getItem('aparnadevicanteen_user');
+      const savedUser = localStorage.getItem('foodnest_user');
       if (savedUser) {
         setUser(JSON.parse(savedUser));
       }
@@ -31,8 +31,8 @@ export const AuthProvider = ({ children }) => {
     const { token: newToken, user: userData } = res.data;
     setToken(newToken);
     setUser(userData);
-    localStorage.setItem('aparnadevicanteen_token', newToken);
-    localStorage.setItem('aparnadevicanteen_user', JSON.stringify(userData));
+    localStorage.setItem('foodnest_token', newToken);
+    localStorage.setItem('foodnest_user', JSON.stringify(userData));
     axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
     return userData;
   };
@@ -45,14 +45,14 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('aparnadevicanteen_token');
-    localStorage.removeItem('aparnadevicanteen_user');
+    localStorage.removeItem('foodnest_token');
+    localStorage.removeItem('foodnest_user');
     delete axios.defaults.headers.common['Authorization'];
   };
 
   const updateUser = (userData) => {
     setUser(userData);
-    localStorage.setItem('aparnadevicanteen_user', JSON.stringify(userData));
+    localStorage.setItem('foodnest_user', JSON.stringify(userData));
   };
 
   const isAuthenticated = !!token && !!user;

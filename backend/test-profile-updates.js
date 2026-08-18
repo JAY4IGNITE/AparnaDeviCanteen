@@ -52,7 +52,7 @@ async function run() {
     await supabase.from('users').delete().eq('phone', '8888888888');
 
     console.log('1. Registering test customer...');
-    const registerRes = await request('POST', 'http://127.0.0.1:5000/api/auth/register', {
+    const registerRes = await request('POST', 'http://localhost:5000/api/auth/register', {
       name: 'Test Profile User',
       phone: phone,
       password: initialPassword,
@@ -62,7 +62,7 @@ async function run() {
     console.log('Register response:', registerRes);
 
     console.log('\n2. Logging in with original password...');
-    const loginRes = await request('POST', 'http://127.0.0.1:5000/api/auth/login', {
+    const loginRes = await request('POST', 'http://localhost:5000/api/auth/login', {
       phone: phone,
       password: initialPassword,
       role: 'customer'
@@ -76,7 +76,7 @@ async function run() {
     console.log('Login successful. Token acquired.');
 
     console.log('\n3. Updating profile details (name, phone, block)...');
-    const updateRes = await request('PUT', 'http://127.0.0.1:5000/api/auth/profile', {
+    const updateRes = await request('PUT', 'http://localhost:5000/api/auth/profile', {
       name: 'Updated Test User',
       phone: '8888888888',
       hostelBlock: 'Other'
@@ -88,7 +88,7 @@ async function run() {
     }
 
     console.log('\n4. Changing password...');
-    const passwordRes = await request('PUT', 'http://127.0.0.1:5000/api/auth/password', {
+    const passwordRes = await request('PUT', 'http://localhost:5000/api/auth/password', {
       currentPassword: initialPassword,
       newPassword: newPassword,
       confirmPassword: newPassword
@@ -100,7 +100,7 @@ async function run() {
     }
 
     console.log('\n5. Logging out and logging back in with NEW password...');
-    const loginNewRes = await request('POST', 'http://127.0.0.1:5000/api/auth/login', {
+    const loginNewRes = await request('POST', 'http://localhost:5000/api/auth/login', {
       phone: '8888888888',
       password: newPassword,
       role: 'customer'
@@ -117,7 +117,7 @@ async function run() {
     console.log('Cleanup complete. All tests passed successfully!');
 
   } catch (err) {
-    console.error('❌ Test failed:', err);
+    console.error('❌ Test failed:', err.message);
     // Cleanup on error
     await supabase.from('users').delete().eq('phone', phone);
     await supabase.from('users').delete().eq('phone', '8888888888');

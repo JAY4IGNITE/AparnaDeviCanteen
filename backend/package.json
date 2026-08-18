@@ -1,7 +1,7 @@
 {
-  "name": "aparnadevicanteen-backend",
+  "name": "foodnest-backend",
   "version": "1.0.0",
-  "description": "AparnaDeviCanteen Hostel Canteen Backend API",
+  "description": "FoodNest Hostel Canteen Backend API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

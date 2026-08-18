@@ -1,7 +1,7 @@
 {
-  "name": "aparnadevicanteen-root",
+  "name": "foodnest-root",
   "version": "1.0.0",
-  "description": "AparnaDeviCanteen Hostel Canteen Root Project",
+  "description": "FoodNest Hostel Canteen Root Project",
   "scripts": {
     "backend": "npm run dev --prefix backend",
     "frontend": "npm run dev --prefix frontend",

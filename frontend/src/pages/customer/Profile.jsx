@@ -48,21 +48,8 @@ const Profile = () => {
     setSuccess('');
     setLoading(true);
 
-    // Validate phone number format (exactly 10 digits, optionally starting with country code/spaces)
-    const cleanPhone = profileData.phone.replace(/\D/g, '');
-    let finalPhone = cleanPhone;
-    if (cleanPhone.length === 12 && cleanPhone.startsWith('91')) {
-      finalPhone = cleanPhone.slice(2);
-    }
-    const phoneRegex = /^[6-9]\d{9}$/;
-    if (!phoneRegex.test(finalPhone)) {
-      setError('Please enter a valid 10-digit phone number');
-      setLoading(false);
-      return;
-    }
-
     try {
-      const res = await axios.put('/auth/profile', { ...profileData, phone: finalPhone });
+      const res = await axios.put('/auth/profile', profileData);
       if (res.data.success) {
         updateUser(res.data.user);
         setSuccess('Profile details updated successfully!');

@@ -622,4 +622,106 @@ router.delete('/announcements', async (req, res, next) => {
   }
 });
 
+// ============== COUNTER SALES ==============
+
+// POST /api/admin/counter-sales — Record a counter sale
+router.post('/counter-sales', async (req, res, next) => {
+  try {
+    const { items } = req.body;
+
+    if (!items || items.length === 0) {
+      return res.status(400).json({ success: false, message: 'No items in order' });
+    }
+
+    // Calculate total amount
+    let totalAmount = 0;
+    for (const item of items) {
+      const qty = parseInt(item.quantity) || 0;
+      if (qty <= 0) continue;
+      totalAmount += Number(item.price) * qty;
+    }
+
+    if (totalAmount <= 0) {
+      return res.status(400).json({ success: false, message: 'Total amount must be greater than 0' });
+    }
+
+    // Insert the counter order
+    const { data: order, error: orderError } = await supabase
+      .from('counter_orders')
+      .insert({ total_amount: totalAmount })
+      .select()
+      .single();
+
+    if (orderError) throw orderError;
+
+    // Insert counter order items
+    const itemsToInsert = items
+      .filter(i => (parseInt(i.quantity) || 0) > 0)
+      .map(i => ({
+        counter_order_id: order.id,
+        item_name: i.name,
+        price: Number(i.price),
+        quantity: parseInt(i.quantity)
+      }));
+
+    const { error: itemsError } = await supabase
+      .from('counter_order_items')
+      .insert(itemsToInsert);
+
+    if (itemsError) throw itemsError;
+
+    res.status(201).json({ success: true, message: 'Counter sale recorded successfully', data: order });
+
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/admin/counter-sales/stats — Get cumulative counter sales statistics
+router.get('/counter-sales/stats', async (req, res, next) => {
+  try {
+    // Fetch all counter order items
+    const { data: items, error } = await supabase
+      .from('counter_order_items')
+      .select('item_name, price, quantity');
+
+    if (error) throw error;
+
+    // Aggregate statistics in JS
+    const statsMap = {};
+    let grandTotalRevenue = 0;
+
+    for (const item of (items || [])) {
+      const qty = parseInt(item.quantity) || 0;
+      const price = Number(item.price) || 0;
+      const revenue = price * qty;
+
+      if (!statsMap[item.item_name]) {
+        statsMap[item.item_name] = {
+          itemName: item.item_name,
+          price: price, // Store the unit price
+          totalUnits: 0,
+          totalRevenue: 0
+        };
+      }
+      statsMap[item.item_name].totalUnits += qty;
+      statsMap[item.item_name].totalRevenue += revenue;
+      grandTotalRevenue += revenue;
+    }
+
+    const aggregatedList = Object.values(statsMap).sort((a, b) => b.totalUnits - a.totalUnits);
+
+    res.json({
+      success: true,
+      data: {
+        items: aggregatedList,
+        grandTotalRevenue: grandTotalRevenue
+      }
+    });
+
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

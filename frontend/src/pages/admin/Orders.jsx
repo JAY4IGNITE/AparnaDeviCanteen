@@ -210,7 +210,7 @@ const AdminOrders = () => {
                   </td>
                   <td data-label="Date" style={{ fontSize: '0.85rem' }}>{formatDate(order.created_at)}</td>
                   <td data-label="Action">
-                    <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', flexWrap: 'nowrap', whiteSpace: 'nowrap' }}>
                       {order.status === 'Pending' ? (
                         <MotionButton className="btn btn-success btn-sm" onClick={() => updateStatus(order.id, 'Completed')} title="Mark as Completed">
                           <CheckCircle size={14} />

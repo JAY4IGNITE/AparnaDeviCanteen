@@ -9,7 +9,7 @@
 INSERT INTO users (name, email, password, role)
 VALUES (
   'Admin',
-  'admin@foodnest.com',
+  'admin@aparnacanteen.com',
   '$2a$10$wENhaDdwQkz50K4rc9yKXO5okCTNcbnOZvLNyU8xb9LFjUeC0VWWe', -- bcrypt of 'Admin@1508'
   'admin'
 )

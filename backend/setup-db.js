@@ -36,7 +36,7 @@ const run = async () => {
     console.log('✅ Admin user seeded!\n');
 
     console.log('🎉 Database setup complete!');
-    console.log('   Admin email:    admin@foodnest.com');
+    console.log('   Admin email:    admin@aparnacanteen.com');
     console.log('   Admin password: Admin@1508');
     console.log('   ⚠️  Change the password after first login!');
 

@@ -2,7 +2,7 @@ const supabase = require('./db');
 const bcrypt = require('bcryptjs');
 
 async function testPerformance() {
-  const email = 'admin@foodnest.com';
+  const email = 'admin@aparnacanteen.com';
   const password = 'Admin@1508';
 
   console.log('--- Phase 1: Testing Supabase User Query ---');

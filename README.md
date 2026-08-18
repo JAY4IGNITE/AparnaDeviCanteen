@@ -67,7 +67,7 @@ cd backend
 # Run migration schema and seeds
 DATABASE_URL="your-supabase-connection-string" node setup-db.js
 ```
-- **Admin login:** `admin@foodnest.com`
+- **Admin login:** `admin@aparnacanteen.com`
 - **Admin password:** `Admin@1508`
 
 ### 2. Run the App Locally

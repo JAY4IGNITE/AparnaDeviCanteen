@@ -35,7 +35,7 @@ async function run() {
   for (let i = 1; i <= 5; i++) {
     try {
       const duration = await post('http://localhost:5000/api/auth/login', {
-        email: 'admin@foodnest.com',
+        email: 'admin@aparnacanteen.com',
         password: 'Admin@1508',
         role: 'admin'
       });

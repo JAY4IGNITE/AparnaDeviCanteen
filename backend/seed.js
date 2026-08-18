@@ -22,7 +22,7 @@ const seedAdmin = async () => {
 
     const { error } = await supabase.from('users').insert({
       name: 'Admin',
-      email: 'admin@foodnest.com',
+      email: 'admin@aparnacanteen.com',
       password: hashedPassword,
       role: 'admin'
     });
@@ -33,7 +33,7 @@ const seedAdmin = async () => {
     }
 
     console.log('✅ Admin account created:');
-    console.log('   Email: admin@foodnest.com');
+    console.log('   Email: admin@aparnacanteen.com');
     console.log('   Password: Admin@1508');
     console.log('   ⚠️  Change the password after first login!');
 

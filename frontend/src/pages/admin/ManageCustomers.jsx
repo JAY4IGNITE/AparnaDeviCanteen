@@ -18,7 +18,11 @@ const ManageCustomers = () => {
       const res = await axios.get('/admin/customers');
       setCustomers(res.data.data);
     } catch (err) {
-      setMessage({ type: 'error', text: 'Failed to load customers list' });
+      console.error('Failed to load customers:', err);
+      setMessage({ 
+        type: 'error', 
+        text: err.response?.data?.message || 'Failed to load customers list' 
+      });
     } finally {
       setLoading(false);
     }

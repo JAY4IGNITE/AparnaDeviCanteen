@@ -5,7 +5,7 @@ services:
     env: node
     plan: free
     buildCommand: npm install && npm run install-all && npm run build --prefix frontend
-    startCommand: node backend/server.js
+    startCommand: npm run start-prod
     envVars:
       - key: SUPABASE_URL
         sync: false # Render will prompt you for this value during deployment

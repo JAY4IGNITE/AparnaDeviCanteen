@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Download, CheckCircle, Clock, Package, Phone, Trash2, Search, X } from 'lucide-react';
+import PageHeader from '../../components/ui/PageHeader';
+import EmptyState from '../../components/ui/EmptyState';
+import LoadingState from '../../components/ui/LoadingState';
+import MotionButton from '../../components/ui/MotionButton';
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -72,102 +76,83 @@ const AdminOrders = () => {
     });
   };
 
+  const q = searchQuery.toLowerCase();
+  const filtered = orders.filter(order => {
+    const matchesBlock = !blockFilter || order.customer?.hostel_block === blockFilter;
+    const matchesOrderId = !orderIdFilter || String(order.order_number) === orderIdFilter.trim();
+    const matchesSearch = !q ||
+      (order.customer?.name || '').toLowerCase().includes(q) ||
+      String(order.order_number).includes(q) ||
+      (order.id || '').toLowerCase().includes(q) ||
+      (order.customer?.phone || '').includes(q) ||
+      (order.customer?.hostel_block || '').toLowerCase().includes(q) ||
+      (order.status || '').toLowerCase().includes(q) ||
+      String(order.total_amount).includes(q) ||
+      (order.order_items || []).some(i => i.item_name.toLowerCase().includes(q));
+    return matchesBlock && matchesOrderId && matchesSearch;
+  });
+  const sorted = [...filtered].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
   if (loading) {
-    return <div className="loading-spinner"><div className="spinner"></div></div>;
+    return <LoadingState />;
   }
 
   return (
     <div>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1>Orders</h1>
-          <p>View and manage all customer orders</p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <button className="btn btn-secondary" onClick={downloadExcel} id="download-excel">
-            <Download size={18} /> Download Excel
-          </button>
-          <button className="btn btn-ghost" onClick={clearAllOrders} id="clear-all-orders" style={{ color: 'var(--danger)', borderColor: 'rgba(239,68,68,0.3)' }}>
-            <Trash2 size={18} /> Clear All Orders
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Orders"
+        subtitle="View and manage all customer orders"
+        actions={
+          <>
+            <MotionButton className="btn btn-secondary" onClick={downloadExcel} id="download-excel">
+              <Download size={18} /> Download Excel
+            </MotionButton>
+            <MotionButton className="btn btn-ghost" onClick={clearAllOrders} id="clear-all-orders" style={{ color: 'var(--danger)', borderColor: 'rgba(239,68,68,0.3)' }}>
+              <Trash2 size={18} /> Clear All Orders
+            </MotionButton>
+          </>
+        }
+      />
 
-      {/* Filters */}
-      <div className="date-picker-row">
-        <div className="form-group" style={{ margin: 0 }}>
+      <div className="filter-bar">
+        <div className="form-group">
           <label className="form-label">Start Date</label>
-          <input
-            type="date"
-            className="form-input"
-            value={startDateFilter}
-            onChange={(e) => setStartDateFilter(e.target.value)}
-            id="order-start-date-filter"
-          />
+          <input type="date" className="form-input" value={startDateFilter} onChange={(e) => setStartDateFilter(e.target.value)} id="order-start-date-filter" />
         </div>
-        <div className="form-group" style={{ margin: 0 }}>
+        <div className="form-group">
           <label className="form-label">End Date</label>
-          <input
-            type="date"
-            className="form-input"
-            value={endDateFilter}
-            onChange={(e) => setEndDateFilter(e.target.value)}
-            id="order-end-date-filter"
-          />
+          <input type="date" className="form-input" value={endDateFilter} onChange={(e) => setEndDateFilter(e.target.value)} id="order-end-date-filter" />
         </div>
-        <div className="form-group" style={{ margin: 0 }}>
+        <div className="form-group">
           <label className="form-label">Filter by Status</label>
-          <select
-            className="form-input"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            id="order-status-filter"
-          >
+          <select className="form-input" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} id="order-status-filter">
             <option value="">All</option>
             <option value="Pending">Pending</option>
             <option value="Completed">Completed</option>
             <option value="Cancelled">Cancelled</option>
           </select>
         </div>
-        <div className="form-group" style={{ margin: 0 }}>
+        <div className="form-group">
           <label className="form-label">Filter by Block</label>
-          <select
-            className="form-input"
-            value={blockFilter}
-            onChange={(e) => setBlockFilter(e.target.value)}
-            id="order-block-filter"
-          >
+          <select className="form-input" value={blockFilter} onChange={(e) => setBlockFilter(e.target.value)} id="order-block-filter">
             <option value="">All Blocks</option>
             <option value="F Block">F Block</option>
             <option value="Other">Other</option>
           </select>
         </div>
-        <div className="form-group" style={{ margin: 0 }}>
+        <div className="form-group">
           <label className="form-label">Filter by Order ID</label>
-          <input
-            type="text"
-            className="form-input"
-            placeholder="e.g. 1"
-            value={orderIdFilter}
-            onChange={(e) => setOrderIdFilter(e.target.value)}
-            id="order-id-filter"
-            style={{ width: '120px' }}
-          />
+          <input type="text" className="form-input" placeholder="e.g. 1" value={orderIdFilter} onChange={(e) => setOrderIdFilter(e.target.value)} id="order-id-filter" style={{ width: '120px' }} />
         </div>
         {(startDateFilter || endDateFilter || statusFilter || blockFilter || orderIdFilter || searchQuery) && (
-          <button
-            className="btn btn-ghost btn-sm"
-            onClick={() => { setStartDateFilter(''); setEndDateFilter(''); setStatusFilter(''); setBlockFilter(''); setOrderIdFilter(''); setSearchQuery(''); }}
-            style={{ marginTop: 'auto' }}
-          >
+          <MotionButton className="btn btn-ghost btn-sm" onClick={() => { setStartDateFilter(''); setEndDateFilter(''); setStatusFilter(''); setBlockFilter(''); setOrderIdFilter(''); setSearchQuery(''); }}>
             Clear Filters
-          </button>
+          </MotionButton>
         )}
       </div>
 
-      {/* Universal Search */}
-      <div style={{ marginBottom: '1rem', position: 'relative' }}>
-        <Search size={16} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+      <div className="search-bar">
+        <Search size={16} className="search-bar-icon" />
         <input
           type="text"
           className="form-input"
@@ -175,45 +160,20 @@ const AdminOrders = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           id="order-universal-search"
-          style={{ paddingLeft: '2.5rem', paddingRight: searchQuery ? '2.5rem' : '1rem' }}
+          style={{ paddingRight: searchQuery ? '2.5rem' : '1rem' }}
         />
         {searchQuery && (
-          <button
-            type="button"
-            onClick={() => setSearchQuery('')}
-            style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
-          >
+          <button type="button" className="search-bar-clear" onClick={() => setSearchQuery('')}>
             <X size={16} />
           </button>
         )}
       </div>
 
-      {(() => {
-        const q = searchQuery.toLowerCase();
-        const filtered = orders.filter(order => {
-          const matchesBlock = !blockFilter || order.customer?.hostel_block === blockFilter;
-          const matchesOrderId = !orderIdFilter || String(order.order_number) === orderIdFilter.trim();
-          const matchesSearch = !q ||
-            (order.customer?.name || '').toLowerCase().includes(q) ||
-            String(order.order_number).includes(q) ||
-            (order.id || '').toLowerCase().includes(q) ||
-            (order.customer?.phone || '').includes(q) ||
-            (order.customer?.hostel_block || '').toLowerCase().includes(q) ||
-            (order.status || '').toLowerCase().includes(q) ||
-            String(order.total_amount).includes(q) ||
-            (order.order_items || []).some(i => i.item_name.toLowerCase().includes(q));
-          return matchesBlock && matchesOrderId && matchesSearch;
-        });
-        const sorted = [...filtered].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        return sorted.length === 0 ? (
-        <div className="empty-state">
-          <Package size={64} />
-          <h3>No orders found</h3>
-          <p>Try adjusting your filters.</p>
-        </div>
-        ) : (
+      {sorted.length === 0 ? (
+        <EmptyState icon={Package} title="No orders found" description="Try adjusting your filters." />
+      ) : (
         <div className="table-wrapper">
-          <table className="table">
+          <table className="table table-responsive-cards">
             <thead>
               <tr>
                 <th>Order ID</th>
@@ -228,81 +188,61 @@ const AdminOrders = () => {
               </tr>
             </thead>
             <tbody>
-              {sorted.map((order, index) => (
-                  <tr key={order.id}>
-                    <td style={{ fontWeight: 700, color: 'var(--primary-400)', fontFamily: 'monospace' }} title={`Full ID: ${order.id}`}>
-                      #{order.order_number}
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 400, marginTop: '0.15rem' }}>
-                        {order.id.substring(0, 8)}
-                      </div>
-                    </td>
-                    <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                      {order.customer?.name || 'N/A'}
-                    </td>
-                    <td>{order.customer?.phone || 'N/A'}</td>
-                    <td>{order.customer?.hostel_block || '—'}</td>
-                    <td style={{ maxWidth: '200px' }}>
-                      {(order.order_items || []).map(i => `${i.item_name}×${i.quantity}`).join(', ')}
-                    </td>
-                    <td style={{ color: 'var(--primary-400)', fontWeight: 600 }}>₹{order.total_amount}</td>
-                    <td>
-                      <span className={`badge badge-${order.status.toLowerCase()}`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td style={{ fontSize: '0.85rem' }}>{formatDate(order.created_at)}</td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                        {order.status === 'Pending' ? (
-                          <button
-                            className="btn btn-success btn-sm"
-                            onClick={() => updateStatus(order.id, 'Completed')}
-                            title="Mark as Completed"
-                          >
-                            <CheckCircle size={14} />
-                          </button>
-                        ) : (
-                          <button
-                            className="btn btn-ghost btn-sm"
-                            onClick={() => updateStatus(order.id, 'Pending')}
-                            title="Revert to Pending"
-                          >
-                            <Clock size={14} />
-                          </button>
-                        )}
-                        {order.status !== 'Cancelled' && (
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={() => {
-                              if (window.confirm('Are you sure?')) {
-                                updateStatus(order.id, 'Cancelled');
-                              }
-                            }}
-                            title="Cancel (Delete) Order"
-                            id={`delete-order-${order.id}`}
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        )}
-                        {order.customer?.phone && (
-                          <a
-                            href={`tel:${order.customer.phone}`}
-                            className="btn btn-secondary btn-sm"
-                            title={`Call ${order.customer?.name}`}
-                            style={{ color: 'var(--success)' }}
-                          >
-                            <Phone size={14} />
-                          </a>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
+              {sorted.map((order) => (
+                <tr key={order.id}>
+                  <td data-label="Order ID" style={{ fontWeight: 700, color: 'var(--primary-400)', fontFamily: 'monospace' }} title={`Full ID: ${order.id}`}>
+                    #{order.order_number}
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 400, marginTop: '0.15rem' }}>
+                      {order.id.substring(0, 8)}
+                    </div>
+                  </td>
+                  <td data-label="Customer" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                    {order.customer?.name || 'N/A'}
+                  </td>
+                  <td data-label="Phone">{order.customer?.phone || 'N/A'}</td>
+                  <td data-label="Block">{order.customer?.hostel_block || '—'}</td>
+                  <td data-label="Items" style={{ maxWidth: '200px' }}>
+                    {(order.order_items || []).map(i => `${i.item_name}×${i.quantity}`).join(', ')}
+                  </td>
+                  <td data-label="Total" style={{ color: 'var(--primary-400)', fontWeight: 600 }}>₹{order.total_amount}</td>
+                  <td data-label="Status">
+                    <span className={`badge badge-${order.status.toLowerCase()}`}>{order.status}</span>
+                  </td>
+                  <td data-label="Date" style={{ fontSize: '0.85rem' }}>{formatDate(order.created_at)}</td>
+                  <td data-label="Action">
+                    <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                      {order.status === 'Pending' ? (
+                        <MotionButton className="btn btn-success btn-sm" onClick={() => updateStatus(order.id, 'Completed')} title="Mark as Completed">
+                          <CheckCircle size={14} />
+                        </MotionButton>
+                      ) : (
+                        <MotionButton className="btn btn-ghost btn-sm" onClick={() => updateStatus(order.id, 'Pending')} title="Revert to Pending">
+                          <Clock size={14} />
+                        </MotionButton>
+                      )}
+                      {order.status !== 'Cancelled' && (
+                        <MotionButton
+                          className="btn btn-danger btn-sm"
+                          onClick={() => { if (window.confirm('Are you sure?')) updateStatus(order.id, 'Cancelled'); }}
+                          title="Cancel (Delete) Order"
+                          id={`delete-order-${order.id}`}
+                        >
+                          <Trash2 size={14} />
+                        </MotionButton>
+                      )}
+                      {order.customer?.phone && (
+                        <a href={`tel:${order.customer.phone}`} className="btn btn-secondary btn-sm" title={`Call ${order.customer?.name}`} style={{ color: 'var(--success)' }}>
+                          <Phone size={14} />
+                        </a>
+                      )}
+                    </div>
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>
         </div>
-        );
-      })()}
+      )}
     </div>
   );
 };

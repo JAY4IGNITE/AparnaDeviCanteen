@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { LogIn, Phone, Mail, Lock, AlertCircle, Eye, EyeOff, MessageCircle } from 'lucide-react';
+import AnimatedTabs from '../components/ui/AnimatedTabs';
+import MotionButton from '../components/ui/MotionButton';
+import AlertBanner from '../components/ui/AlertBanner';
+import { useMotionSafe } from '../lib/motion';
 
 const Login = () => {
   const [activeTab, setActiveTab] = useState('customer');
@@ -11,6 +16,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { transition } = useMotionSafe();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -50,49 +56,50 @@ const Login = () => {
 
   return (
     <div className="auth-page">
-      <div className="auth-container">
+      <motion.div
+        className="auth-container"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={transition}
+      >
         <div className="auth-card">
           <div className="auth-header">
-            <div className="auth-logo">
-              <img src="/favicon.jpg" alt="Logo" style={{ width: '100%', height: '100%', borderRadius: 'inherit', objectFit: 'cover' }} />
-            </div>
+            <motion.div
+              className="auth-logo"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ ...transition, delay: 0.1 }}
+            >
+              <img src="/favicon.jpg" alt="Logo" className="sidebar-logo-img" />
+            </motion.div>
             <h1 className="auth-title">AparnaCanteen</h1>
             <p className="auth-subtitle">Welcome back</p>
           </div>
 
-          <div className="auth-tabs">
-            <button
-              className={`auth-tab ${activeTab === 'customer' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('customer'); setError(''); }}
-            >
-              Customer
-            </button>
-            <button
-              className={`auth-tab ${activeTab === 'admin' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('admin'); setError(''); }}
-            >
-              Admin
-            </button>
-          </div>
+          <AnimatedTabs
+            tabs={[
+              { id: 'customer', label: 'Customer' },
+              { id: 'admin', label: 'Admin' },
+            ]}
+            activeTab={activeTab}
+            onChange={(id) => { setActiveTab(id); setError(''); }}
+          />
 
-          {error && (
-            <div className="alert alert-error">
-              <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />
-              {error}
-            </div>
-          )}
+          <AlertBanner type="error" show={!!error}>
+            <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />
+            {error}
+          </AlertBanner>
 
           <form onSubmit={handleSubmit}>
             {activeTab === 'customer' ? (
               <div className="form-group">
                 <label className="form-label">Phone Number</label>
-                <div style={{ position: 'relative' }}>
-                  <Phone size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <div className="auth-input-wrapper">
+                  <Phone size={18} className="auth-input-icon" />
                   <input
                     type="tel"
                     name="phone"
                     className="form-input"
-                    style={{ paddingLeft: '2.5rem' }}
                     placeholder="Enter your phone number"
                     value={formData.phone}
                     onChange={handleChange}
@@ -104,13 +111,12 @@ const Login = () => {
             ) : (
               <div className="form-group">
                 <label className="form-label">Email Address</label>
-                <div style={{ position: 'relative' }}>
-                  <Mail size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <div className="auth-input-wrapper">
+                  <Mail size={18} className="auth-input-icon" />
                   <input
                     type="email"
                     name="email"
                     className="form-input"
-                    style={{ paddingLeft: '2.5rem' }}
                     placeholder="Enter your email"
                     value={formData.email}
                     onChange={handleChange}
@@ -123,13 +129,12 @@ const Login = () => {
 
             <div className="form-group">
               <label className="form-label">Password</label>
-              <div style={{ position: 'relative' }}>
-                <Lock size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <div className="auth-input-wrapper">
+                <Lock size={18} className="auth-input-icon" />
                 <input
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   name="password"
-                  className="form-input"
-                  style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+                  className="form-input has-toggle"
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={handleChange}
@@ -138,71 +143,47 @@ const Login = () => {
                 />
                 <button
                   type="button"
+                  className="auth-toggle-password"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }} disabled={loading} id="login-submit">
-              {loading ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }}></div> : <><LogIn size={18} /> Sign In</>}
-            </button>
+            <MotionButton type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }} disabled={loading} id="login-submit">
+              {loading ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : <><LogIn size={18} /> Sign In</>}
+            </MotionButton>
           </form>
 
           <div className="auth-footer">
             <div>
               Don't have an account? <Link to="/register">Sign Up</Link>
             </div>
-            <div style={{ marginTop: '1.25rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
+            <div className="auth-contact-section">
               <p style={{ color: 'var(--text-secondary)', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
                 If any Password related queries contact to this number
               </p>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <div className="auth-contact-actions">
                 <span style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '1rem' }}>9989092333</span>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <a
-                    href="tel:9989092333"
-                    className="btn btn-secondary"
-                    style={{
-                      padding: '0.4rem 0.8rem',
-                      fontSize: '0.8rem',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.4rem',
-                      height: 'auto',
-                      borderRadius: 'var(--radius-md)',
-                      borderColor: 'var(--border-color)'
-                    }}
-                  >
-                    <Phone size={14} style={{ width: '14px', height: '14px' }} /> Call
+                  <a href="tel:9989092333" className="btn btn-secondary btn-sm">
+                    <Phone size={14} /> Call
                   </a>
                   <a
                     href="https://wa.me/919989092333"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn btn-secondary"
-                    style={{
-                      padding: '0.4rem 0.8rem',
-                      fontSize: '0.8rem',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.4rem',
-                      height: 'auto',
-                      borderColor: '#25D366',
-                      color: '#25D366',
-                      borderRadius: 'var(--radius-md)'
-                    }}
+                    className="btn btn-secondary btn-sm btn-whatsapp"
                   >
-                    <MessageCircle size={14} style={{ width: '14px', height: '14px' }} /> WhatsApp
+                    <MessageCircle size={14} /> WhatsApp
                   </a>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

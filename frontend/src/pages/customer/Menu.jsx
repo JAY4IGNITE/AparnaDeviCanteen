@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { motion } from 'motion/react';
 import { ShoppingCart, Plus, Minus, X, CheckCircle, AlertCircle, Package } from 'lucide-react';
+import PageHeader from '../../components/ui/PageHeader';
+import AnimatedModal from '../../components/ui/AnimatedModal';
+import AlertBanner from '../../components/ui/AlertBanner';
+import EmptyState from '../../components/ui/EmptyState';
+import LoadingState from '../../components/ui/LoadingState';
+import MotionButton from '../../components/ui/MotionButton';
+import { staggerContainer, fadeUp } from '../../lib/motion';
 
 const MenuPage = () => {
   const [menuItems, setMenuItems] = useState([]);
@@ -75,55 +83,55 @@ const MenuPage = () => {
   };
 
   if (loading) {
-    return <div className="loading-spinner"><div className="spinner"></div></div>;
+    return <LoadingState />;
   }
+
+  const categories = Object.entries(
+    menuItems.reduce((acc, item) => {
+      const cat = item.category || 'General';
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(item);
+      return acc;
+    }, {})
+  );
 
   return (
     <div>
-      <div className="page-header">
-        <h1>Menu</h1>
-        <p>Browse items and add to your cart</p>
-      </div>
+      <PageHeader title="Menu" subtitle="Browse items and add to your cart" />
 
-      {message.text && (
-        <div className={`alert alert-${message.type}`}>
-          {message.type === 'success' ? <CheckCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} /> : <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />}
-          {message.text}
-        </div>
-      )}
+      <AlertBanner type={message.type} show={!!message.text}>
+        {message.type === 'success' ? <CheckCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} /> : <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />}
+        {message.text}
+      </AlertBanner>
 
       {menuItems.length === 0 ? (
-        <div className="empty-state">
-          <Package size={64} />
-          <h3>No items available</h3>
-          <p>Check back later for new menu items.</p>
-        </div>
+        <EmptyState icon={Package} title="No items available" description="Check back later for new menu items." />
       ) : (
         <div className="menu-categories">
-          {Object.entries(
-            menuItems.reduce((acc, item) => {
-              const cat = item.category || 'General';
-              if (!acc[cat]) acc[cat] = [];
-              acc[cat].push(item);
-              return acc;
-            }, {})
-          ).map(([category, items]) => (
+          {categories.map(([category, items]) => (
             <div key={category} className="menu-category-section">
-              <h2 className="category-title" style={{ marginTop: '2rem', marginBottom: '1rem', borderBottom: '2px solid var(--border)', paddingBottom: '0.5rem', color: 'var(--primary-400)' }}>
-                {category}
-              </h2>
-              <div className="menu-grid">
-                {items.map(item => (
-                  <div className="menu-card" key={item.id}>
+              <h2 className="category-title">{category}</h2>
+              <motion.div
+                className="menu-grid"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
+                {items.map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    className="menu-card"
+                    variants={fadeUp}
+                    transition={{ delay: index * 0.04 }}
+                    whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                  >
                     <div className="menu-card-header">
                       <div>
                         <div className="menu-item-name" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div style={{
-                            width: '12px', height: '12px', borderRadius: '2px', flexShrink: 0,
-                            backgroundColor: item.is_veg !== false ? '#22c55e' : '#ef4444',
-                            border: '1px solid #fff',
-                            boxShadow: '0 0 0 1px ' + (item.is_veg !== false ? '#22c55e' : '#ef4444')
-                          }} title={item.is_veg !== false ? 'Veg' : 'Non-Veg'} />
+                          <span
+                            className={`veg-indicator ${item.is_veg !== false ? 'veg' : 'non-veg'}`}
+                            title={item.is_veg !== false ? 'Veg' : 'Non-Veg'}
+                          />
                           {item.item_name}
                         </div>
                         <div className="menu-item-category">{item.category || 'General'}</div>
@@ -134,97 +142,93 @@ const MenuPage = () => {
                     <div className="menu-card-actions">
                       {cart[item.id] ? (
                         <div className="quantity-control">
-                          <button className="quantity-btn" onClick={() => removeFromCart(item.id)} id={`decrease-${item.id}`}>
+                          <MotionButton className="quantity-btn" onClick={() => removeFromCart(item.id)} id={`decrease-${item.id}`}>
                             <Minus size={16} />
-                          </button>
+                          </MotionButton>
                           <span className="quantity-value">{cart[item.id].quantity}</span>
-                          <button className="quantity-btn" onClick={() => addToCart(item)} id={`increase-${item.id}`}>
+                          <MotionButton className="quantity-btn" onClick={() => addToCart(item)} id={`increase-${item.id}`}>
                             <Plus size={16} />
-                          </button>
+                          </MotionButton>
                         </div>
                       ) : (
-                        <button className="btn btn-primary btn-sm" onClick={() => addToCart(item)} id={`add-${item.id}`}>
+                        <MotionButton className="btn btn-primary btn-sm" onClick={() => addToCart(item)} id={`add-${item.id}`}>
                           <Plus size={16} /> Add
-                        </button>
+                        </MotionButton>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Floating Cart Button */}
       {getCartCount() > 0 && (
-        <div className="cart-float">
-          <button className="cart-btn" onClick={() => setShowCart(true)} id="open-cart">
+        <motion.div
+          className="cart-float"
+          initial={{ opacity: 0, y: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20 }}
+        >
+          <MotionButton className="cart-btn" onClick={() => setShowCart(true)} id="open-cart">
             <ShoppingCart size={22} />
             View Cart
             <span className="cart-badge">{getCartCount()}</span>
+          </MotionButton>
+        </motion.div>
+      )}
+
+      <AnimatedModal open={showCart} onClose={() => setShowCart(false)}>
+        <div className="modal-header">
+          <h3>Your Cart</h3>
+          <button className="btn btn-ghost" onClick={() => setShowCart(false)} id="close-cart">
+            <X size={22} />
           </button>
         </div>
-      )}
 
-      {/* Cart Modal */}
-      {showCart && (
-        <div className="modal-overlay" onClick={() => setShowCart(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Your Cart</h3>
-              <button className="btn btn-ghost" onClick={() => setShowCart(false)} id="close-cart">
-                <X size={22} />
-              </button>
-            </div>
-
-            <div className="modal-body">
-              {Object.values(cart).length === 0 ? (
-                <div className="empty-state">
-                  <ShoppingCart size={48} />
-                  <p>Your cart is empty</p>
-                </div>
-              ) : (
-                <>
-                  {Object.values(cart).map(item => (
-                    <div className="cart-item" key={item.id}>
-                      <div className="cart-item-info">
-                        <h4>{item.item_name}</h4>
-                        <p>₹{item.price} × {item.quantity}</p>
-                      </div>
-                      <div className="quantity-control">
-                        <button className="quantity-btn" onClick={() => removeFromCart(item.id)}>
-                          <Minus size={14} />
-                        </button>
-                        <span className="quantity-value">{item.quantity}</span>
-                        <button className="quantity-btn" onClick={() => addToCart(item)}>
-                          <Plus size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-
-                  <div className="cart-total">
-                    <span className="cart-total-label">Total</span>
-                    <span className="cart-total-value">₹{getCartTotal()}</span>
+        <div className="modal-body">
+          {Object.values(cart).length === 0 ? (
+            <EmptyState icon={ShoppingCart} description="Your cart is empty" />
+          ) : (
+            <>
+              {Object.values(cart).map(item => (
+                <div className="cart-item" key={item.id}>
+                  <div className="cart-item-info">
+                    <h4>{item.item_name}</h4>
+                    <p>₹{item.price} × {item.quantity}</p>
                   </div>
-                </>
-              )}
-            </div>
+                  <div className="quantity-control">
+                    <MotionButton className="quantity-btn" onClick={() => removeFromCart(item.id)}>
+                      <Minus size={14} />
+                    </MotionButton>
+                    <span className="quantity-value">{item.quantity}</span>
+                    <MotionButton className="quantity-btn" onClick={() => addToCart(item)}>
+                      <Plus size={14} />
+                    </MotionButton>
+                  </div>
+                </div>
+              ))}
 
-            {Object.values(cart).length > 0 && (
-              <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={() => setCart({})} id="clear-cart">
-                  Clear Cart
-                </button>
-                <button className="btn btn-primary" onClick={placeOrder} disabled={orderLoading} id="place-order">
-                  {orderLoading ? <div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }}></div> : 'Place Order'}
-                </button>
+              <div className="cart-total">
+                <span className="cart-total-label">Total</span>
+                <span className="cart-total-value">₹{getCartTotal()}</span>
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
-      )}
+
+        {Object.values(cart).length > 0 && (
+          <div className="modal-footer">
+            <MotionButton className="btn btn-secondary" onClick={() => setCart({})} id="clear-cart">
+              Clear Cart
+            </MotionButton>
+            <MotionButton className="btn btn-primary" onClick={placeOrder} disabled={orderLoading} id="place-order">
+              {orderLoading ? <div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> : 'Place Order'}
+            </MotionButton>
+          </div>
+        )}
+      </AnimatedModal>
     </div>
   );
 };

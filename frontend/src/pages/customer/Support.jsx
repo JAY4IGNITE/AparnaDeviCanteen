@@ -1,4 +1,7 @@
 import { Phone, MessageCircle } from 'lucide-react';
+import { motion } from 'motion/react';
+import PageHeader from '../../components/ui/PageHeader';
+import { fadeUp } from '../../lib/motion';
 
 const Support = () => {
   const contacts = [
@@ -8,38 +11,40 @@ const Support = () => {
 
   return (
     <div>
-      <div className="page-header">
-        <h1>Help & Support</h1>
-        <p>Contact us for any issues or queries</p>
-      </div>
+      <PageHeader title="Help & Support" subtitle="Contact us for any issues or queries" />
 
-      <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '600px', marginTop: '2rem' }}>
+      <div className="support-grid">
         {contacts.map((contact, idx) => (
-          <div className="card-static" key={idx} style={{ padding: '1.5rem' }}>
-            <h3 style={{ marginBottom: '0.5rem', color: 'var(--primary-400)' }}>{contact.title}</h3>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+          <motion.div
+            key={idx}
+            className="card-static support-card"
+            initial={fadeUp.initial}
+            animate={fadeUp.animate}
+            transition={{ delay: idx * 0.08 }}
+            whileHover={{ y: -2, borderColor: 'rgba(249, 115, 22, 0.25)' }}
+          >
+            <h3 className="support-card-title">{contact.title}</h3>
+            <p className="support-card-desc">
               Reach out to the {contact.name.toLowerCase()} directly via phone call or WhatsApp.
             </p>
 
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <a 
-                href={`tel:+91${contact.number}`} 
+            <div className="support-actions">
+              <a
+                href={`tel:+91${contact.number}`}
                 className="btn btn-primary"
-                style={{ flex: 1, display: 'flex', justifyContent: 'center' }}
               >
                 <Phone size={18} /> Call +91 {contact.number}
               </a>
-              <a 
-                href={`https://wa.me/91${contact.number}`} 
-                target="_blank" 
+              <a
+                href={`https://wa.me/91${contact.number}`}
+                target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-secondary"
-                style={{ flex: 1, display: 'flex', justifyContent: 'center', borderColor: '#25D366', color: '#25D366' }}
+                className="btn btn-secondary btn-whatsapp"
               >
                 <MessageCircle size={18} /> WhatsApp
               </a>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>

@@ -1,15 +1,12 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import LoadingState from './ui/LoadingState';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { isAuthenticated, isAdmin, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="loading-spinner">
-        <div className="spinner"></div>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   if (!isAuthenticated) {

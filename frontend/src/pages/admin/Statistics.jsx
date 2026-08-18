@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { Calendar, BarChart3, Package } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Calendar } from 'lucide-react';
+import PageHeader from '../../components/ui/PageHeader';
+import LoadingState from '../../components/ui/LoadingState';
+import MotionButton from '../../components/ui/MotionButton';
 
 const Statistics = () => {
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
@@ -28,55 +32,39 @@ const Statistics = () => {
 
   return (
     <div>
-      <div className="page-header">
-        <h1>Item Statistics</h1>
-        <p>Analyze quantity ordered for each menu item over a date range</p>
-      </div>
+      <PageHeader title="Item Statistics" subtitle="Analyze quantity ordered for each menu item over a date range" />
 
-      <div className="date-picker-row">
-        <div className="form-group" style={{ margin: 0 }}>
+      <div className="filter-bar">
+        <div className="form-group">
           <label className="form-label">Start Date</label>
-          <input
-            type="date"
-            className="form-input"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            id="stats-start-date"
-          />
+          <input type="date" className="form-input" value={startDate} onChange={(e) => setStartDate(e.target.value)} id="stats-start-date" />
         </div>
-        <div className="form-group" style={{ margin: 0 }}>
+        <div className="form-group">
           <label className="form-label">End Date</label>
-          <input
-            type="date"
-            className="form-input"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            id="stats-end-date"
-          />
+          <input type="date" className="form-input" value={endDate} onChange={(e) => setEndDate(e.target.value)} id="stats-end-date" />
         </div>
-        <div className="form-group" style={{ margin: 0 }}>
+        <div className="form-group">
           <label className="form-label">Filter by Block</label>
-          <select
-            className="form-input"
-            value={block}
-            onChange={(e) => setBlock(e.target.value)}
-            id="stats-block"
-          >
+          <select className="form-input" value={block} onChange={(e) => setBlock(e.target.value)} id="stats-block">
             <option value="">All Blocks</option>
             <option value="F Block">F Block</option>
             <option value="Other">Other</option>
           </select>
         </div>
-        <button className="btn btn-primary" onClick={fetchStats} style={{ marginTop: 'auto' }} id="get-stats">
+        <MotionButton className="btn btn-primary" onClick={fetchStats} id="get-stats">
           <Calendar size={18} /> Get Statistics
-        </button>
+        </MotionButton>
       </div>
 
-      {loading && <div className="loading-spinner"><div className="spinner"></div></div>}
+      {loading && <LoadingState />}
 
       {fetched && !loading && (
-        <div className="table-wrapper">
-          <table className="table">
+        <motion.div
+          className="table-wrapper"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <table className="table table-responsive-cards">
             <thead>
               <tr>
                 <th>Menu Item</th>
@@ -87,9 +75,9 @@ const Statistics = () => {
             <tbody>
               {items.map((item) => (
                 <tr key={item._id}>
-                  <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{item._id}</td>
-                  <td style={{ fontWeight: 600 }}>{item.totalQuantity} units</td>
-                  <td style={{ color: 'var(--success)', fontWeight: 600 }}>₹{item.totalRevenue}</td>
+                  <td data-label="Menu Item" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{item._id}</td>
+                  <td data-label="Quantity" style={{ fontWeight: 600 }}>{item.totalQuantity} units</td>
+                  <td data-label="Revenue" style={{ color: 'var(--success)', fontWeight: 600 }}>₹{item.totalRevenue}</td>
                 </tr>
               ))}
               {items.length === 0 && (
@@ -101,7 +89,7 @@ const Statistics = () => {
               )}
             </tbody>
           </table>
-        </div>
+        </motion.div>
       )}
     </div>
   );

@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ClipboardList, Package, XCircle } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Package, XCircle } from 'lucide-react';
+import PageHeader from '../../components/ui/PageHeader';
+import EmptyState from '../../components/ui/EmptyState';
+import LoadingState from '../../components/ui/LoadingState';
+import MotionButton from '../../components/ui/MotionButton';
+import { fadeUp } from '../../lib/motion';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -26,7 +32,6 @@ const Orders = () => {
     try {
       const res = await axios.put(`/orders/${orderId}/cancel`);
       if (res.data.success) {
-        // Refresh local orders list
         fetchOrders();
       }
     } catch (err) {
@@ -43,25 +48,25 @@ const Orders = () => {
   };
 
   if (loading) {
-    return <div className="loading-spinner"><div className="spinner"></div></div>;
+    return <LoadingState />;
   }
 
   return (
     <div>
-      <div className="page-header">
-        <h1>My Orders</h1>
-        <p>Track your past and current orders</p>
-      </div>
+      <PageHeader title="My Orders" subtitle="Track your past and current orders" />
 
       {orders.length === 0 ? (
-        <div className="empty-state">
-          <Package size={64} />
-          <h3>No orders yet</h3>
-          <p>Place your first order from the menu!</p>
-        </div>
+        <EmptyState icon={Package} title="No orders yet" description="Place your first order from the menu!" />
       ) : (
-        orders.map(order => (
-          <div className="order-card" key={order.id}>
+        orders.map((order, index) => (
+          <motion.div
+            key={order.id}
+            className="order-card"
+            initial={fadeUp.initial}
+            animate={fadeUp.animate}
+            transition={{ delay: index * 0.05 }}
+            whileHover={{ borderColor: 'rgba(249, 115, 22, 0.3)' }}
+          >
             <div className="order-header">
               <div>
                 <div className="order-id" title={`Full ID: ${order.id}`}>
@@ -95,17 +100,16 @@ const Orders = () => {
 
             {order.status === 'Pending' && (
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                <button
+                <MotionButton
                   className="btn btn-danger btn-sm"
                   onClick={() => cancelOrder(order.id)}
                   id={`cancel-order-${order.id}`}
-                  style={{ gap: '0.35rem' }}
                 >
                   <XCircle size={14} /> Cancel Order
-                </button>
+                </MotionButton>
               </div>
             )}
-          </div>
+          </motion.div>
         ))
       )}
     </div>

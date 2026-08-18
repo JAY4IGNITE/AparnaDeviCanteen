@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { Home, UtensilsCrossed, ClipboardList, User, HelpCircle, LogOut, Menu, X, Megaphone } from 'lucide-react';
+import { Home, UtensilsCrossed, ClipboardList, User, HelpCircle, Menu, X, Megaphone } from 'lucide-react';
+import AppSidebar from '../components/layout/AppSidebar';
+import PageTransition from '../components/ui/PageTransition';
 
 const CustomerLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -24,57 +27,32 @@ const CustomerLayout = () => {
 
   return (
     <div className="app-layout">
-      {/* Hamburger Button */}
-      <button className="hamburger-btn" onClick={() => setSidebarOpen(!sidebarOpen)} id="hamburger-toggle">
+      <motion.button
+        className="hamburger-btn"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        id="hamburger-toggle"
+        whileTap={{ scale: 0.95 }}
+      >
         {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
-      </button>
+      </motion.button>
 
-      {/* Sidebar Overlay */}
-      <div className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)} />
+      <AppSidebar
+        brand="AparnaCanteen"
+        navLinks={navLinks}
+        user={user}
+        userRole={user?.role}
+        onLogout={handleLogout}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        logoutId="logout-btn"
+      />
 
-      {/* Sidebar */}
-      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-header">
-          <div className="sidebar-logo">
-            <img src="/favicon.jpg" alt="Logo" style={{ width: '100%', height: '100%', borderRadius: 'inherit', objectFit: 'cover' }} />
-          </div>
-          <span className="sidebar-brand">AparnaCanteen</span>
-        </div>
-
-        <nav className="sidebar-nav">
-          {navLinks.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <link.icon size={20} />
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="sidebar-footer">
-          <div className="sidebar-user">
-            <div className="sidebar-avatar">
-              {user?.name?.charAt(0)?.toUpperCase() || 'C'}
-            </div>
-            <div className="sidebar-user-info">
-              <div className="sidebar-user-name">{user?.name || 'Customer'}</div>
-              <div className="sidebar-user-role">{user?.role}</div>
-            </div>
-          </div>
-          <button className="sidebar-link" onClick={handleLogout} style={{ marginTop: '0.5rem', color: 'var(--danger)' }} id="logout-btn">
-            <LogOut size={20} />
-            Logout
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content */}
       <main className="main-content">
-        <Outlet />
+        <PageTransition>
+          <div className="page-container">
+            <Outlet />
+          </div>
+        </PageTransition>
       </main>
     </div>
   );

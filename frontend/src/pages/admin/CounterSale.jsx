@@ -1,16 +1,19 @@
 import React from 'react';
+import { Store } from 'lucide-react';
+import PageHeader from '../../components/ui/PageHeader';
+import EmptyState from '../../components/ui/EmptyState';
 
 const CounterSale = () => {
   return (
     <div>
-      <div className="page-header">
-        <h1>Counter Sale</h1>
-        <p>Manage and place direct counter sales</p>
-      </div>
-      <div className="card">
-        <p style={{ color: 'var(--text-secondary)' }}>
-          Counter sale interface will be implemented here.
-        </p>
+      <PageHeader title="Counter Sale" subtitle="Manage and place direct counter sales" />
+
+      <div className="card-static">
+        <EmptyState
+          icon={Store}
+          title="Coming Soon"
+          description="Counter sale interface will be implemented here."
+        />
       </div>
     </div>
   );

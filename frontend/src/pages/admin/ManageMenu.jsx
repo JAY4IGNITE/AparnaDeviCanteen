@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Edit2, Trash2, Eye, EyeOff, X, CheckCircle, AlertCircle } from 'lucide-react';
+import PageHeader from '../../components/ui/PageHeader';
+import AnimatedModal from '../../components/ui/AnimatedModal';
+import AlertBanner from '../../components/ui/AlertBanner';
+import LoadingState from '../../components/ui/LoadingState';
+import MotionButton from '../../components/ui/MotionButton';
 
 const ManageMenu = () => {
   const [menuItems, setMenuItems] = useState([]);
@@ -89,30 +94,28 @@ const ManageMenu = () => {
   };
 
   if (loading) {
-    return <div className="loading-spinner"><div className="spinner"></div></div>;
+    return <LoadingState />;
   }
 
   return (
     <div>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1>Manage Menu</h1>
-          <p>Add, edit, or remove menu items</p>
-        </div>
-        <button className="btn btn-primary" onClick={openAddModal} id="add-menu-item">
-          <Plus size={18} /> Add Item
-        </button>
-      </div>
+      <PageHeader
+        title="Manage Menu"
+        subtitle="Add, edit, or remove menu items"
+        actions={
+          <MotionButton className="btn btn-primary" onClick={openAddModal} id="add-menu-item">
+            <Plus size={18} /> Add Item
+          </MotionButton>
+        }
+      />
 
-      {message.text && (
-        <div className={`alert alert-${message.type}`}>
-          {message.type === 'success' ? <CheckCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} /> : <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />}
-          {message.text}
-        </div>
-      )}
+      <AlertBanner type={message.type} show={!!message.text}>
+        {message.type === 'success' ? <CheckCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} /> : <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />}
+        {message.text}
+      </AlertBanner>
 
       <div className="table-wrapper">
-        <table className="table">
+        <table className="table table-responsive-cards">
           <thead>
             <tr>
               <th>Item Name</th>
@@ -125,35 +128,30 @@ const ManageMenu = () => {
           <tbody>
             {menuItems.map(item => (
               <tr key={item.id}>
-                <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                <td data-label="Item" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{
-                      width: '12px', height: '12px', borderRadius: '2px', flexShrink: 0,
-                      backgroundColor: item.is_veg !== false ? '#22c55e' : '#ef4444',
-                      border: '1px solid #fff',
-                      boxShadow: '0 0 0 1px ' + (item.is_veg !== false ? '#22c55e' : '#ef4444')
-                    }} title={item.is_veg !== false ? 'Veg' : 'Non-Veg'} />
+                    <span className={`veg-indicator ${item.is_veg !== false ? 'veg' : 'non-veg'}`} title={item.is_veg !== false ? 'Veg' : 'Non-Veg'} />
                     {item.item_name}
                   </div>
                 </td>
-                <td style={{ color: 'var(--primary-400)', fontWeight: 600 }}>₹{item.price}</td>
-                <td>{item.category || 'General'}</td>
-                <td>
+                <td data-label="Price" style={{ color: 'var(--primary-400)', fontWeight: 600 }}>₹{item.price}</td>
+                <td data-label="Category">{item.category || 'General'}</td>
+                <td data-label="Status">
                   <span className={`badge ${item.is_available ? 'badge-active' : 'badge-blocked'}`}>
                     {item.is_available ? 'Available' : 'Hidden'}
                   </span>
                 </td>
-                <td>
+                <td data-label="Actions">
                   <div style={{ display: 'flex', gap: '0.35rem' }}>
-                    <button className="btn btn-ghost btn-sm" onClick={() => toggleAvailability(item)} title={item.is_available ? 'Hide' : 'Show'}>
+                    <MotionButton className="btn btn-ghost btn-sm" onClick={() => toggleAvailability(item)} title={item.is_available ? 'Hide' : 'Show'}>
                       {item.is_available ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                    <button className="btn btn-ghost btn-sm" onClick={() => openEditModal(item)} title="Edit">
+                    </MotionButton>
+                    <MotionButton className="btn btn-ghost btn-sm" onClick={() => openEditModal(item)} title="Edit">
                       <Edit2 size={16} />
-                    </button>
-                    <button className="btn btn-ghost btn-sm" onClick={() => deleteItem(item.id)} title="Delete" style={{ color: 'var(--danger)' }}>
+                    </MotionButton>
+                    <MotionButton className="btn btn-ghost btn-sm" onClick={() => deleteItem(item.id)} title="Delete" style={{ color: 'var(--danger)' }}>
                       <Trash2 size={16} />
-                    </button>
+                    </MotionButton>
                   </div>
                 </td>
               </tr>
@@ -169,86 +167,49 @@ const ManageMenu = () => {
         </table>
       </div>
 
-      {/* Add/Edit Modal */}
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{editItem ? 'Edit Item' : 'Add New Item'}</h3>
-              <button className="btn btn-ghost" onClick={() => setShowModal(false)}>
-                <X size={22} />
-              </button>
-            </div>
-            <form onSubmit={handleSubmit}>
-              <div className="modal-body">
-                <div className="form-group">
-                  <label className="form-label">Item Name *</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={formData.itemName}
-                    onChange={(e) => setFormData({ ...formData, itemName: e.target.value })}
-                    required
-                    id="menu-item-name"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Price (₹) *</label>
-                  <input
-                    type="number"
-                    className="form-input"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    required
-                    min="0"
-                    step="0.5"
-                    id="menu-item-price"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Category</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="e.g., Snacks, Beverages, Meals"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    id="menu-item-category"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Type *</label>
-                  <select
-                    className="form-input"
-                    value={formData.isVeg ? 'veg' : 'non-veg'}
-                    onChange={(e) => setFormData({ ...formData, isVeg: e.target.value === 'veg' })}
-                    required
-                  >
-                    <option value="veg">Veg</option>
-                    <option value="non-veg">Non-Veg</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.isAvailable}
-                      onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
-                    />
-                    <span className="form-label" style={{ margin: 0 }}>Available for ordering</span>
-                  </label>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary" id="save-menu-item">
-                  {editItem ? 'Update Item' : 'Add Item'}
-                </button>
-              </div>
-            </form>
-          </div>
+      <AnimatedModal open={showModal} onClose={() => setShowModal(false)}>
+        <div className="modal-header">
+          <h3>{editItem ? 'Edit Item' : 'Add New Item'}</h3>
+          <button className="btn btn-ghost" onClick={() => setShowModal(false)}>
+            <X size={22} />
+          </button>
         </div>
-      )}
+        <form onSubmit={handleSubmit}>
+          <div className="modal-body">
+            <div className="form-group">
+              <label className="form-label">Item Name *</label>
+              <input type="text" className="form-input" value={formData.itemName} onChange={(e) => setFormData({ ...formData, itemName: e.target.value })} required id="menu-item-name" />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Price (₹) *</label>
+              <input type="number" className="form-input" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} required min="0" step="0.5" id="menu-item-price" />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Category</label>
+              <input type="text" className="form-input" placeholder="e.g., Snacks, Beverages, Meals" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} id="menu-item-category" />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Type *</label>
+              <select className="form-input" value={formData.isVeg ? 'veg' : 'non-veg'} onChange={(e) => setFormData({ ...formData, isVeg: e.target.value === 'veg' })} required>
+                <option value="veg">Veg</option>
+                <option value="non-veg">Non-Veg</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input type="checkbox" checked={formData.isAvailable} onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })} />
+                <span className="form-label" style={{ margin: 0 }}>Available for ordering</span>
+              </label>
+            </div>
+          </div>
+          <div className="modal-footer">
+            <MotionButton type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</MotionButton>
+            <MotionButton type="submit" className="btn btn-primary" id="save-menu-item">
+              {editItem ? 'Update Item' : 'Add Item'}
+            </MotionButton>
+          </div>
+        </form>
+      </AnimatedModal>
     </div>
   );
 };

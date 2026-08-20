@@ -1,4 +1,4 @@
-# Aparnadevi Canteen (FoodNest) — Hostel Canteen Management System
+# Aparnadevi Canteen (FoodNest) — Hostel Canteen
 
 Aparnadevi Canteen (FoodNest) is a full-stack web application designed to streamline the ordering, billing, menu management, and announcement flows for a hostel canteen. It provides distinct portals for students (Customers) and canteen administrators.
 

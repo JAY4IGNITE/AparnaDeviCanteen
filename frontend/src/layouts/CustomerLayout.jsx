@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { Home, UtensilsCrossed, ClipboardList, User, HelpCircle, Menu, X, Megaphone } from 'lucide-react';
+import { Home, UtensilsCrossed, ClipboardList, User, HelpCircle, Menu, X, Megaphone, MessageSquarePlus } from 'lucide-react';
 import AppSidebar from '../components/layout/AppSidebar';
 import PageTransition from '../components/ui/PageTransition';
 
@@ -20,9 +20,10 @@ const CustomerLayout = () => {
     { to: '/customer/home', icon: Home, label: 'Home' },
     { to: '/customer/menu', icon: UtensilsCrossed, label: 'Menu' },
     { to: '/customer/orders', icon: ClipboardList, label: 'My Orders' },
+    { to: '/customer/feedback', icon: MessageSquarePlus, label: 'Give Feedback' },
+    { to: '/customer/announcements', icon: Megaphone, label: 'Announcements' },
     { to: '/customer/profile', icon: User, label: 'Profile' },
     { to: '/customer/support', icon: HelpCircle, label: 'Support' },
-    { to: '/customer/announcements', icon: Megaphone, label: 'Announcements' },
   ];
 
   return (

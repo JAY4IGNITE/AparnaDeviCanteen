@@ -14,6 +14,7 @@ import CustomerOrders from './pages/customer/Orders';
 import CustomerProfile from './pages/customer/Profile';
 import CustomerSupport from './pages/customer/Support';
 import CustomerAnnouncements from './pages/customer/Announcements';
+import CustomerFeedback from './pages/customer/Feedback';
 
 // Admin Pages
 import AdminLayout from './layouts/AdminLayout';
@@ -25,6 +26,7 @@ import Statistics from './pages/admin/Statistics';
 import ManageCustomers from './pages/admin/ManageCustomers';
 import AdminAnnouncements from './pages/admin/Announcements';
 import CounterSale from './pages/admin/CounterSale';
+import AdminFeedbacks from './pages/admin/Feedbacks';
 
 function App() {
   return (
@@ -47,6 +49,7 @@ function App() {
             <Route path="home" element={<CustomerHome />} />
             <Route path="menu" element={<CustomerMenu />} />
             <Route path="orders" element={<CustomerOrders />} />
+            <Route path="feedback" element={<CustomerFeedback />} />
             <Route path="profile" element={<CustomerProfile />} />
             <Route path="support" element={<CustomerSupport />} />
             <Route path="announcements" element={<CustomerAnnouncements />} />
@@ -70,6 +73,7 @@ function App() {
             <Route path="manage-customers" element={<ManageCustomers />} />
             <Route path="announcements" element={<AdminAnnouncements />} />
             <Route path="counter-sale" element={<CounterSale />} />
+            <Route path="feedbacks" element={<AdminFeedbacks />} />
             <Route path="" element={<Navigate to="home" replace />} />
           </Route>
 

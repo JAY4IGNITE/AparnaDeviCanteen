@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { Home, UtensilsCrossed, ClipboardList, DollarSign, BarChart3, Users, Menu, X, Shield, Megaphone, Store } from 'lucide-react';
+import { Home, UtensilsCrossed, ClipboardList, DollarSign, BarChart3, Users, Menu, X, Shield, Megaphone, Store, MessageSquarePlus } from 'lucide-react';
 import AppSidebar from '../components/layout/AppSidebar';
 import PageTransition from '../components/ui/PageTransition';
 
@@ -18,13 +18,14 @@ const AdminLayout = () => {
 
   const navLinks = [
     { to: '/admin/home', icon: Home, label: 'Dashboard' },
+    { to: '/admin/counter-sale', icon: Store, label: 'Counter Sale' },
     { to: '/admin/manage-menu', icon: UtensilsCrossed, label: 'Manage Menu' },
     { to: '/admin/orders', icon: ClipboardList, label: 'Orders' },
-    { to: '/admin/revenue', icon: DollarSign, label: 'Revenue' },
     { to: '/admin/statistics', icon: BarChart3, label: 'Statistics' },
+    { to: '/admin/revenue', icon: DollarSign, label: 'Revenue' },
     { to: '/admin/manage-customers', icon: Users, label: 'Customers' },
     { to: '/admin/announcements', icon: Megaphone, label: 'Announcements' },
-    { to: '/admin/counter-sale', icon: Store, label: 'Counter Sale' },
+    { to: '/admin/feedbacks', icon: MessageSquarePlus, label: 'Feedbacks' },
   ];
 
   const adminBadge = (

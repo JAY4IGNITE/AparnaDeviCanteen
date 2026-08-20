@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Megaphone, Plus, Trash2, Edit2, AlertCircle } from 'lucide-react';
+import { Megaphone, Plus, Trash2, Edit2 } from 'lucide-react';
+import PageHeader from '../../components/ui/PageHeader';
+import AlertBanner from '../../components/ui/AlertBanner';
+import EmptyState from '../../components/ui/EmptyState';
+import LoadingState from '../../components/ui/LoadingState';
+import MotionButton from '../../components/ui/MotionButton';
 
 const AdminAnnouncements = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   const [message, setMessage] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [editingId, setEditingId] = useState(null);
@@ -38,10 +43,10 @@ const AdminAnnouncements = () => {
 
     try {
       const url = editingId ? `/admin/announcements/${editingId}` : '/admin/announcements';
-      const res = editingId 
+      const res = editingId
         ? await axios.put(url, { message, is_active: isActive })
         : await axios.post(url, { message, is_active: isActive });
-      
+
       if (res.data.success) {
         setMessage('');
         setIsActive(true);
@@ -83,21 +88,25 @@ const AdminAnnouncements = () => {
 
   return (
     <div className="admin-page">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h1 className="page-title"><Megaphone style={{ marginRight: '0.5rem', display: 'inline' }} /> Manage Announcements</h1>
-          <p className="page-subtitle">Add and update customer announcements</p>
-        </div>
-        {announcements.length > 0 && (
-          <button onClick={handleClearAll} className="btn" style={{ backgroundColor: 'var(--danger)', color: 'white' }}>
-            <Trash2 size={16} style={{ marginRight: '0.5rem' }} /> Clear All
-          </button>
-        )}
-      </div>
+      <PageHeader
+        title="Manage Announcements"
+        subtitle="Add and update customer announcements"
+        actions={
+          announcements.length > 0 ? (
+            <MotionButton
+              onClick={handleClearAll}
+              className="btn btn-ghost"
+              style={{ color: 'var(--danger)', borderColor: 'rgba(239, 68, 68, 0.3)' }}
+            >
+              <Trash2 size={16} /> Clear All
+            </MotionButton>
+          ) : null
+        }
+      />
 
       <div className="card" style={{ marginBottom: '2rem' }}>
-        <h3>{editingId ? 'Edit Announcement' : 'New Announcement'}</h3>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', marginTop: '1rem' }}>
+        <h3 style={{ marginBottom: '1rem' }}>{editingId ? 'Edit Announcement' : 'New Announcement'}</h3>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <input
             type="text"
             className="form-input"
@@ -115,56 +124,44 @@ const AdminAnnouncements = () => {
             />
             Active
           </label>
-          <button type="submit" className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <MotionButton type="submit" className="btn btn-primary">
             {editingId ? <Edit2 size={16} /> : <Plus size={16} />}
             {editingId ? 'Update' : 'Add'}
-          </button>
+          </MotionButton>
           {editingId && (
-             <button type="button" className="btn btn-secondary" onClick={() => { setEditingId(null); setMessage(''); setIsActive(true); }}>
-               Cancel
-             </button>
+            <MotionButton type="button" className="btn btn-secondary" onClick={() => { setEditingId(null); setMessage(''); setIsActive(true); }}>
+              Cancel
+            </MotionButton>
           )}
         </form>
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>
+        <LoadingState />
       ) : error ? (
-        <div style={{ color: 'var(--danger)', padding: '1rem', background: '#ffebee', borderRadius: '4px' }}>
-          <AlertCircle style={{ display: 'inline', marginRight: '0.5rem' }} /> {error}
-        </div>
+        <AlertBanner type="error" show={!!error}>{error}</AlertBanner>
       ) : announcements.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '3rem', background: 'var(--bg-secondary)', borderRadius: '8px', color: 'var(--text-secondary)' }}>
-          <Megaphone size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
-          <p>No announcements found.</p>
-        </div>
+        <EmptyState icon={Megaphone} title="No announcements yet" description="Add your first announcement using the form above." />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {announcements.map((ann) => (
-            <div key={ann.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem' }}>
+            <div key={ann.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', padding: '1rem 1.5rem', flexWrap: 'wrap' }}>
               <div>
                 <p style={{ margin: 0, fontWeight: '500', fontSize: '1.1rem' }}>{ann.message}</p>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                  <span style={{ 
-                    display: 'inline-block', 
-                    padding: '0.1rem 0.5rem', 
-                    borderRadius: '1rem', 
-                    backgroundColor: ann.is_active ? '#e8f5e9' : '#ffebee',
-                    color: ann.is_active ? '#2e7d32' : '#c62828',
-                    marginRight: '0.5rem'
-                  }}>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <span className={`badge ${ann.is_active ? 'badge-active' : 'badge-blocked'}`}>
                     {ann.is_active ? 'Active' : 'Inactive'}
                   </span>
-                  Added: {new Date(ann.created_at).toLocaleDateString()}
+                  <span>Added: {new Date(ann.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button onClick={() => handleEdit(ann)} className="btn btn-secondary" style={{ padding: '0.5rem' }} title="Edit">
+                <MotionButton onClick={() => handleEdit(ann)} className="btn btn-secondary btn-sm" title="Edit" aria-label="Edit announcement">
                   <Edit2 size={16} />
-                </button>
-                <button onClick={() => handleDelete(ann.id)} className="btn btn-secondary" style={{ padding: '0.5rem', color: 'var(--danger)' }} title="Delete">
+                </MotionButton>
+                <MotionButton onClick={() => handleDelete(ann.id)} className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} title="Delete" aria-label="Delete announcement">
                   <Trash2 size={16} />
-                </button>
+                </MotionButton>
               </div>
             </div>
           ))}

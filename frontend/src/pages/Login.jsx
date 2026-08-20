@@ -134,6 +134,25 @@ const Login = () => {
               </div>
             </div>
 
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                style={{ flex: 1 }}
+                onClick={() => setFormData({ identifier: 'admin@test.com', password: 'password123' })}
+              >
+                Admin Test
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                style={{ flex: 1 }}
+                onClick={() => setFormData({ identifier: 'user@test.com', password: 'password123' })}
+              >
+                User Test
+              </button>
+            </div>
+
             <MotionButton type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }} disabled={loading} id="login-submit">
               {loading ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : <><LogIn size={18} /> Sign In</>}
             </MotionButton>

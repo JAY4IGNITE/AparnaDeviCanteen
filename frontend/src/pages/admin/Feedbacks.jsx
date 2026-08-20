@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { MessageSquare, Search, Calendar, User, Phone, MapPin, X } from 'lucide-react';
+import { MessageSquare, Search, Calendar, User, Phone, MapPin } from 'lucide-react';
 import { motion } from 'motion/react';
+import PageHeader from '../../components/ui/PageHeader';
+import EmptyState from '../../components/ui/EmptyState';
+import LoadingState from '../../components/ui/LoadingState';
 import { fadeUp } from '../../lib/motion';
 
 const Feedbacks = () => {
@@ -57,52 +60,35 @@ const Feedbacks = () => {
   });
 
   if (loading) {
-    return <div className="loading-spinner"><div className="spinner"></div></div>;
+    return <LoadingState />;
   }
 
   return (
     <div>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            Customer Feedbacks
-            <span style={{ 
-              fontSize: '0.85rem', 
-              background: 'rgba(249, 115, 22, 0.15)', 
-              color: 'var(--primary-400)', 
-              border: '1px solid rgba(249, 115, 22, 0.25)',
-              padding: '0.25rem 0.75rem',
-              borderRadius: 'var(--radius-full)',
-              fontWeight: '600',
-              fontFamily: 'var(--font-sans)'
-            }}>
-              {filteredFeedbacks.length} Received
-            </span>
-          </h1>
-          <p>Read opinions and reviews shared by hostel customers</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Customer Feedbacks"
+        subtitle="Read opinions and reviews shared by hostel customers"
+        badge={`${filteredFeedbacks.length} Received`}
+      />
 
       {/* Filters & Search Row */}
       <div className="date-picker-row" style={{ marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div className="form-group" style={{ margin: 0, flex: 1, minWidth: '250px' }}>
-          <label className="form-label">Search Feedbacks</label>
-          <div style={{ position: 'relative' }}>
-            <div style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex' }}>
-              <Search size={18} />
-            </div>
+          <label className="form-label" htmlFor="feedback-search">Search Feedbacks</label>
+          <div className="search-bar" style={{ margin: 0 }}>
+            <Search size={16} className="search-bar-icon" />
             <input
               type="text"
+              id="feedback-search"
               className="form-input"
               placeholder="Search by customer name, opinion keyword, block..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ paddingLeft: '2.75rem' }}
             />
           </div>
         </div>
         <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
-          <label className="form-label">Filter by Hostel Block</label>
+          <label className="form-label" htmlFor="feedback-block-filter">Filter by Hostel Block</label>
           <select
             className="form-input"
             value={blockFilter}
@@ -128,11 +114,11 @@ const Feedbacks = () => {
 
       {/* Feedbacks Grid */}
       {filteredFeedbacks.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '5rem 2rem', color: 'var(--text-muted)', border: '1px dashed var(--border-color)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <MessageSquare size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
-          <p style={{ fontSize: '1.1rem', fontWeight: 500 }}>No Feedbacks Found</p>
-          <p style={{ fontSize: '0.9rem', marginTop: '0.25rem' }}>No feedbacks match your current search or filters.</p>
-        </div>
+        <EmptyState
+          icon={MessageSquare}
+          title="No Feedbacks Found"
+          description="No feedbacks match your current search or filters."
+        />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.5rem' }}>
           {filteredFeedbacks.map((item, idx) => (

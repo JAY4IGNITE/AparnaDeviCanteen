@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ShieldAlert, Trash2, CheckCircle, AlertCircle, Users, Search } from 'lucide-react';
+import PageHeader from '../../components/ui/PageHeader';
+import AlertBanner from '../../components/ui/AlertBanner';
+import EmptyState from '../../components/ui/EmptyState';
+import LoadingState from '../../components/ui/LoadingState';
+import MotionButton from '../../components/ui/MotionButton';
 
 const ManageCustomers = () => {
   const [customers, setCustomers] = useState([]);
@@ -19,9 +24,9 @@ const ManageCustomers = () => {
       setCustomers(res.data.data);
     } catch (err) {
       console.error('Failed to load customers:', err);
-      setMessage({ 
-        type: 'error', 
-        text: err.response?.data?.message || 'Failed to load customers list' 
+      setMessage({
+        type: 'error',
+        text: err.response?.data?.message || 'Failed to load customers list'
       });
     } finally {
       setLoading(false);
@@ -55,58 +60,51 @@ const ManageCustomers = () => {
   };
 
   if (loading) {
-    return <div className="loading-spinner"><div className="spinner"></div></div>;
+    return <LoadingState />;
   }
+
+  const filtered = customers
+    .filter(cust => !blockFilter || cust.hostel_block === blockFilter)
+    .filter(cust => {
+      if (!searchQuery) return true;
+      const lowerQuery = searchQuery.toLowerCase();
+      return (
+        (cust.name && cust.name.toLowerCase().includes(lowerQuery)) ||
+        (cust.phone && cust.phone.includes(lowerQuery)) ||
+        (cust.hostel_block && cust.hostel_block.toLowerCase().includes(lowerQuery))
+      );
+    });
 
   return (
     <div>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            Manage Customers
-            <span style={{ 
-              fontSize: '0.85rem', 
-              background: 'rgba(249, 115, 22, 0.15)', 
-              color: 'var(--primary-400)', 
-              border: '1px solid rgba(249, 115, 22, 0.25)',
-              padding: '0.25rem 0.75rem',
-              borderRadius: 'var(--radius-full)',
-              fontWeight: '600',
-              fontFamily: 'var(--font-sans)'
-            }}>
-              {customers.length} {customers.length === 1 ? 'Customer' : 'Customers'}
-            </span>
-          </h1>
-          <p>View, block, or delete registered customer accounts</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Manage Customers"
+        subtitle="View, block, or delete registered customer accounts"
+        badge={`${customers.length} ${customers.length === 1 ? 'Customer' : 'Customers'}`}
+      />
 
-      {message.text && (
-        <div className={`alert alert-${message.type}`}>
-          {message.type === 'success' ? <CheckCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} /> : <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />}
-          {message.text}
-        </div>
-      )}
+      <AlertBanner type={message.type} show={!!message.text}>
+        {message.type === 'success' ? <CheckCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} /> : <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />}
+        {message.text}
+      </AlertBanner>
 
-      <div className="date-picker-row" style={{ marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <div className="form-group" style={{ margin: 0, flex: 1, minWidth: '250px' }}>
-          <label className="form-label">Universal Search</label>
-          <div style={{ position: 'relative' }}>
-            <div style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex' }}>
-              <Search size={18} />
-            </div>
+      <div className="filter-bar">
+        <div className="form-group" style={{ flex: 1, minWidth: '250px' }}>
+          <label className="form-label" htmlFor="customer-search">Universal Search</label>
+          <div className="search-bar" style={{ margin: 0 }}>
+            <Search size={16} className="search-bar-icon" />
             <input
               type="text"
+              id="customer-search"
               className="form-input"
               placeholder="Search by name, phone, or block..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ paddingLeft: '2.75rem' }}
             />
           </div>
         </div>
-        <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
-          <label className="form-label">Filter by Block</label>
+        <div className="form-group" style={{ minWidth: '200px' }}>
+          <label className="form-label" htmlFor="customer-block-filter">Filter by Block</label>
           <select
             className="form-input"
             value={blockFilter}
@@ -119,95 +117,78 @@ const ManageCustomers = () => {
           </select>
         </div>
         {(blockFilter || searchQuery) && (
-          <button
+          <MotionButton
             className="btn btn-ghost btn-sm"
             onClick={() => { setBlockFilter(''); setSearchQuery(''); }}
             style={{ marginTop: 'auto' }}
           >
             Clear Filters
-          </button>
+          </MotionButton>
         )}
       </div>
 
-      <div className="table-wrapper">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Hostel Block</th>
-              <th>Status</th>
-              <th>Joined Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {customers
-              .filter(cust => !blockFilter || cust.hostel_block === blockFilter)
-              .filter(cust => {
-                if (!searchQuery) return true;
-                const lowerQuery = searchQuery.toLowerCase();
-                return (
-                  (cust.name && cust.name.toLowerCase().includes(lowerQuery)) ||
-                  (cust.phone && cust.phone.includes(lowerQuery)) ||
-                  (cust.hostel_block && cust.hostel_block.toLowerCase().includes(lowerQuery))
-                );
-              })
-              .map((cust) => (
-              <tr key={cust.id}>
-                <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{cust.name}</td>
-                <td>{cust.phone}</td>
-                <td>{cust.hostel_block || '—'}</td>
-                <td>
-                  <span className={`badge ${cust.is_blocked ? 'badge-blocked' : 'badge-active'}`}>
-                    {cust.is_blocked ? 'Blocked' : 'Active'}
-                  </span>
-                </td>
-                <td style={{ fontSize: '0.85rem' }}>
-                  {new Date(cust.created_at).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
-                </td>
-                <td>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => toggleBlockStatus(cust)}
-                      style={{ color: cust.is_blocked ? 'var(--success)' : 'var(--warning)', borderColor: cust.is_blocked ? 'rgba(34, 197, 94, 0.2)' : 'rgba(234, 179, 8, 0.2)' }}
-                      title={cust.is_blocked ? 'Unblock' : 'Block'}
-                    >
-                      <ShieldAlert size={14} /> {cust.is_blocked ? 'Unblock' : 'Block'}
-                    </button>
-                    <button
-                      className="btn btn-ghost btn-sm"
-                      onClick={() => deleteCustomer(cust.id)}
-                      style={{ color: 'var(--danger)' }}
-                      title="Delete Permanently"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {customers
-              .filter(cust => !blockFilter || cust.hostel_block === blockFilter)
-              .filter(cust => {
-                if (!searchQuery) return true;
-                const lowerQuery = searchQuery.toLowerCase();
-                return (
-                  (cust.name && cust.name.toLowerCase().includes(lowerQuery)) ||
-                  (cust.phone && cust.phone.includes(lowerQuery)) ||
-                  (cust.hostel_block && cust.hostel_block.toLowerCase().includes(lowerQuery))
-                );
-              }).length === 0 && (
+      {filtered.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          scene={() => import('../../components/3d/NoCustomers3D')}
+          title="No customers found"
+          description="No customers match your current search or filters."
+        />
+      ) : (
+        <div className="table-wrapper">
+          <table className="table table-responsive-cards">
+            <thead>
               <tr>
-                <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                  No matching customers found.
-                </td>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Hostel Block</th>
+                <th>Status</th>
+                <th>Joined Date</th>
+                <th>Actions</th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filtered.map((cust) => (
+                <tr key={cust.id}>
+                  <td data-label="Name" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{cust.name}</td>
+                  <td data-label="Phone">{cust.phone}</td>
+                  <td data-label="Block">{cust.hostel_block || '—'}</td>
+                  <td data-label="Status">
+                    <span className={`badge ${cust.is_blocked ? 'badge-blocked' : 'badge-active'}`}>
+                      {cust.is_blocked ? 'Blocked' : 'Active'}
+                    </span>
+                  </td>
+                  <td data-label="Joined" style={{ fontSize: '0.85rem' }}>
+                    {new Date(cust.created_at).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                  </td>
+                  <td data-label="Actions">
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <MotionButton
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => toggleBlockStatus(cust)}
+                        style={{ color: cust.is_blocked ? 'var(--success)' : 'var(--warning)', borderColor: cust.is_blocked ? 'rgba(34, 197, 94, 0.2)' : 'rgba(234, 179, 8, 0.2)' }}
+                        title={cust.is_blocked ? 'Unblock' : 'Block'}
+                        aria-label={cust.is_blocked ? `Unblock ${cust.name}` : `Block ${cust.name}`}
+                      >
+                        <ShieldAlert size={14} /> {cust.is_blocked ? 'Unblock' : 'Block'}
+                      </MotionButton>
+                      <MotionButton
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => deleteCustomer(cust.id)}
+                        style={{ color: 'var(--danger)' }}
+                        title="Delete Permanently"
+                        aria-label={`Delete ${cust.name}`}
+                      >
+                        <Trash2 size={14} />
+                      </MotionButton>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

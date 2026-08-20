@@ -4,14 +4,17 @@ import { motion } from 'motion/react';
 import { DollarSign, Calendar, ShoppingBag } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import StatCard from '../../components/ui/StatCard';
+import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
 import MotionButton from '../../components/ui/MotionButton';
+import { useMotionSafe } from '../../lib/motion';
 
 const Revenue = () => {
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { reduced, transition, spring } = useMotionSafe();
 
   const fetchRevenue = async () => {
     if (!startDate || !endDate) return;
@@ -46,18 +49,27 @@ const Revenue = () => {
 
       {loading && <LoadingState />}
 
+      {!data && !loading && (
+        <EmptyState
+          icon={DollarSign}
+          title="Pick a date range"
+          description="Choose a start and end date, then select Get Revenue to see totals for that period."
+        />
+      )}
+
       {data && !loading && (
         <motion.div
           className="card-static"
-          initial={{ opacity: 0, y: 8 }}
+          initial={reduced ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={transition}
         >
           <div className="revenue-hero">
             <motion.div
               className="revenue-amount"
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={reduced ? false : { opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              transition={spring}
             >
               ₹{data.totalRevenue}
             </motion.div>

@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import axios from 'axios';
 import { Send, MessageSquare, AlertCircle, CheckCircle2, Calendar } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
+import AlertBanner from '../../components/ui/AlertBanner';
 import { fadeUp } from '../../lib/motion';
 
 const Feedback = () => {
@@ -60,7 +61,7 @@ const Feedback = () => {
     <div>
       <PageHeader title="Give Feedback" subtitle="Tell us about the food quality, taste, or your dining experience" />
 
-      <div className="grid-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '1.5rem' }}>
+      <div className="feedback-grid">
         {/* Submission Form */}
         <motion.div
           className="card-static"
@@ -73,10 +74,10 @@ const Feedback = () => {
           </h2>
 
           {alert && (
-            <div className={`alert alert-${alert.type}`} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.25rem', background: alert.type === 'success' ? 'var(--success-bg)' : 'var(--danger-bg)', border: `1px solid ${alert.type === 'success' ? 'var(--success)' : 'var(--danger)'}` }}>
-              {alert.type === 'success' ? <CheckCircle2 size={18} className="text-success" /> : <AlertCircle size={18} className="text-danger" />}
-              <span style={{ fontSize: '0.9rem', color: alert.type === 'success' ? 'var(--success)' : 'var(--danger)' }}>{alert.message}</span>
-            </div>
+            <AlertBanner type={alert.type === 'success' ? 'success' : 'error'} show={!!alert}>
+              {alert.type === 'success' ? <CheckCircle2 size={18} style={{ marginRight: '0.5rem', display: 'inline' }} /> : <AlertCircle size={18} style={{ marginRight: '0.5rem', display: 'inline' }} />}
+              {alert.message}
+            </AlertBanner>
           )}
 
           <form onSubmit={handleSubmit}>

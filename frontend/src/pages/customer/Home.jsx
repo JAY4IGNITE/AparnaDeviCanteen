@@ -5,7 +5,9 @@ import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { UtensilsCrossed, ShoppingBag, Megaphone } from 'lucide-react';
 import InteractiveCard from '../../components/ui/InteractiveCard';
+import Lazy3D from '../../components/3d/Lazy3D';
 import { useMotionSafe } from '../../lib/motion';
+import heroImg from '../../assets/hero.png';
 
 const Home = () => {
   const { user } = useAuth();
@@ -64,19 +66,28 @@ const Home = () => {
 
   return (
     <div>
-      <motion.div
-        className="welcome-section"
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={transition}
-      >
-        <h1 className="welcome-title">
-          Welcome, <span>{user?.name || 'Guest'}!</span>
-        </h1>
-        <p className="welcome-subtitle">
-          What would you like to eat today? Browse our menu and place your order.
-        </p>
-      </motion.div>
+      <div className="home-hero">
+        <motion.div
+          className="welcome-section"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={transition}
+        >
+          <h1 className="welcome-title">
+            Welcome, <span>{user?.name || 'Guest'}!</span>
+          </h1>
+          <p className="welcome-subtitle">
+            What would you like to eat today? Browse our menu and place your order.
+          </p>
+        </motion.div>
+        <div className="home-hero-visual" aria-hidden="true">
+          <Lazy3D
+            load={() => import('../../components/3d/FoodNestHero3D')}
+            className="home-hero-canvas"
+            fallback={<img src={heroImg} alt="" className="home-hero-img" />}
+          />
+        </div>
+      </div>
 
       <div className="bento-grid">
         {cards.map((card, index) => (

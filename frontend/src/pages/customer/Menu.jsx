@@ -8,7 +8,9 @@ import AlertBanner from '../../components/ui/AlertBanner';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
 import MotionButton from '../../components/ui/MotionButton';
+import Lazy3D from '../../components/3d/Lazy3D';
 import { staggerContainer, fadeUp } from '../../lib/motion';
+import heroImg from '../../assets/hero.png';
 
 const MenuPage = () => {
   const [menuItems, setMenuItems] = useState([]);
@@ -118,7 +120,19 @@ const MenuPage = () => {
       {menuItems.length === 0 ? (
         <EmptyState icon={Package} title="No items available" description="Check back later for new menu items." scene={() => import('../../components/3d/EmptyMenu3D')} />
       ) : (
-        <div className="menu-categories">
+        <>
+          <div className="menu-featured">
+            <div className="menu-featured-copy">
+              <h2>Freshly made, served hot</h2>
+              <p>Handpicked favourites from the AparnaCanteen kitchen.</p>
+            </div>
+            <Lazy3D
+              load={() => import('../../components/3d/FoodTray3D')}
+              className="menu-featured-canvas"
+              fallback={<img src={heroImg} alt="" className="menu-featured-img" />}
+            />
+          </div>
+          <div className="menu-categories">
           {categories.map(([category, items]) => (
             <div key={category} className="menu-category-section">
               <h2 className="category-title">{category}</h2>
@@ -173,6 +187,7 @@ const MenuPage = () => {
             </div>
           ))}
         </div>
+        </>
       )}
 
       {getCartCount() > 0 && (

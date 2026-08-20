@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { motion } from 'motion/react';
-import { Calendar } from 'lucide-react';
+import { Calendar, BarChart3 } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
+import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
 import MotionButton from '../../components/ui/MotionButton';
+import { useMotionSafe } from '../../lib/motion';
 
 const Statistics = () => {
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
@@ -13,6 +15,7 @@ const Statistics = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(false);
+  const { reduced, transition } = useMotionSafe();
 
   const fetchStats = async () => {
     if (!startDate || !endDate) return;
@@ -58,11 +61,20 @@ const Statistics = () => {
 
       {loading && <LoadingState />}
 
+      {!fetched && !loading && (
+        <EmptyState
+          icon={BarChart3}
+          title="No statistics yet"
+          description="Choose a date range and optional block, then select Get Statistics to see per-item totals."
+        />
+      )}
+
       {fetched && !loading && (
         <motion.div
           className="table-wrapper"
-          initial={{ opacity: 0, y: 8 }}
+          initial={reduced ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={transition}
         >
           <table className="table table-responsive-cards">
             <thead>

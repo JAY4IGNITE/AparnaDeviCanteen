@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Minus, Store, ShoppingBag, BarChart3, TrendingUp, CheckCircle, AlertCircle } from 'lucide-react';
+import { Plus, Minus, ShoppingBag, BarChart3, TrendingUp, CheckCircle, AlertCircle } from 'lucide-react';
+import PageHeader from '../../components/ui/PageHeader';
+import AlertBanner from '../../components/ui/AlertBanner';
+import LoadingState from '../../components/ui/LoadingState';
+import MotionButton from '../../components/ui/MotionButton';
 
 const CounterSale = () => {
   const [menu, setMenu] = useState([]);
@@ -122,35 +126,30 @@ const CounterSale = () => {
   };
 
   if (loading) {
-    return <div className="loading-spinner"><div className="spinner"></div></div>;
+    return <LoadingState />;
   }
 
   return (
     <div>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <Store size={28} />
-            Counter Sale
-          </h1>
-          <p>Record direct walk-in sales and view real-time statistics</p>
-        </div>
-        <button 
-          type="button"
-          className="btn btn-ghost" 
-          onClick={handleClearStats}
-          style={{ color: 'var(--danger)', borderColor: 'rgba(239, 68, 68, 0.3)', alignSelf: 'center' }}
-        >
-          Clear Counter History
-        </button>
-      </div>
+      <PageHeader
+        title="Counter Sale"
+        subtitle="Record direct walk-in sales and view real-time statistics"
+        actions={
+          <MotionButton
+            type="button"
+            className="btn btn-ghost"
+            onClick={handleClearStats}
+            style={{ color: 'var(--danger)', borderColor: 'rgba(239, 68, 68, 0.3)' }}
+          >
+            Clear Counter History
+          </MotionButton>
+        }
+      />
 
-      {message.text && (
-        <div className={`alert alert-${message.type}`} style={{ marginBottom: '1.5rem' }}>
-          {message.type === 'success' ? <CheckCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} /> : <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />}
-          {message.text}
-        </div>
-      )}
+      <AlertBanner type={message.type} show={!!message.text}>
+        {message.type === 'success' ? <CheckCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} /> : <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />}
+        {message.text}
+      </AlertBanner>
 
       {/* Main Grid: Active Canteen Menu & Real-time Bill Checkout */}
       <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>

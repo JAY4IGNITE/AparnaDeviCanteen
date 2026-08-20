@@ -105,7 +105,7 @@ router.post('/login', async (req, res) => {
     const { data: user, error } = await query.maybeSingle();
 
     if (error || !user) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(404).json({ success: false, message: 'Account not found. Please sign up.' });
     }
 
     if (user.is_blocked) {
@@ -114,7 +114,7 @@ router.post('/login', async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'Incorrect password. Please try again.' });
     }
 
     const token = generateToken(user.id, user.role);

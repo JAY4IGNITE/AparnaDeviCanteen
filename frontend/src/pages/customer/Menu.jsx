@@ -105,7 +105,7 @@ const MenuPage = () => {
       </AlertBanner>
 
       {menuItems.length === 0 ? (
-        <EmptyState icon={Package} title="No items available" description="Check back later for new menu items." />
+        <EmptyState icon={Package} title="No items available" description="Check back later for new menu items." scene={() => import('../../components/3d/EmptyMenu3D')} />
       ) : (
         <div className="menu-categories">
           {categories.map(([category, items]) => (

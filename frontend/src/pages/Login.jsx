@@ -6,7 +6,9 @@ import { LogIn, Phone, Mail, Lock, AlertCircle, Eye, EyeOff, MessageCircle } fro
 import AnimatedTabs from '../components/ui/AnimatedTabs';
 import MotionButton from '../components/ui/MotionButton';
 import AlertBanner from '../components/ui/AlertBanner';
+import Lazy3D from '../components/3d/Lazy3D';
 import { useMotionSafe } from '../lib/motion';
+import heroImg from '../assets/hero.png';
 
 const Login = () => {
   const [activeTab, setActiveTab] = useState('customer');
@@ -55,7 +57,20 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-page">
+    <div className="auth-page auth-split">
+      <div className="auth-visual" aria-hidden="true">
+        <div className="auth-visual-inner">
+          <Lazy3D
+            load={() => import('../components/3d/FoodTray3D')}
+            className="auth-visual-canvas"
+            fallback={<img src={heroImg} alt="" className="auth-visual-img" />}
+          />
+          <div className="auth-visual-copy">
+            <h2>Skip the queue</h2>
+            <p>Order your favourite meals from AparnaCanteen and pick them up hot — straight from the counter.</p>
+          </div>
+        </div>
+      </div>
       <motion.div
         className="auth-container"
         initial={{ opacity: 0, y: 12 }}

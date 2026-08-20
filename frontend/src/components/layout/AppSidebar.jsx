@@ -12,7 +12,6 @@ const AppSidebar = ({
   onLogout,
   sidebarOpen,
   setSidebarOpen,
-  hamburgerId,
   logoutId,
 }) => {
   const { transition } = useMotionSafe();
@@ -41,8 +40,8 @@ const AppSidebar = ({
           {badge}
         </div>
 
-        <nav className="sidebar-nav">
-          {navLinks.map((link, index) => (
+        <nav className="sidebar-nav" aria-label="Primary">
+          {navLinks.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}

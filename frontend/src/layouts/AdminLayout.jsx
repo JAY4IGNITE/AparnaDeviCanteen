@@ -40,6 +40,8 @@ const AdminLayout = () => {
         className="hamburger-btn"
         onClick={() => setSidebarOpen(!sidebarOpen)}
         id="admin-hamburger"
+        aria-label="Toggle navigation menu"
+        aria-expanded={sidebarOpen}
         whileTap={{ scale: 0.95 }}
       >
         {sidebarOpen ? <X size={22} /> : <Menu size={22} />}

@@ -1,4 +1,4 @@
-# Aparnadevi Canteen (FoodNest) — Hostel Canteen Management System
+# Aparnadevi Canteen (FoodNest) — Hostel Canteen
 
 Aparnadevi Canteen (FoodNest) is a full-stack web application designed to streamline the ordering, billing, menu management, and announcement flows for a hostel canteen. It provides distinct portals for students (Customers) and canteen administrators.
 
@@ -67,8 +67,6 @@ cd backend
 # Run migration schema and seeds
 DATABASE_URL="your-supabase-connection-string" node setup-db.js
 ```
-- **Admin login:** `admin@aparnacanteen.com`
-- **Admin password:** `Admin@1508`
 
 ### 2. Run the App Locally
 From the project root:
@@ -76,8 +74,12 @@ From the project root:
 # Install dependencies in both folders
 npm run install-all
 
+developed by pavanputra
+
 # Start both backend and frontend development servers concurrently
 npm start
 ```
 - **Frontend URL:** `http://localhost:5173`
 - **Backend URL:** `http://localhost:5000`
+
+hi everyone

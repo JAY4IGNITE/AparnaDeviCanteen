@@ -69,10 +69,10 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// POST /api/auth/login — Login (customer with phone, admin with email)
+// POST /api/auth/login — Login (universal email or phone identifier)
 router.post('/login', async (req, res) => {
   try {
-    const { phone, email, password, role } = req.body;
+    const { identifier, phone, email, password, role } = req.body;
 
     if (!password) {
       return res.status(400).json({ success: false, message: 'Password is required' });
@@ -80,7 +80,17 @@ router.post('/login', async (req, res) => {
 
     let query = supabase.from('users').select('*');
 
-    if (role === 'admin') {
+    // 1. Support new unified identifier
+    if (identifier) {
+      const trimmed = identifier.trim();
+      if (trimmed.includes('@')) {
+        query = query.eq('email', trimmed.toLowerCase());
+      } else {
+        query = query.eq('phone', trimmed);
+      }
+    }
+    // 2. Support legacy role-based login format for backward compatibility
+    else if (role === 'admin') {
       if (!email) {
         return res.status(400).json({ success: false, message: 'Email is required for admin login' });
       }
@@ -95,7 +105,7 @@ router.post('/login', async (req, res) => {
     const { data: user, error } = await query.maybeSingle();
 
     if (error || !user) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(404).json({ success: false, message: 'Account not found. Please sign up.' });
     }
 
     if (user.is_blocked) {
@@ -104,7 +114,7 @@ router.post('/login', async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'Incorrect password. Please try again.' });
     }
 
     const token = generateToken(user.id, user.role);

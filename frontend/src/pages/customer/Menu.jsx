@@ -12,7 +12,14 @@ import { staggerContainer, fadeUp } from '../../lib/motion';
 
 const MenuPage = () => {
   const [menuItems, setMenuItems] = useState([]);
-  const [cart, setCart] = useState({});
+  const [cart, setCart] = useState(() => {
+    try {
+      const savedCart = localStorage.getItem('foodnest_cart');
+      return savedCart ? JSON.parse(savedCart) : {};
+    } catch (e) {
+      return {};
+    }
+  });
   const [showCart, setShowCart] = useState(false);
   const [loading, setLoading] = useState(true);
   const [orderLoading, setOrderLoading] = useState(false);
@@ -21,6 +28,10 @@ const MenuPage = () => {
   useEffect(() => {
     fetchMenu();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('foodnest_cart', JSON.stringify(cart));
+  }, [cart]);
 
   const fetchMenu = async () => {
     try {

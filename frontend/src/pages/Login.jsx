@@ -11,8 +11,7 @@ import { useMotionSafe } from '../lib/motion';
 import heroImg from '../assets/hero.png';
 
 const Login = () => {
-  const [activeTab, setActiveTab] = useState('customer');
-  const [formData, setFormData] = useState({ phone: '', email: '', password: '' });
+  const [formData, setFormData] = useState({ identifier: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -32,15 +31,9 @@ const Login = () => {
 
     try {
       const credentials = {
-        password: formData.password,
-        role: activeTab
+        identifier: formData.identifier,
+        password: formData.password
       };
-
-      if (activeTab === 'admin') {
-        credentials.email = formData.email;
-      } else {
-        credentials.phone = formData.phone;
-      }
 
       const user = await login(credentials);
 
@@ -91,56 +84,32 @@ const Login = () => {
             <p className="auth-subtitle">Welcome back</p>
           </div>
 
-          <AnimatedTabs
-            tabs={[
-              { id: 'customer', label: 'Customer' },
-              { id: 'admin', label: 'Admin' },
-            ]}
-            activeTab={activeTab}
-            onChange={(id) => { setActiveTab(id); setError(''); }}
-          />
-
           <AlertBanner type="error" show={!!error}>
             <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />
             {error}
           </AlertBanner>
 
           <form onSubmit={handleSubmit}>
-            {activeTab === 'customer' ? (
-              <div className="form-group">
-                <label className="form-label">Phone Number</label>
-                <div className="auth-input-wrapper">
-                  <Phone size={18} className="auth-input-icon" />
-                  <input
-                    type="tel"
-                    name="phone"
-                    className="form-input"
-                    placeholder="Enter your phone number"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    required
-                    id="login-phone"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="form-group">
-                <label className="form-label">Email Address</label>
-                <div className="auth-input-wrapper">
+            <div className="form-group">
+              <label className="form-label">Email or Phone Number</label>
+              <div className="auth-input-wrapper">
+                {formData.identifier.includes('@') ? (
                   <Mail size={18} className="auth-input-icon" />
-                  <input
-                    type="email"
-                    name="email"
-                    className="form-input"
-                    placeholder="Enter your email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    id="login-email"
-                  />
-                </div>
+                ) : (
+                  <Phone size={18} className="auth-input-icon" />
+                )}
+                <input
+                  type="text"
+                  name="identifier"
+                  className="form-input"
+                  placeholder="Enter your email or phone number"
+                  value={formData.identifier}
+                  onChange={handleChange}
+                  required
+                  id="login-identifier"
+                />
               </div>
-            )}
+            </div>
 
             <div className="form-group">
               <label className="form-label">Password</label>

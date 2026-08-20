@@ -74,6 +74,8 @@ From the project root:
 # Install dependencies in both folders
 npm run install-all
 
+developed by pavanputra
+
 # Start both backend and frontend development servers concurrently
 npm start
 ```

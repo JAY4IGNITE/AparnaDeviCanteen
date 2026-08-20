@@ -81,3 +81,5 @@ npm start
 ```
 - **Frontend URL:** `http://localhost:5173`
 - **Backend URL:** `http://localhost:5000`
+
+hi everyone

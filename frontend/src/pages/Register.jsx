@@ -12,8 +12,7 @@ const Register = () => {
     name: '',
     phone: '',
     hostelBlock: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -34,14 +33,8 @@ const Register = () => {
     setSuccess('');
     setLoading(true);
 
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      setLoading(false);
-      return;
-    }
-
     try {
-      await register(formData);
+      await register({ ...formData, confirmPassword: formData.password });
       setSuccess('Registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
@@ -152,20 +145,6 @@ const Register = () => {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" htmlFor="register-confirm-password">Confirm Password *</label>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                name="confirmPassword"
-                className="form-input"
-                placeholder="Re-enter password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                id="register-confirm-password"
-              />
             </div>
 
             <MotionButton type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }} disabled={loading} id="register-submit">

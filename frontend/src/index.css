@@ -1487,10 +1487,15 @@ select.form-input {
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
+    /* visibility, not just an off-screen transform: keeps the closed drawer's
+       nav links out of the tab order. It is transitioned, so it stays visible
+       for the whole slide-out and flips back immediately on open. */
+    visibility: hidden;
   }
 
   .sidebar.open {
     transform: translateX(0);
+    visibility: visible;
   }
 
   .sidebar-overlay {
@@ -2177,7 +2182,9 @@ select.form-input {
 
 .auth-toggle-password {
   position: absolute;
-  right: 0.75rem;
+  /* 0.5rem, not 0.75rem: the 32px hit area below then sits exactly inside the
+     input's reserved 2.5rem right padding instead of overlapping the text. */
+  right: 0.5rem;
   top: 50%;
   transform: translateY(-50%);
   background: none;
@@ -2185,6 +2192,12 @@ select.form-input {
   cursor: pointer;
   color: var(--text-muted);
   display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Comfortable tap target for an icon-only control, matching the other
+     icon buttons; the glyph itself keeps its size. */
+  min-width: 32px;
+  min-height: 32px;
   padding: 0.25rem;
   border-radius: var(--radius-sm);
 }

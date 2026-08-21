@@ -111,6 +111,7 @@ const AdminAnnouncements = () => {
             type="text"
             className="form-input"
             placeholder="e.g. Night Orders Will be available soon"
+            aria-label="Announcement message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             style={{ flex: 1, minWidth: '250px' }}

@@ -16,11 +16,11 @@ router.post('/register', async (req, res) => {
   try {
     const { name, phone, password, confirmPassword, hostelBlock } = req.body;
 
-    if (!name || !phone || !password || !confirmPassword || !hostelBlock) {
+    if (!name || !phone || !password || !hostelBlock) {
       return res.status(400).json({ success: false, message: 'Please fill all required fields' });
     }
 
-    if (password !== confirmPassword) {
+    if (confirmPassword && password !== confirmPassword) {
       return res.status(400).json({ success: false, message: 'Passwords do not match' });
     }
 

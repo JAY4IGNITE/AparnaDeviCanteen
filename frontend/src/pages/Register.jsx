@@ -5,8 +5,6 @@ import { useAuth } from '../context/AuthContext';
 import { UserPlus, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import MotionButton from '../components/ui/MotionButton';
 import AlertBanner from '../components/ui/AlertBanner';
-import Lazy3D from '../components/3d/Lazy3D';
-import SceneFallback from '../components/3d/SceneFallback';
 import { useMotionSafe } from '../lib/motion';
 
 const Register = () => {
@@ -14,8 +12,7 @@ const Register = () => {
     name: '',
     phone: '',
     hostelBlock: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -36,14 +33,8 @@ const Register = () => {
     setSuccess('');
     setLoading(true);
 
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      setLoading(false);
-      return;
-    }
-
     try {
-      await register(formData);
+      await register({ ...formData, confirmPassword: formData.password });
       setSuccess('Registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
@@ -54,20 +45,7 @@ const Register = () => {
   };
 
   return (
-    <div className="auth-page auth-split">
-      <div className="auth-visual" aria-hidden="true">
-        <div className="auth-visual-inner">
-          <Lazy3D
-            load={() => import('../components/3d/FoodTray3D')}
-            className="auth-visual-canvas"
-            fallback={<SceneFallback />}
-          />
-          <div className="auth-visual-copy">
-            <h2>Join the canteen</h2>
-            <p>Create your account to order ahead, track every meal, and skip the line at AparnaCanteen.</p>
-          </div>
-        </div>
-      </div>
+    <div className="auth-page">
       <motion.div
         className="auth-container"
         initial={{ opacity: 0, y: 12 }}
@@ -167,20 +145,6 @@ const Register = () => {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" htmlFor="register-confirm-password">Confirm Password *</label>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                name="confirmPassword"
-                className="form-input"
-                placeholder="Re-enter password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                id="register-confirm-password"
-              />
             </div>
 
             <MotionButton type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }} disabled={loading} id="register-submit">

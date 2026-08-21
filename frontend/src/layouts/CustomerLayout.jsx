@@ -32,6 +32,8 @@ const CustomerLayout = () => {
         className="hamburger-btn"
         onClick={() => setSidebarOpen(!sidebarOpen)}
         id="hamburger-toggle"
+        aria-label="Toggle navigation menu"
+        aria-expanded={sidebarOpen}
         whileTap={{ scale: 0.95 }}
       >
         {sidebarOpen ? <X size={22} /> : <Menu size={22} />}

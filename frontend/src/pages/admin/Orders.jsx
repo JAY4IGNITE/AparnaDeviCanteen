@@ -163,7 +163,7 @@ const AdminOrders = () => {
           style={{ paddingRight: searchQuery ? '2.5rem' : '1rem' }}
         />
         {searchQuery && (
-          <button type="button" className="search-bar-clear" onClick={() => setSearchQuery('')}>
+          <button type="button" className="search-bar-clear" onClick={() => setSearchQuery('')} aria-label="Clear search">
             <X size={16} />
           </button>
         )}

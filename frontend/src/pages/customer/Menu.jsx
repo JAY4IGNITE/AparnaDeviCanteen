@@ -8,6 +8,8 @@ import AlertBanner from '../../components/ui/AlertBanner';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
 import MotionButton from '../../components/ui/MotionButton';
+import Lazy3D from '../../components/3d/Lazy3D';
+import SceneFallback from '../../components/3d/SceneFallback';
 import { staggerContainer, fadeUp } from '../../lib/motion';
 
 const MenuPage = () => {
@@ -116,9 +118,21 @@ const MenuPage = () => {
       </AlertBanner>
 
       {menuItems.length === 0 ? (
-        <EmptyState icon={Package} title="No items available" description="Check back later for new menu items." />
+        <EmptyState icon={Package} title="No items available" description="Check back later for new menu items." scene={() => import('../../components/3d/EmptyMenu3D')} />
       ) : (
-        <div className="menu-categories">
+        <>
+          <div className="menu-featured">
+            <div className="menu-featured-copy">
+              <h2>Freshly made, served hot</h2>
+              <p>Handpicked favourites from the AparnaCanteen kitchen.</p>
+            </div>
+            <Lazy3D
+              load={() => import('../../components/3d/FoodTray3D')}
+              className="menu-featured-canvas"
+              fallback={<SceneFallback />}
+            />
+          </div>
+          <div className="menu-categories">
           {categories.map(([category, items]) => (
             <div key={category} className="menu-category-section">
               <h2 className="category-title">{category}</h2>
@@ -153,11 +167,11 @@ const MenuPage = () => {
                     <div className="menu-card-actions">
                       {cart[item.id] ? (
                         <div className="quantity-control">
-                          <MotionButton className="quantity-btn" onClick={() => removeFromCart(item.id)} id={`decrease-${item.id}`}>
+                          <MotionButton className="quantity-btn" onClick={() => removeFromCart(item.id)} id={`decrease-${item.id}`} aria-label={`Remove one ${item.item_name}`}>
                             <Minus size={16} />
                           </MotionButton>
                           <span className="quantity-value">{cart[item.id].quantity}</span>
-                          <MotionButton className="quantity-btn" onClick={() => addToCart(item)} id={`increase-${item.id}`}>
+                          <MotionButton className="quantity-btn" onClick={() => addToCart(item)} id={`increase-${item.id}`} aria-label={`Add one more ${item.item_name}`}>
                             <Plus size={16} />
                           </MotionButton>
                         </div>
@@ -173,6 +187,7 @@ const MenuPage = () => {
             </div>
           ))}
         </div>
+        </>
       )}
 
       {getCartCount() > 0 && (
@@ -193,7 +208,7 @@ const MenuPage = () => {
       <AnimatedModal open={showCart} onClose={() => setShowCart(false)}>
         <div className="modal-header">
           <h3>Your Cart</h3>
-          <button className="btn btn-ghost" onClick={() => setShowCart(false)} id="close-cart">
+          <button className="btn btn-ghost" onClick={() => setShowCart(false)} id="close-cart" aria-label="Close cart">
             <X size={22} />
           </button>
         </div>
@@ -210,11 +225,11 @@ const MenuPage = () => {
                     <p>₹{item.price} × {item.quantity}</p>
                   </div>
                   <div className="quantity-control">
-                    <MotionButton className="quantity-btn" onClick={() => removeFromCart(item.id)}>
+                    <MotionButton className="quantity-btn" onClick={() => removeFromCart(item.id)} aria-label={`Remove one ${item.item_name}`}>
                       <Minus size={14} />
                     </MotionButton>
                     <span className="quantity-value">{item.quantity}</span>
-                    <MotionButton className="quantity-btn" onClick={() => addToCart(item)}>
+                    <MotionButton className="quantity-btn" onClick={() => addToCart(item)} aria-label={`Add one more ${item.item_name}`}>
                       <Plus size={14} />
                     </MotionButton>
                   </div>

@@ -380,3 +380,41 @@
   }
 }
 
+/* ==========================================================================
+   3D empty-state canvas + reduced-motion guard
+   ========================================================================== */
+
+.announcements-empty-canvas {
+  width: 160px;
+  height: 160px;
+  /* Centre the static Megaphone fallback so the fixed box leaves no dead space
+     when the 3D scene is skipped (no WebGL / reduced-motion / low-end device). */
+  display: grid;
+  place-items: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubbles-container {
+    display: none;
+  }
+
+  .bubble,
+  .pulse-icon,
+  .sparkle-icon,
+  .card-indicator,
+  .empty-icon-wrapper,
+  .error-icon {
+    animation: none !important;
+  }
+
+  .announcement-card {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+
+  .announcement-card:hover {
+    transform: none;
+  }
+}
+

@@ -56,7 +56,7 @@ const Orders = () => {
       <PageHeader title="My Orders" subtitle="Track your past and current orders" />
 
       {orders.length === 0 ? (
-        <EmptyState icon={Package} title="No orders yet" description="Place your first order from the menu!" />
+        <EmptyState icon={Package} title="No orders yet" description="Place your first order from the menu!" scene={() => import('../../components/3d/EmptyOrders3D')} />
       ) : (
         orders.map((order, index) => (
           <motion.div

@@ -1,4 +1,156 @@
+/* Layer order must be declared before the imports below: a layer's position is
+   fixed by its first appearance, so without this the `base` layer (declared
+   further down this file) would land after `utilities` and override it. */
+@layer theme, base, components, utilities;
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+/* ======================== TAILWIND v4 (PREFLIGHT INTENTIONALLY OMITTED) ========
+   This app ships its own reset and semantic component styles (below). Tailwind's
+   preflight would reset `a`, `h1`-`h6`, `img`, `button` and form controls and
+   visually regress every existing page, so we import only the theme + utilities.
+   Everything else about Tailwind (utilities, variants, @theme) works as normal.
+   ============================================================================ */
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+@import 'tw-animate-css';
+
+/* Importing Tailwind's sub-files individually (to skip preflight) also skips the
+   implicit source registration that a plain `@import "tailwindcss"` sets up, so
+   the content sources are declared explicitly here. Paths are relative to this
+   file. */
+@source '../index.html';
+@source './**/*.{js,jsx}';
+
+/* ======================== shadcn/ui DESIGN TOKENS ========================
+   Dark-only app: the dark values live directly on :root, so there is no `.dark`
+   class and no `dark:` variant to manage. shadcn components read these tokens,
+   not a theme class, so everything themes correctly. Values are sourced from the
+   existing brand palette defined in the next block, keeping one source of truth.
+   ======================================================================== */
+:root {
+  --radius: 0.75rem;
+
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+
+  --card: var(--bg-card);
+  --card-foreground: var(--text-primary);
+
+  --popover: var(--bg-elevated);
+  --popover-foreground: var(--text-primary);
+
+  --primary: var(--primary-500);
+  --primary-foreground: #ffffff;
+
+  --secondary: var(--bg-card-hover);
+  --secondary-foreground: var(--text-primary);
+
+  --muted: var(--bg-input);
+  --muted-foreground: var(--text-secondary);
+
+  --accent: var(--bg-elevated);
+  --accent-foreground: var(--text-accent);
+
+  --destructive: var(--danger);
+  --destructive-foreground: #ffffff;
+
+  --border: var(--border-color);
+  --input: var(--border-light);
+  --ring: var(--primary-500);
+
+  --surface: var(--bg-secondary);
+  --surface-foreground: var(--text-primary);
+  --subtle: var(--text-muted);
+
+  --sidebar: var(--bg-sidebar);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--primary-500);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--bg-card-hover);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--border-color);
+  --sidebar-ring: var(--primary-500);
+}
+
+/* `inline` keeps these out of the emitted custom-property set and inlines the
+   references straight into the generated utilities — which is also what stops
+   Tailwind's default radius and shadow scales from colliding with the app's
+   own same-named variables further down this file. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-subtle: var(--subtle);
+
+  --color-brand-50: var(--primary-50);
+  --color-brand-100: var(--primary-100);
+  --color-brand-200: var(--primary-200);
+  --color-brand-300: var(--primary-300);
+  --color-brand-400: var(--primary-400);
+  --color-brand-500: var(--primary-500);
+  --color-brand-600: var(--primary-600);
+  --color-brand-700: var(--primary-700);
+  --color-brand-800: var(--primary-800);
+  --color-brand-900: var(--primary-900);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 12px);
+
+  /* Named --font-brand rather than --font-display to avoid a self-referential
+     `--font-display: var(--font-display)` token. `font-sans` is deliberately
+     left unmapped: Tailwind's default already resolves through the app's own
+     unlayered `--font-sans`, which wins the cascade and yields Inter. */
+  --font-brand: var(--font-display);
+}
+
+/* Preflight normally supplies the default border colour that shadcn components
+   assume. Scoped to @layer base so every unlayered app rule still wins. */
+@layer base {
+  *,
+  ::before,
+  ::after,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--border);
+  }
+}
 
 /* ======================== CSS DESIGN SYSTEM ======================== */
 :root {
@@ -81,77 +233,88 @@
   --sidebar-width: 260px;
 }
 
-/* ======================== RESET & BASE ======================== */
-*, *::before, *::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* ======================== RESET & BASE ========================
+   Wrapped in @layer base so Tailwind utilities can win against it. Unlayered
+   CSS beats *any* layer regardless of specificity, so leaving the `*` reset and
+   these element selectors unlayered would silently defeat every padding,
+   margin, colour and display utility. Layering changes nothing for the existing
+   component styles below (they are unlayered and still take precedence).
+   ============================================================================ */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-html {
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-body {
-  font-family: var(--font-sans);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  line-height: 1.6;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-#root {
-  min-height: 100vh;
-}
+  #root {
+    min-height: 100vh;
+  }
 
-a {
-  color: var(--primary-400);
-  text-decoration: none;
-  transition: color var(--transition-fast);
-}
+  a {
+    color: var(--primary-400);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
 
-a:hover {
-  color: var(--primary-300);
-}
+  a:hover {
+    color: var(--primary-300);
+  }
 
-img {
-  max-width: 100%;
-  display: block;
-}
+  img {
+    max-width: 100%;
+    display: block;
+  }
 
-/* ======================== SCROLLBAR ======================== */
-::-webkit-scrollbar {
-  width: 6px;
-}
+  /* ======================== SCROLLBAR ======================== */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
 
-::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
-}
+  ::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+  }
 
-::-webkit-scrollbar-thumb {
-  background: var(--border-light);
-  border-radius: var(--radius-full);
-}
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-light);
+    border-radius: var(--radius-full);
+  }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-600);
-}
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-600);
+  }
 
-/* ======================== TYPOGRAPHY ======================== */
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--text-primary);
-}
+  /* ======================== TYPOGRAPHY ======================== */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text-primary);
+  }
 
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.5rem; }
-h4 { font-size: 1.25rem; }
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.5rem; }
+  h4 { font-size: 1.25rem; }
+}
+/* ===================== end @layer base ===================== */
 
 /* ======================== LAYOUT ======================== */
 .app-layout {
@@ -214,7 +377,7 @@ h4 { font-size: 1.25rem; }
   display: flex;
   flex-direction: column;
   z-index: 100;
-  transition: transform var(--transition-base);
+  transition: transform var(--transition-base), visibility var(--transition-base);
   overflow-y: auto;
 }
 
@@ -797,6 +960,98 @@ select.form-input {
   font-weight: 600;
 }
 
+/* Split-screen auth (decorative 3D beside the card, form-only on mobile) */
+.auth-page.auth-split {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: stretch;
+  justify-items: stretch;
+}
+
+.auth-split .auth-container {
+  align-self: center;
+  justify-self: center;
+}
+
+.auth-visual {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2.5rem;
+  overflow: hidden;
+  border-right: 1px solid var(--glass-border);
+  background:
+    radial-gradient(ellipse at 50% 25%, rgba(249, 115, 22, 0.14) 0%, transparent 60%),
+    linear-gradient(160deg, rgba(26, 26, 46, 0.55), rgba(10, 10, 15, 0.15));
+}
+
+.auth-visual-inner {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.auth-visual-canvas {
+  width: 100%;
+  height: clamp(280px, 42vh, 420px);
+}
+
+/* Static stand-in for any decorative 3D slot (no WebGL / reduced-motion / low-end
+   device). Uses the brand palette so the degraded view stays on-theme. */
+.scene-fallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-xl);
+  color: var(--primary);
+  background:
+    radial-gradient(120% 120% at 70% 20%, rgba(249, 115, 22, 0.18), rgba(249, 115, 22, 0) 62%),
+    linear-gradient(160deg, var(--bg-card), var(--bg-secondary));
+  border: 1px solid var(--border-color);
+}
+
+.scene-fallback svg {
+  width: 34%;
+  max-width: 96px;
+  height: auto;
+  opacity: 0.9;
+  filter: drop-shadow(0 12px 26px rgba(249, 115, 22, 0.28));
+}
+
+.auth-visual-copy {
+  text-align: center;
+  margin-top: 1.25rem;
+  max-width: 400px;
+}
+
+.auth-visual-copy h2 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.auth-visual-copy p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+@media (max-width: 900px) {
+  .auth-page.auth-split {
+    display: flex;
+  }
+
+  .auth-visual {
+    display: none;
+  }
+}
+
 /* ======================== MENU GRID ======================== */
 .menu-grid {
   display: grid;
@@ -1232,10 +1487,15 @@ select.form-input {
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
+    /* visibility, not just an off-screen transform: keeps the closed drawer's
+       nav links out of the tab order. It is transitioned, so it stays visible
+       for the whole slide-out and flips back immediately on open. */
+    visibility: hidden;
   }
 
   .sidebar.open {
     transform: translateX(0);
+    visibility: visible;
   }
 
   .sidebar-overlay {
@@ -1554,6 +1814,22 @@ select.form-input {
   color: var(--text-muted);
 }
 
+/* Fixed-size slot for an empty-state 3D scene. Centres the static icon fallback
+   so the box does not leave dead space when the canvas is skipped; the R3F
+   canvas carries its own width/height 100% and still fills the slot. */
+.empty-state-3d {
+  display: grid;
+  place-items: center;
+}
+
+.empty-state-3d .empty-state-icon {
+  margin: 0;
+}
+
+.empty-state-3d .empty-state-icon svg {
+  margin: 0;
+}
+
 /* Filter bar */
 .filter-bar {
   display: flex;
@@ -1601,6 +1877,10 @@ select.form-input {
   cursor: pointer;
   color: var(--text-muted);
   display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
   padding: 0.25rem;
   border-radius: var(--radius-sm);
 }
@@ -1680,6 +1960,125 @@ select.form-input {
 
 .btn-whatsapp:hover {
   background: rgba(37, 211, 102, 0.08) !important;
+}
+
+/* Home hero (decorative 3D beside welcome copy) */
+.home-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.home-hero-visual {
+  display: none;
+}
+
+.home-hero-canvas {
+  width: 100%;
+  height: clamp(240px, 30vh, 340px);
+}
+
+@media (min-width: 900px) {
+  .home-hero {
+    grid-template-columns: 1.15fr 1fr;
+    gap: 2rem;
+  }
+
+  .home-hero .welcome-section {
+    text-align: left;
+    padding: 2rem 0;
+  }
+
+  .home-hero-visual {
+    display: block;
+  }
+}
+
+/* Menu featured banner (decorative 3D strip) */
+.menu-featured {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.75rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 85% 25%, rgba(249, 115, 22, 0.16) 0%, transparent 60%),
+    var(--gradient-card);
+}
+
+.menu-featured-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.menu-featured-copy h2 {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  margin-bottom: 0.25rem;
+}
+
+.menu-featured-copy p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.menu-featured-canvas {
+  width: 200px;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .menu-featured-canvas {
+    display: none;
+  }
+}
+
+/* Feedback two-column layout (responsive) */
+.feedback-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 860px) {
+  .feedback-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Admin dashboard decorative 3D (behind the KPI grid, never over the values) */
+.admin-dashboard {
+  position: relative;
+}
+
+.admin-dashboard > .page-header,
+.admin-dashboard > .stats-grid {
+  position: relative;
+  z-index: 1;
+}
+
+.dashboard-decoration {
+  position: absolute;
+  top: -1.5rem;
+  right: -1rem;
+  width: 260px;
+  height: 260px;
+  z-index: 0;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .dashboard-decoration {
+    display: none;
+  }
 }
 
 /* Menu category */
@@ -1783,7 +2182,9 @@ select.form-input {
 
 .auth-toggle-password {
   position: absolute;
-  right: 0.75rem;
+  /* 0.5rem, not 0.75rem: the 32px hit area below then sits exactly inside the
+     input's reserved 2.5rem right padding instead of overlapping the text. */
+  right: 0.5rem;
   top: 50%;
   transform: translateY(-50%);
   background: none;
@@ -1791,6 +2192,12 @@ select.form-input {
   cursor: pointer;
   color: var(--text-muted);
   display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Comfortable tap target for an icon-only control, matching the other
+     icon buttons; the glyph itself keeps its size. */
+  min-width: 32px;
+  min-height: 32px;
   padding: 0.25rem;
   border-radius: var(--radius-sm);
 }

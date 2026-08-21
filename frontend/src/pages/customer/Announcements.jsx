@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Megaphone, AlertCircle, Sparkles, Calendar, Clock } from 'lucide-react';
+import Lazy3D from '../../components/3d/Lazy3D';
 import './Announcements.css';
 
 // Generate static configuration for bubbles once to prevent re-renders from resetting animations
@@ -94,8 +95,12 @@ const CustomerAnnouncements = () => {
           </div>
         ) : announcements.length === 0 ? (
           <div className="announcements-empty">
-            <div className="empty-icon-wrapper">
-              <Megaphone size={48} />
+            <div className="empty-icon-wrapper" aria-hidden="true">
+              <Lazy3D
+                load={() => import('../../components/3d/EmptyAnnouncements3D')}
+                className="announcements-empty-canvas"
+                fallback={<Megaphone size={48} />}
+              />
             </div>
             <h2>All caught up!</h2>
             <p>There are no active announcements right now. Check back later!</p>

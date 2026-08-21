@@ -15,7 +15,18 @@ const InteractiveCard = ({ children, onClick, className = '', index = 0 }) => {
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
-      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick(e) : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              // role="button" must activate on Space as well as Enter; Space is
+              // preventDefault-ed so it activates instead of scrolling the page.
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick(e);
+              }
+            }
+          : undefined
+      }
     >
       {children}
     </motion.div>

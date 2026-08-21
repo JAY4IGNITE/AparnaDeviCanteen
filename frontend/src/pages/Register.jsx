@@ -5,6 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import { UserPlus, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import MotionButton from '../components/ui/MotionButton';
 import AlertBanner from '../components/ui/AlertBanner';
+import Lazy3D from '../components/3d/Lazy3D';
+import SceneFallback from '../components/3d/SceneFallback';
 import { useMotionSafe } from '../lib/motion';
 
 const Register = () => {
@@ -52,7 +54,20 @@ const Register = () => {
   };
 
   return (
-    <div className="auth-page">
+    <div className="auth-page auth-split">
+      <div className="auth-visual" aria-hidden="true">
+        <div className="auth-visual-inner">
+          <Lazy3D
+            load={() => import('../components/3d/FoodTray3D')}
+            className="auth-visual-canvas"
+            fallback={<SceneFallback />}
+          />
+          <div className="auth-visual-copy">
+            <h2>Join the canteen</h2>
+            <p>Create your account to order ahead, track every meal, and skip the line at AparnaCanteen.</p>
+          </div>
+        </div>
+      </div>
       <motion.div
         className="auth-container"
         initial={{ opacity: 0, y: 12 }}
@@ -85,7 +100,7 @@ const Register = () => {
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label className="form-label">Full Name *</label>
+              <label className="form-label" htmlFor="register-name">Full Name *</label>
               <input
                 type="text"
                 name="name"
@@ -99,7 +114,7 @@ const Register = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Phone Number *</label>
+              <label className="form-label" htmlFor="register-phone">Phone Number *</label>
               <input
                 type="tel"
                 name="phone"
@@ -113,7 +128,7 @@ const Register = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Hostel Block *</label>
+              <label className="form-label" htmlFor="register-block">Hostel Block *</label>
               <select
                 name="hostelBlock"
                 className="form-input"
@@ -129,7 +144,7 @@ const Register = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Password *</label>
+              <label className="form-label" htmlFor="register-password">Password *</label>
               <div className="auth-input-wrapper">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -145,6 +160,8 @@ const Register = () => {
                 <button
                   type="button"
                   className="auth-toggle-password"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-pressed={showPassword}
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -153,7 +170,7 @@ const Register = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Confirm Password *</label>
+              <label className="form-label" htmlFor="register-confirm-password">Confirm Password *</label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 name="confirmPassword"

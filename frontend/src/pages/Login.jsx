@@ -3,9 +3,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { LogIn, Phone, Mail, Lock, AlertCircle, Eye, EyeOff, MessageCircle } from 'lucide-react';
-import AnimatedTabs from '../components/ui/AnimatedTabs';
 import MotionButton from '../components/ui/MotionButton';
 import AlertBanner from '../components/ui/AlertBanner';
+import Lazy3D from '../components/3d/Lazy3D';
+import SceneFallback from '../components/3d/SceneFallback';
 import { useMotionSafe } from '../lib/motion';
 
 const Login = () => {
@@ -48,7 +49,20 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-page">
+    <div className="auth-page auth-split">
+      <div className="auth-visual" aria-hidden="true">
+        <div className="auth-visual-inner">
+          <Lazy3D
+            load={() => import('../components/3d/FoodTray3D')}
+            className="auth-visual-canvas"
+            fallback={<SceneFallback />}
+          />
+          <div className="auth-visual-copy">
+            <h2>Skip the queue</h2>
+            <p>Order your favourite meals from AparnaCanteen and pick them up hot — straight from the counter.</p>
+          </div>
+        </div>
+      </div>
       <motion.div
         className="auth-container"
         initial={{ opacity: 0, y: 12 }}
@@ -76,7 +90,7 @@ const Login = () => {
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label className="form-label">Email or Phone Number</label>
+              <label className="form-label" htmlFor="login-identifier">Email or Phone Number</label>
               <div className="auth-input-wrapper">
                 {formData.identifier.includes('@') ? (
                   <Mail size={18} className="auth-input-icon" />
@@ -97,7 +111,7 @@ const Login = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Password</label>
+              <label className="form-label" htmlFor="login-password">Password</label>
               <div className="auth-input-wrapper">
                 <Lock size={18} className="auth-input-icon" />
                 <input
@@ -113,11 +127,32 @@ const Login = () => {
                 <button
                   type="button"
                   className="auth-toggle-password"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-pressed={showPassword}
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                style={{ flex: 1 }}
+                onClick={() => setFormData({ identifier: 'admin@test.com', password: 'password123' })}
+              >
+                Admin Test
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                style={{ flex: 1 }}
+                onClick={() => setFormData({ identifier: 'user@test.com', password: 'password123' })}
+              >
+                User Test
+              </button>
             </div>
 
             <MotionButton type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }} disabled={loading} id="login-submit">

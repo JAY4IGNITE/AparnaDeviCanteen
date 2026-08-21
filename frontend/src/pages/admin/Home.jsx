@@ -4,6 +4,7 @@ import { ShoppingBag, DollarSign, Clock, CheckCircle } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import StatCard from '../../components/ui/StatCard';
 import LoadingState from '../../components/ui/LoadingState';
+import Lazy3D from '../../components/3d/Lazy3D';
 
 const AdminHome = () => {
   const [stats, setStats] = useState({ totalOrders: 0, totalRevenue: 0, pendingOrders: 0, completedOrders: 0 });
@@ -50,7 +51,15 @@ const AdminHome = () => {
   ];
 
   return (
-    <div>
+    <div className="admin-dashboard">
+      <div className="dashboard-decoration" aria-hidden="true">
+        <Lazy3D
+          load={() => import('../../components/3d/DashboardDecoration3D')}
+          style={{ width: '100%', height: '100%' }}
+          fallback={<></>}
+        />
+      </div>
+
       <PageHeader title="Admin Dashboard" subtitle="Overview of all activity" />
 
       <div className="stats-grid">

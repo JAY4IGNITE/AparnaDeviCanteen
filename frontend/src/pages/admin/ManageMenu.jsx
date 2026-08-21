@@ -170,7 +170,7 @@ const ManageMenu = () => {
       <AnimatedModal open={showModal} onClose={() => setShowModal(false)}>
         <div className="modal-header">
           <h3>{editItem ? 'Edit Item' : 'Add New Item'}</h3>
-          <button className="btn btn-ghost" onClick={() => setShowModal(false)}>
+          <button className="btn btn-ghost" onClick={() => setShowModal(false)} aria-label="Close dialog">
             <X size={22} />
           </button>
         </div>

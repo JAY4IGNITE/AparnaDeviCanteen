@@ -5,8 +5,6 @@ import { useAuth } from '../context/AuthContext';
 import { LogIn, Phone, Mail, Lock, AlertCircle, Eye, EyeOff, MessageCircle } from 'lucide-react';
 import MotionButton from '../components/ui/MotionButton';
 import AlertBanner from '../components/ui/AlertBanner';
-import Lazy3D from '../components/3d/Lazy3D';
-import SceneFallback from '../components/3d/SceneFallback';
 import { useMotionSafe } from '../lib/motion';
 
 const Login = () => {
@@ -49,20 +47,7 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-page auth-split">
-      <div className="auth-visual" aria-hidden="true">
-        <div className="auth-visual-inner">
-          <Lazy3D
-            load={() => import('../components/3d/FoodTray3D')}
-            className="auth-visual-canvas"
-            fallback={<SceneFallback />}
-          />
-          <div className="auth-visual-copy">
-            <h2>Skip the queue</h2>
-            <p>Order your favourite meals from AparnaCanteen and pick them up hot — straight from the counter.</p>
-          </div>
-        </div>
-      </div>
+    <div className="auth-page">
       <motion.div
         className="auth-container"
         initial={{ opacity: 0, y: 12 }}
@@ -136,7 +121,7 @@ const Login = () => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
@@ -165,11 +150,11 @@ const Login = () => {
               Don't have an account? <Link to="/register">Sign Up</Link>
             </div>
             <div className="auth-contact-section">
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '0.4rem', fontSize: '0.8rem' }}>
                 If any Password related queries contact to this number
               </p>
               <div className="auth-contact-actions">
-                <span style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '1rem' }}>9989092333</span>
+                <span style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.925rem' }}>9989092333</span>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <a href="tel:9989092333" className="btn btn-secondary btn-sm">
                     <Phone size={14} /> Call

@@ -387,6 +387,10 @@
 .announcements-empty-canvas {
   width: 160px;
   height: 160px;
+  /* Centre the static Megaphone fallback so the fixed box leaves no dead space
+     when the 3D scene is skipped (no WebGL / reduced-motion / low-end device). */
+  display: grid;
+  place-items: center;
 }
 
 @media (prefers-reduced-motion: reduce) {

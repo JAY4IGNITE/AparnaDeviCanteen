@@ -35,8 +35,13 @@ function DialogContent({ className, children, showClose = true, ...props }) {
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          'fixed top-1/2 left-1/2 z-50 flex max-h-[90vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col',
-          'overflow-hidden rounded-xl border border-border bg-[var(--bg-elevated)] shadow-[var(--shadow-xl)]',
+          'fixed top-1/2 left-1/2 z-50 flex max-h-[90vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col max-[480px]:max-h-[95vh]',
+          // overflow-y-auto (not overflow-hidden): the legacy `.modal-body` call
+          // sites have no scroll container of their own, so the whole dialog must
+          // scroll — matching the pre-redesign `.modal { overflow-y: auto }`.
+          // overflow-x-hidden is explicit because a `visible` x-axis next to a
+          // non-visible y-axis computes to `auto` and would add a stray scrollbar.
+          'overflow-x-hidden overflow-y-auto rounded-xl border border-border bg-[var(--bg-elevated)] shadow-[var(--shadow-xl)]',
           'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
           'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
           'duration-200',

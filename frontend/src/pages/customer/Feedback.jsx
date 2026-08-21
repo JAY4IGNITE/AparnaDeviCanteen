@@ -70,7 +70,7 @@ const Feedback = () => {
           transition={{ delay: 0.05 }}
         >
           <h2 className="section-title" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <MessageSquare className="text-accent" size={20} /> Share Your Opinion
+            <MessageSquare className="text-accent-foreground" size={20} /> Share Your Opinion
           </h2>
 
           {alert && (
@@ -116,7 +116,7 @@ const Feedback = () => {
           style={{ display: 'flex', flexDirection: 'column' }}
         >
           <h2 className="section-title" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Calendar className="text-accent" size={20} /> Your Feedback History
+            <Calendar className="text-accent-foreground" size={20} /> Your Feedback History
           </h2>
 
           {loadingHistory ? (

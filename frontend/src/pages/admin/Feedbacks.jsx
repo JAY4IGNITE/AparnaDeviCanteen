@@ -120,7 +120,7 @@ const Feedbacks = () => {
           description="No feedbacks match your current search or filters."
         />
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))', gap: '1.5rem' }}>
           {filteredFeedbacks.map((item, idx) => (
             <motion.div
               key={item.id}
@@ -135,7 +135,7 @@ const Feedbacks = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                   <span style={{ fontWeight: '700', fontSize: '1rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <User size={16} className="text-accent" /> {item.customer?.name || 'Unknown'}
+                    <User size={16} className="text-accent-foreground" /> {item.customer?.name || 'Unknown'}
                   </span>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                     <Phone size={12} /> {item.customer?.phone || 'N/A'}

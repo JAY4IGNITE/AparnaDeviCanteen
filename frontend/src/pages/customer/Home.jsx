@@ -6,8 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 import { UtensilsCrossed, ShoppingBag, Megaphone } from 'lucide-react';
 import InteractiveCard from '../../components/ui/InteractiveCard';
 import Lazy3D from '../../components/3d/Lazy3D';
+import SceneFallback from '../../components/3d/SceneFallback';
 import { useMotionSafe } from '../../lib/motion';
-import heroImg from '../../assets/hero.png';
 
 const Home = () => {
   const { user } = useAuth();
@@ -84,7 +84,7 @@ const Home = () => {
           <Lazy3D
             load={() => import('../../components/3d/FoodNestHero3D')}
             className="home-hero-canvas"
-            fallback={<img src={heroImg} alt="" className="home-hero-img" />}
+            fallback={<SceneFallback icon={UtensilsCrossed} />}
           />
         </div>
       </div>

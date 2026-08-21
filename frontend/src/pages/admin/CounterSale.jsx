@@ -152,7 +152,7 @@ const CounterSale = () => {
       </AlertBanner>
 
       {/* Main Grid: Active Canteen Menu & Real-time Bill Checkout */}
-      <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+      <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
         
         {/* Left Side: Canteen Menu Selection */}
         <div className="card" style={{ padding: '1.5rem' }}>
@@ -191,22 +191,24 @@ const CounterSale = () => {
 
                   {/* Quantity adjustment panel */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <button 
+                    <button
                       type="button"
-                      className="btn btn-secondary btn-sm" 
+                      className="btn btn-secondary btn-sm"
                       onClick={() => handleDecrement(item.id)}
-                      style={{ padding: '0.35rem', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      aria-label={`Remove one ${item.item_name}`}
+                      style={{ padding: '0.35rem', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
                       <Minus size={14} />
                     </button>
                     <span style={{ fontWeight: 700, minWidth: '20px', textAlign: 'center', fontSize: '1rem', color: 'var(--text-primary)' }}>
                       {quantities[item.id] || 0}
                     </span>
-                    <button 
+                    <button
                       type="button"
-                      className="btn btn-primary btn-sm" 
+                      className="btn btn-primary btn-sm"
                       onClick={() => handleIncrement(item.id)}
-                      style={{ padding: '0.35rem', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      aria-label={`Add one more ${item.item_name}`}
+                      style={{ padding: '0.35rem', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
                       <Plus size={14} />
                     </button>

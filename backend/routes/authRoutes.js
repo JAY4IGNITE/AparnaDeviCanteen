@@ -37,10 +37,13 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please enter a valid phone number (10 digits, or 12/13 digits starting with 91 or +91)' });
     }
 
+    const tenDigitPhone = trimmedPhone.slice(-10);
+    const possibleFormats = [tenDigitPhone, `91${tenDigitPhone}`, `+91${tenDigitPhone}`];
+
     const { data: existingPhone } = await supabase
       .from('users')
       .select('id')
-      .eq('phone', trimmedPhone)
+      .in('phone', possibleFormats)
       .maybeSingle();
 
     if (existingPhone) {
@@ -93,7 +96,14 @@ router.post('/login', async (req, res) => {
       if (trimmed.includes('@')) {
         query = query.eq('email', trimmed.toLowerCase());
       } else {
-        query = query.eq('phone', trimmed);
+        const phoneRegex = /^(?:\+91|91)?\d{10}$/;
+        if (phoneRegex.test(trimmed)) {
+          const tenDigitPhone = trimmed.slice(-10);
+          const possibleFormats = [tenDigitPhone, `91${tenDigitPhone}`, `+91${tenDigitPhone}`];
+          query = query.in('phone', possibleFormats);
+        } else {
+          query = query.eq('phone', trimmed);
+        }
       }
     }
     // 2. Support legacy role-based login format for backward compatibility
@@ -106,7 +116,15 @@ router.post('/login', async (req, res) => {
       if (!phone) {
         return res.status(400).json({ success: false, message: 'Phone number is required' });
       }
-      query = query.eq('phone', phone.trim()).eq('role', 'customer');
+      const trimmed = phone.trim();
+      const phoneRegex = /^(?:\+91|91)?\d{10}$/;
+      if (phoneRegex.test(trimmed)) {
+        const tenDigitPhone = trimmed.slice(-10);
+        const possibleFormats = [tenDigitPhone, `91${tenDigitPhone}`, `+91${tenDigitPhone}`];
+        query = query.in('phone', possibleFormats).eq('role', 'customer');
+      } else {
+        query = query.eq('phone', trimmed).eq('role', 'customer');
+      }
     }
 
     const { data: user, error } = await query.maybeSingle();
@@ -162,17 +180,18 @@ router.put('/profile', protect, async (req, res) => {
     }
 
     // Check if phone number is already registered by another user
-    if (trimmedPhone !== req.user.phone) {
-      const { data: existingUser, error: checkError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('phone', trimmedPhone)
-        .neq('id', req.user.id)
-        .maybeSingle();
+    const tenDigitPhone = trimmedPhone.slice(-10);
+    const possibleFormats = [tenDigitPhone, `91${tenDigitPhone}`, `+91${tenDigitPhone}`];
 
-      if (existingUser) {
-        return res.status(400).json({ success: false, message: 'Phone number already in use by another account' });
-      }
+    const { data: existingUser, error: checkError } = await supabase
+      .from('users')
+      .select('id')
+      .in('phone', possibleFormats)
+      .neq('id', req.user.id)
+      .maybeSingle();
+
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'Phone number already in use by another account' });
     }
 
     // Update details in database

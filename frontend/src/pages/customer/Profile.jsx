@@ -46,6 +46,13 @@ const Profile = () => {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    const phoneRegex = /^(?:\+91|91)?\d{10}$/;
+    if (!phoneRegex.test(profileData.phone.trim())) {
+      setError('Please enter a valid phone number (10 digits, or 12/13 digits starting with 91 or +91).');
+      return;
+    }
+
     setLoading(true);
 
     try {

@@ -30,6 +30,13 @@ router.post('/register', async (req, res) => {
 
     // Check if phone already exists
     const trimmedPhone = phone.trim();
+
+    // Validate phone number format
+    const phoneRegex = /^(?:\+91|91)?\d{10}$/;
+    if (!phoneRegex.test(trimmedPhone)) {
+      return res.status(400).json({ success: false, message: 'Please enter a valid phone number (10 digits, or 12/13 digits starting with 91 or +91)' });
+    }
+
     const { data: existingPhone } = await supabase
       .from('users')
       .select('id')
@@ -147,6 +154,12 @@ router.put('/profile', protect, async (req, res) => {
     }
 
     const trimmedPhone = phone.trim();
+
+    // Validate phone number format
+    const phoneRegex = /^(?:\+91|91)?\d{10}$/;
+    if (!phoneRegex.test(trimmedPhone)) {
+      return res.status(400).json({ success: false, message: 'Please enter a valid phone number (10 digits, or 12/13 digits starting with 91 or +91)' });
+    }
 
     // Check if phone number is already registered by another user
     if (trimmedPhone !== req.user.phone) {

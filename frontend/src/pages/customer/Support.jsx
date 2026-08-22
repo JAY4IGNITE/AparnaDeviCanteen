@@ -16,6 +16,12 @@ const Support = () => {
       name: 'Admin',
       number: '9491008797',
       options: ['whatsapp']
+    },
+    {
+      title: 'Supporting Team',
+      name: 'Supporting Team',
+      number: '9989092333',
+      options: ['call', 'whatsapp']
     }
   ];
 

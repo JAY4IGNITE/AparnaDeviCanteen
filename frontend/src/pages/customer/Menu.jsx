@@ -106,7 +106,13 @@ const MenuPage = () => {
       acc[cat].push(item);
       return acc;
     }, {})
-  );
+  ).sort(([catA], [catB]) => {
+    const isStarterA = catA.toLowerCase().includes('starter') || catA.toLowerCase().includes('starer');
+    const isStarterB = catB.toLowerCase().includes('starter') || catB.toLowerCase().includes('starer');
+    if (isStarterA && !isStarterB) return -1;
+    if (!isStarterA && isStarterB) return 1;
+    return catA.localeCompare(catB);
+  });
 
   return (
     <div>

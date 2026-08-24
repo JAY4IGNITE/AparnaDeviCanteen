@@ -7,6 +7,7 @@ import MotionButton from '../components/ui/MotionButton';
 import AlertBanner from '../components/ui/AlertBanner';
 import AnimatedModal from '../components/ui/AnimatedModal';
 import { useMotionSafe } from '../lib/motion';
+import './StarsBackground.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({ identifier: '', password: '' });
@@ -54,7 +55,12 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-page">
+    <div className="auth-page" style={{ background: 'transparent' }}>
+      <div className="stars-container">
+        <div id="stars"></div>
+        <div id="stars2"></div>
+        <div id="stars3"></div>
+      </div>
       <motion.div
         className="auth-container"
         initial={{ opacity: 0, y: 12 }}

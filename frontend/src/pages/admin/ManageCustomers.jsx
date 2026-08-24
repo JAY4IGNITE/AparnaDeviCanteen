@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ShieldAlert, Trash2, CheckCircle, AlertCircle, Users, Search } from 'lucide-react';
+import { ShieldAlert, Trash2, CheckCircle, AlertCircle, Users, Search, KeyRound } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import AlertBanner from '../../components/ui/AlertBanner';
 import EmptyState from '../../components/ui/EmptyState';
@@ -56,6 +56,17 @@ const ManageCustomers = () => {
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (err) {
       setMessage({ type: 'error', text: 'Failed to delete customer' });
+    }
+  };
+
+  const resetPassword = async (customer) => {
+    if (!window.confirm(`Are you sure you want to reset ${customer.name}'s password to Reset@123?`)) return;
+    try {
+      const res = await axios.put(`/admin/customers/${customer.id}/reset-password`);
+      setMessage({ type: 'success', text: res.data.message || 'Password reset successfully' });
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+    } catch (err) {
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to reset password' });
     }
   };
 
@@ -171,6 +182,15 @@ const ManageCustomers = () => {
                         aria-label={cust.is_blocked ? `Unblock ${cust.name}` : `Block ${cust.name}`}
                       >
                         <ShieldAlert size={14} /> {cust.is_blocked ? 'Unblock' : 'Block'}
+                      </MotionButton>
+                      <MotionButton
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => resetPassword(cust)}
+                        style={{ color: 'var(--primary-500)', borderColor: 'rgba(249, 115, 22, 0.2)' }}
+                        title="Reset Password"
+                        aria-label={`Reset password for ${cust.name}`}
+                      >
+                        <KeyRound size={14} /> Reset
                       </MotionButton>
                       <MotionButton
                         className="btn btn-ghost btn-sm"

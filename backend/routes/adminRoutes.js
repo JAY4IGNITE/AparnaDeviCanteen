@@ -1,5 +1,6 @@
 const express = require('express');
 const ExcelJS = require('exceljs');
+const bcrypt = require('bcryptjs');
 const supabase = require('../db');
 const { protect, adminOnly } = require('../middleware/auth');
 
@@ -493,6 +494,33 @@ router.delete('/customers/:id', async (req, res) => {
 
     res.json({ success: true, message: 'Customer deleted' });
 
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// PUT /api/admin/customers/:id/reset-password — Reset a customer's password to Reset@123
+router.put('/customers/:id/reset-password', async (req, res) => {
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash('Reset@123', salt);
+
+    const { data: customer, error } = await supabase
+      .from('users')
+      .update({ password: hashedPassword })
+      .eq('id', req.params.id)
+      .select()
+      .single();
+
+    if (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+
+    if (!customer) {
+      return res.status(404).json({ success: false, message: 'Customer not found' });
+    }
+
+    res.json({ success: true, message: 'Password reset to Reset@123' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

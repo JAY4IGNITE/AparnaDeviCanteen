@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
@@ -6,6 +6,8 @@ import { UserPlus, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import MotionButton from '../components/ui/MotionButton';
 import AlertBanner from '../components/ui/AlertBanner';
 import { useMotionSafe } from '../lib/motion';
+import useNeonBorder from '../hooks/useNeonBorder';
+import './StarsBackground.css';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -21,6 +23,8 @@ const Register = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
   const { transition } = useMotionSafe();
+  const cardRef = useRef(null);
+  useNeonBorder(cardRef, { color: '#CC9149', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -52,14 +56,19 @@ const Register = () => {
   };
 
   return (
-    <div className="auth-page">
+    <div className="auth-page" style={{ background: 'transparent' }}>
+      <div className="stars-container">
+        <div id="stars"></div>
+        <div id="stars2"></div>
+        <div id="stars3"></div>
+      </div>
       <motion.div
         className="auth-container"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={transition}
       >
-        <div className="auth-card">
+        <div className="auth-card" ref={cardRef}>
           <div className="auth-header">
             <motion.div
               className="auth-logo"
@@ -169,3 +178,4 @@ const Register = () => {
 };
 
 export default Register;
+

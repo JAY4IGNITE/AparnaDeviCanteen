@@ -176,10 +176,10 @@ const Login = () => {
             Scan the QR code below to join our WhatsApp community for exclusive updates, offers, and daily menus!
           </p>
           <div style={{ padding: '0.5rem', background: '#fff', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-            <img src="/whatsapp-qr.jpg" alt="WhatsApp Community QR Code" style={{ width: '220px', height: '220px', objectFit: 'contain' }} />
+            <img src="/whatsapp-qr.jpg.jpeg" alt="WhatsApp Community QR Code" style={{ width: '220px', height: '220px', objectFit: 'contain' }} />
           </div>
           <a
-            href="https://chat.whatsapp.com/YOUR_INVITE_LINK_HERE"
+            href="https://chat.whatsapp.com/IHM8VcxiERE9beVp64zFDQ"
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-primary btn-lg"

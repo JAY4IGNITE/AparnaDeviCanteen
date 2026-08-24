@@ -164,6 +164,16 @@ router.put('/:id/cancel', protect, async (req, res) => {
       return res.status(500).json({ success: false, message: updateError.message });
     }
 
+    // 5. Delete order items from the database to reduce the database item counts
+    const { error: deleteError } = await supabase
+      .from('order_items')
+      .delete()
+      .eq('order_id', req.params.id);
+
+    if (deleteError) {
+      console.error('Failed to delete order items upon cancellation:', deleteError);
+    }
+
     res.json({ success: true, data: updatedOrder });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +7,7 @@ import MotionButton from '../components/ui/MotionButton';
 import AlertBanner from '../components/ui/AlertBanner';
 import AnimatedModal from '../components/ui/AnimatedModal';
 import { useMotionSafe } from '../lib/motion';
+import useNeonBorder from '../hooks/useNeonBorder';
 import './StarsBackground.css';
 
 const Login = () => {
@@ -18,6 +19,8 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const { transition } = useMotionSafe();
+  const cardRef = useRef(null);
+  useNeonBorder(cardRef, { color: '#CC9149', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -67,7 +70,7 @@ const Login = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={transition}
       >
-        <div className="auth-card">
+        <div className="auth-card" ref={cardRef}>
           <div className="auth-header">
             <motion.div
               className="auth-logo"

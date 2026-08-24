@@ -1,12 +1,18 @@
 const express = require('express');
 const supabase = require('../db');
 const { protect } = require('../middleware/auth');
+const { getMenuVisibility } = require('../settings');
 
 const router = express.Router();
 
 // GET /api/menu — Fetch all available menu items
 router.get('/', protect, async (req, res) => {
   try {
+    const isMenuVisible = await getMenuVisibility();
+    if (!isMenuVisible) {
+      return res.json({ success: true, data: [] });
+    }
+
     const { data: menuItems, error } = await supabase
       .from('menu_items')
       .select('*')

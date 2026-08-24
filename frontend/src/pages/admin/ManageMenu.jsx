@@ -14,10 +14,34 @@ const ManageMenu = () => {
   const [editItem, setEditItem] = useState(null);
   const [formData, setFormData] = useState({ itemName: '', price: '', category: '', isAvailable: true, isVeg: true });
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [menuVisible, setMenuVisible] = useState(true);
 
   useEffect(() => {
     fetchMenu();
+    fetchMenuVisibility();
   }, []);
+
+  const fetchMenuVisibility = async () => {
+    try {
+      const res = await axios.get('/admin/menu/visibility');
+      setMenuVisible(res.data.isVisible);
+    } catch (err) {
+      console.error('Failed to load menu visibility setting:', err);
+    }
+  };
+
+  const handleToggleMenuVisibility = async () => {
+    const nextVal = !menuVisible;
+    try {
+      await axios.put('/admin/menu/visibility', { isVisible: nextVal });
+      setMenuVisible(nextVal);
+      setMessage({ type: 'success', text: `Menu visibility turned ${nextVal ? 'ON' : 'OFF'}` });
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Failed to update menu visibility' });
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+    }
+  };
 
   const fetchMenu = async () => {
     try {
@@ -103,9 +127,19 @@ const ManageMenu = () => {
         title="Manage Menu"
         subtitle="Add, edit, or remove menu items"
         actions={
-          <MotionButton className="btn btn-primary" onClick={openAddModal} id="add-menu-item">
-            <Plus size={18} /> Add Item
-          </MotionButton>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <MotionButton 
+              className={`btn ${menuVisible ? 'btn-success' : 'btn-danger'}`} 
+              onClick={handleToggleMenuVisibility}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            >
+              {menuVisible ? <Eye size={18} /> : <EyeOff size={18} />}
+              Menu: {menuVisible ? 'ON' : 'OFF'}
+            </MotionButton>
+            <MotionButton className="btn btn-primary" onClick={openAddModal} id="add-menu-item">
+              <Plus size={18} /> Add Item
+            </MotionButton>
+          </div>
         }
       />
 

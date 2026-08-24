@@ -10,6 +10,32 @@ router.use(protect, adminOnly);
 
 // ============== MENU MANAGEMENT ==============
 
+// GET /api/admin/menu/visibility — Get the current menu visibility setting
+router.get('/menu/visibility', async (req, res) => {
+  try {
+    const { getMenuVisibility } = require('../settings');
+    const isVisible = await getMenuVisibility();
+    res.json({ success: true, isVisible });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// PUT /api/admin/menu/visibility — Update the menu visibility setting
+router.put('/menu/visibility', async (req, res) => {
+  try {
+    const { isVisible } = req.body;
+    if (isVisible === undefined) {
+      return res.status(400).json({ success: false, message: 'isVisible is required' });
+    }
+    const { setMenuVisibility } = require('../settings');
+    await setMenuVisibility(isVisible);
+    res.json({ success: true, message: `Menu visibility set to ${isVisible ? 'on' : 'off'}` });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // POST /api/admin/menu — Add a new menu item
 router.post('/menu', async (req, res) => {
   try {

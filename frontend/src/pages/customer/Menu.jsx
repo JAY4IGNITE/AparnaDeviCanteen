@@ -139,60 +139,60 @@ const MenuPage = () => {
             />
           </div>
           <div className="menu-categories">
-          {categories.map(([category, items]) => (
-            <div key={category} className="menu-category-section">
-              <h2 className="category-title">{category}</h2>
-              <motion.div
-                className="menu-grid"
-                variants={staggerContainer}
-                initial="initial"
-                animate="animate"
-              >
-                {items.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    className="menu-card"
-                    variants={fadeUp}
-                    transition={{ delay: index * 0.04 }}
-                    whileHover={{ y: -3, transition: { duration: 0.2 } }}
-                  >
-                    <div className="menu-card-header">
-                      <div>
-                        <div className="menu-item-name" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span
-                            className={`veg-indicator ${item.is_veg !== false ? 'veg' : 'non-veg'}`}
-                            title={item.is_veg !== false ? 'Veg' : 'Non-Veg'}
-                          />
-                          {item.item_name}
+            {categories.map(([category, items]) => (
+              <div key={category} className="menu-category-section">
+                <h2 className="category-title">{category}</h2>
+                <motion.div
+                  className="menu-grid"
+                  variants={staggerContainer}
+                  initial="initial"
+                  animate="animate"
+                >
+                  {items.map((item, index) => (
+                    <motion.div
+                      key={item.id}
+                      className="menu-card"
+                      variants={fadeUp}
+                      transition={{ delay: index * 0.04 }}
+                      whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                    >
+                      <div className="menu-card-header">
+                        <div>
+                          <div className="menu-item-name" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span
+                              className={`veg-indicator ${item.is_veg !== false ? 'veg' : 'non-veg'}`}
+                              title={item.is_veg !== false ? 'Veg' : 'Non-Veg'}
+                            />
+                            {item.item_name}
+                          </div>
+                          <div className="menu-item-category">{item.category || 'General'}</div>
                         </div>
-                        <div className="menu-item-category">{item.category || 'General'}</div>
+                        <div className="menu-item-price">₹{item.price}</div>
                       </div>
-                      <div className="menu-item-price">₹{item.price}</div>
-                    </div>
 
-                    <div className="menu-card-actions">
-                      {cart[item.id] ? (
-                        <div className="quantity-control">
-                          <MotionButton className="quantity-btn" onClick={() => removeFromCart(item.id)} id={`decrease-${item.id}`} aria-label={`Remove one ${item.item_name}`}>
-                            <Minus size={16} />
+                      <div className="menu-card-actions">
+                        {cart[item.id] ? (
+                          <div className="quantity-control">
+                            <MotionButton className="quantity-btn" onClick={() => removeFromCart(item.id)} id={`decrease-${item.id}`} aria-label={`Remove one ${item.item_name}`}>
+                              <Minus size={16} />
+                            </MotionButton>
+                            <span className="quantity-value">{cart[item.id].quantity}</span>
+                            <MotionButton className="quantity-btn" onClick={() => addToCart(item)} id={`increase-${item.id}`} aria-label={`Add one more ${item.item_name}`}>
+                              <Plus size={16} />
+                            </MotionButton>
+                          </div>
+                        ) : (
+                          <MotionButton className="btn btn-primary btn-sm" onClick={() => addToCart(item)} id={`add-${item.id}`}>
+                            <Plus size={16} /> Add
                           </MotionButton>
-                          <span className="quantity-value">{cart[item.id].quantity}</span>
-                          <MotionButton className="quantity-btn" onClick={() => addToCart(item)} id={`increase-${item.id}`} aria-label={`Add one more ${item.item_name}`}>
-                            <Plus size={16} />
-                          </MotionButton>
-                        </div>
-                      ) : (
-                        <MotionButton className="btn btn-primary btn-sm" onClick={() => addToCart(item)} id={`add-${item.id}`}>
-                          <Plus size={16} /> Add
-                        </MotionButton>
-                      )}
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </div>
-          ))}
-        </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </div>
+            ))}
+          </div>
         </>
       )}
 

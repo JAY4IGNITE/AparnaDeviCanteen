@@ -827,36 +827,38 @@
 @media (max-width: 1024px) {
   .lp-hero-title { font-size: 3rem; }
   .lp-benefits-grid { grid-template-columns: repeat(2, 1fr); }
-  .lp-testimonials-grid { grid-template-columns: repeat(2, 1fr); }
   .lp-steps { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 768px) {
+  .lp-nav {
+    padding: 0.6rem 1rem;
+  }
   .lp-nav-links { display: none; }
   .lp-nav-cta { display: none !important; }
   .lp-nav-mobile-btn { display: inline-flex; }
 
-  .lp-hero { padding: 6.5rem 1.25rem 2rem; }
+  .lp-hero { padding: 6.5rem 1.25rem 4rem; }
   .lp-hero-title { font-size: 2.25rem; }
   .lp-hero-desc { font-size: 0.95rem; }
+  
+  .lp-hero-bg-overlay {
+    background:
+      linear-gradient(180deg, rgba(10, 10, 15, 0.6) 0%, rgba(10, 10, 15, 0.85) 40%, rgba(10, 10, 15, 0.98) 85%, var(--bg-primary) 100%),
+      radial-gradient(ellipse at 50% 30%, rgba(249, 115, 22, 0.2) 0%, transparent 60%);
+  }
 
   .lp-hero-actions {
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem;
+    width: 100%;
   }
 
-  .lp-stats-inner {
-    flex-direction: column;
-    gap: 1.5rem;
-    padding: 2rem 1.25rem;
+  .lp-btn-hero {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
   }
-
-  .lp-stat-divider {
-    width: 48px;
-    height: 1px;
-  }
-
-  .lp-stat-value { font-size: 2rem; }
 
   .lp-section { padding: 4rem 1.25rem; }
   .lp-section-title { font-size: 1.85rem; }
@@ -868,9 +870,6 @@
 
   .lp-steps { grid-template-columns: 1fr; gap: 1rem; }
   .lp-step-card { padding: 1.75rem 1.25rem; }
-
-  .lp-testimonials { padding: 4rem 1.25rem; }
-  .lp-testimonials-grid { grid-template-columns: 1fr; gap: 1rem; }
 
   .lp-cta { padding: 2rem 1.25rem 4rem; }
   .lp-cta-card { padding: 2.5rem 1.5rem; }
@@ -888,6 +887,14 @@
   .lp-benefits-grid { grid-template-columns: 1fr; }
   .lp-section-title { font-size: 1.6rem; }
   .lp-footer-contact { flex-direction: column; }
+  
+  .lp-faq-question {
+    padding: 0.9rem 1rem;
+    font-size: 0.88rem;
+  }
+  .lp-faq-answer.expanded {
+    padding: 0 1rem 0.9rem;
+  }
 }
 
 /* ─── Slower star background overrides ─── */

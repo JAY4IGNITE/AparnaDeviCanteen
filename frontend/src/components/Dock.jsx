@@ -68,6 +68,7 @@ export function DockItem({
         width,
         height,
       }}
+      whileTap={{ scale: 0.95 }}
       onHoverStart={() => isHovered.set(1)}
       onHoverEnd={() => isHovered.set(0)}
       onFocus={() => isHovered.set(1)}

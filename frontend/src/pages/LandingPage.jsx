@@ -1,6 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
+import { motion, useMotionValue, useSpring, useTransform, useScroll } from 'motion/react';
+import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
 import {
   Home,
   Utensils,
@@ -17,10 +19,41 @@ import {
 import PotSteam from '../components/PotSteam';
 import ColorBends from '../components/ColorBends';
 import Dock from '../components/Dock';
+import MenuScroll from '../components/MenuScroll';
 import './LandingPage.css';
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const lenisRef = useRef(null);
+  const heroRef = useRef(null);
+
+  // Smooth inertial momentum scrolling with Lenis
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 0.95,
+      touchMultiplier: 1.8,
+      infinite: false,
+    });
+    lenisRef.current = lenis;
+
+    let animationFrameId;
+    function raf(time) {
+      lenis.raf(time);
+      animationFrameId = requestAnimationFrame(raf);
+    }
+    animationFrameId = requestAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      lenis.destroy();
+      lenisRef.current = null;
+    };
+  }, []);
 
   // Normalized cursor coordinates [-0.5, 0.5] for hero 3D parallax
   const mouseX = useMotionValue(0);
@@ -32,6 +65,18 @@ export default function LandingPage() {
   const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-2.2, 2.2]), springConfig);
   const transX = useSpring(useTransform(mouseX, [-0.5, 0.5], [-5, 5]), springConfig);
   const transY = useSpring(useTransform(mouseY, [-0.5, 0.5], [-3.5, 3.5]), springConfig);
+
+  // Scroll-linked cinematic transitions for the starting page
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start'],
+  });
+
+  const heroScale = useTransform(scrollYProgress, [0, 0.8], [1, 0.95]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
+  const statementOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
+  const statementY = useTransform(scrollYProgress, [0, 0.25], [0, -15]);
+  const bgOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.35]);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -49,9 +94,18 @@ export default function LandingPage() {
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      if (lenisRef.current) {
+        const offset = id === 'menu' || id === 'home' ? 0 : -24;
+        lenisRef.current.scrollTo(element, { offset, duration: 1.25 });
+      } else {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
     } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(0, { duration: 1.1 });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
   };
 
@@ -74,6 +128,31 @@ export default function LandingPage() {
     },
   ];
 
+  // Separated Auth Dock items with individual dock magnification effect
+  const signInDockItem = [
+    {
+      isPill: true,
+      text: 'Sign In',
+      baseWidth: 66,
+      magnificationWidth: 80,
+      onClick: () => navigate('/login'),
+      className: 'dock-signin-pill',
+    },
+  ];
+
+  const getStartedDockItem = [
+    {
+      isPill: true,
+      text: 'Get Started',
+      baseWidth: 94,
+      magnificationWidth: 110,
+      onClick: () => navigate('/register'),
+      className: 'dock-getstarted-pill',
+    },
+  ];
+
+
+
   return (
     <div className="landing-container min-h-screen w-full bg-[#0a0a0f] text-zinc-100 relative select-none scroll-smooth overflow-x-hidden">
       {/* Top Utmost Left: Logo */}
@@ -88,8 +167,8 @@ export default function LandingPage() {
         />
       </div>
 
-      {/* Top Floating Minimized Dock Bar */}
-      <div className="fixed top-2 sm:top-2.5 left-1/2 -translate-x-1/2 z-40 pointer-events-auto">
+      {/* Top Floating Minimized Dock Bar - Perfectly Centered in Viewport */}
+      <div className="top-dock-container">
         <Dock
           items={navDockItems}
           panelHeight={34}
@@ -99,39 +178,37 @@ export default function LandingPage() {
         />
       </div>
 
-      {/* Top Utmost Right: Separated Sign In and Get Started (Clean Minimalist Text, No Symbols) */}
-      <div className="fixed top-2.5 right-2 sm:top-3 sm:right-4 z-40 pointer-events-auto flex items-center gap-1.5 sm:gap-2 select-none">
-        {/* Sign In */}
-        <motion.button
-          whileHover={{ scale: 1.04, y: -1 }}
-          whileTap={{ scale: 0.96 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-          onClick={() => navigate('/login')}
-          className="px-3 py-1.5 sm:px-3.5 sm:py-1.5 text-[11px] sm:text-xs font-medium text-zinc-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.12] hover:border-white/[0.22] rounded-full backdrop-blur-xl transition-all cursor-pointer"
-        >
-          Sign In
-        </motion.button>
-
-        {/* Get Started (No symbol) */}
-        <motion.button
-          whileHover={{ scale: 1.04, y: -1 }}
-          whileTap={{ scale: 0.96 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-          onClick={() => navigate('/register')}
-          className="px-3.5 py-1.5 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-semibold text-white bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 hover:from-orange-600 hover:to-amber-600 border border-orange-400/30 rounded-full shadow-[0_2px_12px_rgba(249,115,22,0.35)] hover:shadow-[0_4px_18px_rgba(249,115,22,0.55)] backdrop-blur-xl transition-all cursor-pointer"
-        >
-          Get Started
-        </motion.button>
+      {/* Top Utmost Right: Separated Sign In & Get Started buttons, each with Dock Effect */}
+      <div className="fixed top-2.5 right-2 sm:top-3 sm:right-4 z-40 pointer-events-auto select-none flex items-center gap-2 sm:gap-2.5">
+        <Dock
+          items={signInDockItem}
+          panelHeight={32}
+          baseItemSize={28}
+          magnification={36}
+          distance={60}
+          className="auth-dock-single"
+        />
+        <Dock
+          items={getStartedDockItem}
+          panelHeight={32}
+          baseItemSize={28}
+          magnification={36}
+          distance={60}
+          className="auth-dock-single"
+        />
       </div>
 
-      {/* SECTION 1: HERO */}
+      {/* SECTION 1: HERO (Starting Page) */}
       <section
         id="home"
-        onClick={() => navigate('/login')}
-        className="h-screen w-screen flex items-center justify-center overflow-hidden cursor-pointer relative p-0 m-0"
+        ref={heroRef}
+        className="h-screen w-screen flex items-center justify-center overflow-hidden relative p-0 m-0"
       >
         {/* Dynamic ColorBends WebGL Background */}
-        <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0">
+        <motion.div
+          style={{ opacity: bgOpacity }}
+          className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0"
+        >
           <ColorBends
             rotation={90}
             speed={0.2}
@@ -149,13 +226,20 @@ export default function LandingPage() {
             bandWidth={6}
             className="w-full h-full"
           />
-        </div>
+        </motion.div>
 
         {/* Ambient background soft glow */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(249,115,22,0.18)_0%,rgba(10,10,15,0.95)_75%)] pointer-events-none z-[1]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(249,115,22,0.12)_0%,transparent_70%)] pointer-events-none z-[1]" />
 
-        {/* 3D Perspective Character Container Responsive to Cursor */}
-        <div className="relative z-10 w-full h-full flex items-center justify-center pt-8 sm:pt-14 md:pt-18 pb-4 px-2 sm:px-4 md:px-6 [perspective:1200px]">
+        {/* 3D Perspective Character Container Anchored to Bottom to Prevent Any Gap */}
+        <motion.div
+          style={{
+            opacity: heroOpacity,
+            scale: heroScale,
+            transformOrigin: 'center bottom',
+          }}
+          className="absolute bottom-0 left-0 right-0 z-10 w-full flex items-end justify-center [perspective:1200px] pointer-events-none"
+        >
           <motion.div
             style={{
               rotateX,
@@ -163,29 +247,31 @@ export default function LandingPage() {
               x: transX,
               y: transY,
               transformStyle: 'preserve-3d',
+              transformOrigin: 'center bottom',
             }}
             whileTap={{ scale: 0.98 }}
-            className="relative aspect-[2/1] w-full max-w-none max-h-[88vh] flex items-center justify-center translate-y-3 sm:translate-y-6"
+            className="relative aspect-[2/1] w-full max-w-none max-h-[92vh] sm:max-h-[95vh] flex items-end justify-center translate-y-3 sm:translate-y-5 pointer-events-auto"
           >
             {/* Main Character & Text Image */}
             <img
               src="/order-your-food.png"
               alt="Order Your Food"
-              className="w-full h-full object-contain drop-shadow-[0_25px_60px_rgba(249,115,22,0.5)] select-none pointer-events-none transition-transform duration-200"
+              className="w-full h-full object-contain object-bottom drop-shadow-[0_25px_60px_rgba(249,115,22,0.5)] select-none pointer-events-none transition-transform duration-200"
             />
 
             {/* Realistic Silky Continuous Steam Rising from the Pot */}
             <PotSteam />
           </motion.div>
-        </div>
+        </motion.div>
 
-        {/* Bottom Left Paragraph (No boxes, no dots) */}
-        <div
+        {/* Bottom Left Paragraph (Atmost bottom left) - Dissolves smoothly on scroll */}
+        <motion.div
+          style={{ opacity: statementOpacity, y: statementY }}
           onClick={(e) => {
             e.stopPropagation();
             scrollToSection('menu');
           }}
-          className="absolute bottom-5 sm:bottom-7 left-4 sm:left-7 z-20 pointer-events-auto select-none cursor-pointer group max-w-[230px] sm:max-w-[290px]"
+          className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3.5 z-20 pointer-events-auto select-none cursor-pointer group max-w-[220px] sm:max-w-[280px]"
         >
           <p className="hero-statement-text text-[10px] sm:text-[11px] md:text-xs text-zinc-300/90 group-hover:text-orange-400 transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
             AUTHENTIC HOME-STYLE RECIPES,
@@ -194,15 +280,16 @@ export default function LandingPage() {
             <br />
             INSTANT DIGITAL TOKENS.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Bottom Right Paragraph (No boxes, no dots, no timings) */}
-        <div
+        {/* Bottom Right Paragraph (Atmost bottom right) - Dissolves smoothly on scroll */}
+        <motion.div
+          style={{ opacity: statementOpacity, y: statementY }}
           onClick={(e) => {
             e.stopPropagation();
             scrollToSection('contact');
           }}
-          className="absolute bottom-5 sm:bottom-7 right-4 sm:right-7 z-20 pointer-events-auto select-none cursor-pointer group max-w-[230px] sm:max-w-[290px] text-right"
+          className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3.5 z-20 pointer-events-auto select-none cursor-pointer group max-w-[220px] sm:max-w-[280px] text-right"
         >
           <p className="hero-statement-text text-[10px] sm:text-[11px] md:text-xs text-zinc-300/90 group-hover:text-amber-400 transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
             SERVING DELICIOUS DAILY SPECIALS,
@@ -211,91 +298,21 @@ export default function LandingPage() {
             <br />
             AND WHOLESOME QUALITY DINING.
           </p>
-        </div>
+        </motion.div>
       </section>
 
-      {/* SECTION 2: MENU (Landing Page Feature) */}
-      <section id="menu" className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/25 text-orange-400 text-xs font-semibold mb-3">
-            <Utensils size={13} strokeWidth={1.65} />
-            <span>Today's Specials</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
-            Explore Canteen Delicacies
-          </h2>
-          <p className="text-zinc-400 text-sm sm:text-base max-w-2xl mx-auto">
-            Freshly prepared hot meals, crisp snacks, and beverages served daily with top hygiene and authentic flavors.
-          </p>
-        </div>
-
-        {/* Menu Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            {
-              name: 'Special Veg Biryani',
-              price: '₹120',
-              tag: 'Chef Special',
-              desc: 'Slow-cooked aromatic basmati rice infused with whole spices, tender vegetables, and raita.',
-            },
-            {
-              name: 'Ghee Podi Masala Dosa',
-              price: '₹60',
-              tag: 'Breakfast Favorite',
-              desc: 'Golden crisp crepe roasted in pure ghee, layered with spicy podi and potato masala.',
-            },
-            {
-              name: 'Deluxe South Thali',
-              price: '₹90',
-              tag: 'Full Lunch',
-              desc: 'Complete meal with hot steamed rice, sambar, rasam, 2 fresh curries, papad, and curd.',
-            },
-            {
-              name: 'Paneer Butter Masala & Roti',
-              price: '₹110',
-              tag: 'Dinner Star',
-              desc: 'Tender cottage cheese simmered in rich creamy tomato gravy with 3 butter rotis.',
-            },
-          ].map((item, idx) => (
-            <motion.div
-              key={idx}
-              whileHover={{ y: -6 }}
-              onClick={() => navigate('/login')}
-              className="p-5 rounded-2xl bg-white/[0.04] border border-white/[0.08] hover:border-orange-500/40 hover:bg-white/[0.07] backdrop-blur-md transition-all duration-200 cursor-pointer flex flex-col justify-between group shadow-lg"
-            >
-              <div>
-                <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">
-                  {item.tag}
-                </span>
-                <h3 className="text-lg font-bold text-white mt-3 group-hover:text-orange-400 transition-colors">
-                  {item.name}
-                </h3>
-                <p className="text-xs text-zinc-400 mt-2 line-clamp-2 leading-relaxed">
-                  {item.desc}
-                </p>
-              </div>
-              <div className="mt-5 flex items-center justify-between pt-3 border-t border-white/[0.06]">
-                <span className="text-base font-extrabold text-amber-400">{item.price}</span>
-                <span className="text-xs font-semibold text-orange-400 group-hover:translate-x-1 transition-transform flex items-center gap-1">
-                  Order <ArrowRight size={13} />
-                </span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="text-center mt-10">
-          <button
-            onClick={() => navigate('/login')}
-            className="px-6 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 rounded-full shadow-[0_4px_20px_rgba(249,115,22,0.35)] transition-all cursor-pointer"
-          >
-            View Full Digital Menu & Token System
-          </button>
-        </div>
-      </section>
+      {/* SECTION 2: MENU (Full-Page Multi-Column GSAP Infinite Drifting Wall) */}
+      <MenuScroll />
 
       {/* SECTION 3: FEATURES (Landing Page Feature) */}
-      <section id="features" className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
+      <motion.section
+        id="features"
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-70px' }}
+        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.06]"
+      >
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs font-semibold mb-3">
             <Sparkles size={13} strokeWidth={1.65} />
@@ -344,10 +361,17 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* SECTION 4: ABOUT (Landing Page Feature) */}
-      <section id="about" className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
+      <motion.section
+        id="about"
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-70px' }}
+        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.06]"
+      >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/25 text-orange-400 text-xs font-semibold mb-3">
@@ -393,10 +417,17 @@ export default function LandingPage() {
             </button>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* SECTION 5: CONTACT (Landing Page Feature) */}
-      <section id="contact" className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
+      <motion.section
+        id="contact"
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-70px' }}
+        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.06]"
+      >
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/25 text-orange-400 text-xs font-semibold mb-3">
             <Phone size={13} strokeWidth={1.65} />
@@ -438,7 +469,7 @@ export default function LandingPage() {
             <p className="text-xs text-zinc-400">canteen@aparnadevi.edu</p>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* FOOTER */}
       <footer className="relative z-20 py-8 px-4 border-t border-white/[0.08] text-center text-xs text-zinc-500">

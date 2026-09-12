@@ -170,7 +170,6 @@ const ManageCustomers = () => {
       {filtered.length === 0 ? (
         <EmptyState
           icon={Users}
-          scene={() => import('../../components/3d/NoCustomers3D')}
           title="No customers found"
           description="No customers match your current search or filters."
         />

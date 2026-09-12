@@ -5,8 +5,6 @@ import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { UtensilsCrossed, ShoppingBag, Megaphone } from 'lucide-react';
 import InteractiveCard from '../../components/ui/InteractiveCard';
-import Lazy3D from '../../components/3d/Lazy3D';
-import SceneFallback from '../../components/3d/SceneFallback';
 import { useMotionSafe } from '../../lib/motion';
 
 const Home = () => {
@@ -80,13 +78,6 @@ const Home = () => {
             What would you like to eat today? Browse our menu and place your order.
           </p>
         </motion.div>
-        <div className="home-hero-visual" aria-hidden="true">
-          <Lazy3D
-            load={() => import('../../components/3d/FoodNestHero3D')}
-            className="home-hero-canvas"
-            fallback={<SceneFallback icon={UtensilsCrossed} />}
-          />
-        </div>
       </div>
 
       <div className="bento-grid">

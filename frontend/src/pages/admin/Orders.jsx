@@ -244,7 +244,7 @@ const AdminOrders = () => {
       </div>
 
       {sorted.length === 0 ? (
-        <EmptyState icon={Package} title="No orders found" description="Try adjusting your filters or wait for new orders to arrive!" scene={() => import('../../components/3d/EmptyOrders3D')} />
+        <EmptyState icon={Package} title="No orders found" description="Try adjusting your filters or wait for new orders to arrive!" />
       ) : (
         <div className="table-wrapper">
           <table className="table table-responsive-cards">

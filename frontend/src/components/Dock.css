@@ -102,3 +102,86 @@
     padding: 0.15rem 0.28rem;
   }
 }
+
+/* ==================== DOCK PILL ITEMS ==================== */
+.dock-item-pill {
+  padding: 0 0.65rem;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.dock-pill-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  white-space: nowrap;
+}
+
+.dock-pill-text {
+  user-select: none;
+  line-height: 1;
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.01em;
+}
+
+/* ==================== SEPARATED AUTH DOCK PILLS ==================== */
+.dock-panel.auth-dock-single {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  min-height: unset !important;
+  gap: 0 !important;
+}
+
+.dock-panel.auth-dock-single:hover {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Standalone Separated Sign In Pill */
+.dock-item.dock-signin-pill {
+  color: #e4e4e7;
+  background-color: rgba(14, 12, 18, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9999px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.dock-item.dock-signin-pill:hover,
+.dock-item.dock-signin-pill:focus-visible {
+  background-color: rgba(26, 22, 34, 0.95);
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* Standalone Separated Get Started Pill: NOT shining - solid matte canteen orange */
+.dock-item.dock-getstarted-pill {
+  color: #ffffff !important;
+  background-color: #f97316;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+  transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.dock-item.dock-getstarted-pill:hover,
+.dock-item.dock-getstarted-pill:focus-visible {
+  background-color: #ea580c !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.32);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
+}
+

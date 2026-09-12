@@ -18,6 +18,24 @@
   color: #ffffff;
 }
 
+/* Perfectly Centered Top Dock Bar Container (Robust flexbox centering) */
+.top-dock-container {
+  position: fixed;
+  top: 0.65rem;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  z-index: 40;
+}
+
+.top-dock-container > * {
+  pointer-events: auto;
+}
+
 /* Typography matching the user's high-impact uppercase statement reference */
 .hero-statement-text {
   font-family: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -28,9 +46,64 @@
   text-transform: uppercase;
 }
 
-/* Smooth scrolling for anchor links */
+/* Smooth scrolling and root setup */
 html {
   scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(249, 115, 22, 0.45) rgba(10, 10, 15, 0.95);
+}
+
+/* ==================== ULTRA-SLEEK THIN SCROLLBAR ==================== */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(10, 10, 15, 0.95);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(249, 115, 22, 0.45);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(249, 115, 22, 0.85);
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.55);
+}
+
+::-webkit-scrollbar-corner {
+  background: rgba(10, 10, 15, 0.95);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(249, 115, 22, 0.45) rgba(10, 10, 15, 0.95);
+}
+
+/* ==================== LENIS SMOOTH SCROLLING ==================== */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }
 
 /* Subtle pulse animation for culinary accents */
@@ -48,3 +121,68 @@ html {
 .animate-ambient-glow {
   animation: ambientGlow 8s ease-in-out infinite;
 }
+
+/* ==================== FULL-PAGE MENU 3D DISH SHOWCASE (PURE BLACK, SLIDING SLOWLY) ==================== */
+.menu-fullscreen-section {
+  height: 100vh;
+  min-height: 100vh;
+  width: 100vw;
+  max-width: 100%;
+  background-color: #000000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-dish-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+
+.menu-dish-hero-img {
+  filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.95));
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s ease;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.menu-dish-wrapper:hover .menu-dish-hero-img {
+  transform: scale(1.03) translateY(-6px);
+  filter: drop-shadow(0 35px 70px rgba(0, 0, 0, 1)) drop-shadow(0 0 45px rgba(249, 115, 22, 0.25));
+}
+
+/* Gentle alternating levitation floating animation */
+.dish-float-even {
+  animation: dishFloatEven 5.5s ease-in-out infinite;
+}
+
+.dish-float-odd {
+  animation: dishFloatOdd 6s ease-in-out infinite 0.8s;
+}
+
+@keyframes dishFloatEven {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(0.4deg);
+  }
+}
+
+@keyframes dishFloatOdd {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(-0.4deg);
+  }
+}
+

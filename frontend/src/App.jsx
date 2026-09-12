@@ -34,12 +34,20 @@ import AdminAnnouncements from './pages/admin/Announcements';
 import CounterSale from './pages/admin/CounterSale';
 import AdminFeedbacks from './pages/admin/Feedbacks';
 import AdminSettings from './pages/admin/Settings';
+import ClickSpark from './components/ClickSpark';
 
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
+      <ClickSpark
+        sparkColor="#ffffff"
+        sparkSize={10}
+        sparkRadius={15}
+        sparkCount={8}
+        duration={400}
+      >
+        <Router>
+          <Routes>
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
@@ -93,8 +101,9 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
-    </AuthProvider>
-  );
+    </ClickSpark>
+  </AuthProvider>
+);
 }
 
 export default App;

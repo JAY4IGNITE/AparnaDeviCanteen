@@ -25,6 +25,7 @@ auth_info_baileys/
 # Editor and System files
 .vscode/
 .idea/
+.claude/
 .DS_Store
 Thumbs.db
 *.suo

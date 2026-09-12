@@ -1,421 +1,453 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useInView, useScroll, useTransform } from 'motion/react';
+import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
 import {
-  ArrowRight, UtensilsCrossed, Clock, Star, ShieldCheck,
-  ChefHat, Sparkles, Users, ShoppingBag, Zap,
-  Smartphone, Bell, Heart, ChevronDown, ChevronRight,
-  Phone, MessageCircle
+  Home,
+  Utensils,
+  Sparkles,
+  Info,
+  Phone,
+  Clock,
+  MapPin,
+  ShieldCheck,
+  Zap,
+  Flame,
+  ArrowRight,
 } from 'lucide-react';
-import MotionButton from '../components/ui/MotionButton';
-import { useMotionSafe } from '../lib/motion';
+import PotSteam from '../components/PotSteam';
+import ColorBends from '../components/ColorBends';
+import Dock from '../components/Dock';
 import './LandingPage.css';
-import './StarsBackground.css';
 
-/* ─── Animated counter ─── */
-const AnimatedCounter = ({ target, suffix = '' }) => {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-60px' });
+export default function LandingPage() {
+  const navigate = useNavigate();
+
+  // Normalized cursor coordinates [-0.5, 0.5] for hero 3D parallax
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  // Featherlight, subtle micro-parallax tracking
+  const springConfig = { damping: 45, stiffness: 220, mass: 0.4 };
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [1.8, -1.8]), springConfig);
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-2.2, 2.2]), springConfig);
+  const transX = useSpring(useTransform(mouseX, [-0.5, 0.5], [-5, 5]), springConfig);
+  const transY = useSpring(useTransform(mouseY, [-0.5, 0.5], [-3.5, 3.5]), springConfig);
 
   useEffect(() => {
-    if (!isInView) return;
-    let start = 0;
-    const duration = 2000;
-    const step = Math.ceil(target / (duration / 16));
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= target) { setCount(target); clearInterval(timer); }
-      else setCount(start);
-    }, 16);
-    return () => clearInterval(timer);
-  }, [isInView, target]);
+    const handleMouseMove = (e) => {
+      const { innerWidth, innerHeight } = window;
+      const x = e.clientX / innerWidth - 0.5;
+      const y = e.clientY / innerHeight - 0.5;
+      mouseX.set(x);
+      mouseY.set(y);
+    };
 
-  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
-};
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [mouseX, mouseY]);
 
-/* ─── FAQ Accordion Item ─── */
-const FaqItem = ({ q, a }) => {
-  const [open, setOpen] = useState(false);
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  // Minimized, professional dock items for landing page features
+  const navDockItems = [
+    {
+      icon: <Home size={15} strokeWidth={1.65} />,
+      label: 'Home',
+      onClick: () => scrollToSection('home'),
+    },
+    {
+      icon: <Utensils size={15} strokeWidth={1.65} />,
+      label: 'Menu',
+      onClick: () => scrollToSection('menu'),
+    },
+    {
+      icon: <Phone size={15} strokeWidth={1.65} />,
+      label: 'Contact',
+      onClick: () => scrollToSection('contact'),
+    },
+  ];
+
   return (
-    <div className={`lp-faq-item ${open ? 'open' : ''}`}>
-      <button className="lp-faq-question" onClick={() => setOpen(!open)}>
-        <span>{q}</span>
-        <ChevronDown size={20} className={`lp-faq-chevron ${open ? 'rotated' : ''}`} />
-      </button>
-      <div className={`lp-faq-answer ${open ? 'expanded' : ''}`}>
-        <p>{a}</p>
+    <div className="landing-container min-h-screen w-full bg-[#0a0a0f] text-zinc-100 relative select-none scroll-smooth overflow-x-hidden">
+      {/* Top Utmost Left: Logo */}
+      <div
+        onClick={() => scrollToSection('home')}
+        className="fixed top-2.5 left-2 sm:top-3 sm:left-4 z-40 flex items-center group cursor-pointer select-none"
+      >
+        <img
+          src="/aparnadevi-logo.png"
+          alt="Aparnadevi Canteen"
+          className="h-7 sm:h-8 md:h-9 w-auto object-contain drop-shadow-[0_4px_18px_rgba(249,115,22,0.4)] group-hover:scale-105 transition-all duration-200"
+        />
       </div>
-    </div>
-  );
-};
 
-/* ─── Scrolling Tags (marquee-style) ─── */
-const ScrollingTags = () => {
-  const tags = [
-    'Fresh Meals', 'Quick Ordering', 'Daily Specials', 'Hygienic Kitchen',
-    'Student Discounts', 'Fast Pickup', 'Digital Menu', 'Easy Payments',
-  ];
-  return (
-    <div className="lp-marquee-wrap">
-      <div className="lp-marquee-track">
-        {[...tags, ...tags].map((tag, i) => (
-          <span key={i} className="lp-marquee-tag">{tag}</span>
-        ))}
+      {/* Top Floating Minimized Dock Bar */}
+      <div className="fixed top-2 sm:top-2.5 left-1/2 -translate-x-1/2 z-40 pointer-events-auto">
+        <Dock
+          items={navDockItems}
+          panelHeight={34}
+          baseItemSize={28}
+          magnification={38}
+          distance={100}
+        />
       </div>
-    </div>
-  );
-};
 
-const LandingPage = () => {
-  const navigate = useNavigate();
-  const { transition } = useMotionSafe();
+      {/* Top Utmost Right: Separated Sign In and Get Started (Clean Minimalist Text, No Symbols) */}
+      <div className="fixed top-2.5 right-2 sm:top-3 sm:right-4 z-40 pointer-events-auto flex items-center gap-1.5 sm:gap-2 select-none">
+        {/* Sign In */}
+        <motion.button
+          whileHover={{ scale: 1.04, y: -1 }}
+          whileTap={{ scale: 0.96 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+          onClick={() => navigate('/login')}
+          className="px-3 py-1.5 sm:px-3.5 sm:py-1.5 text-[11px] sm:text-xs font-medium text-zinc-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.12] hover:border-white/[0.22] rounded-full backdrop-blur-xl transition-all cursor-pointer"
+        >
+          Sign In
+        </motion.button>
 
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll();
-  const heroScale = useTransform(scrollYProgress, [0, 0.4], [1, 1.08]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.45], [1, 0]);
-  const starsOpacity = useTransform(scrollYProgress, [0.12, 0.25], [0, 1]);
+        {/* Get Started (No symbol) */}
+        <motion.button
+          whileHover={{ scale: 1.04, y: -1 }}
+          whileTap={{ scale: 0.96 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+          onClick={() => navigate('/register')}
+          className="px-3.5 py-1.5 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-semibold text-white bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 hover:from-orange-600 hover:to-amber-600 border border-orange-400/30 rounded-full shadow-[0_2px_12px_rgba(249,115,22,0.35)] hover:shadow-[0_4px_18px_rgba(249,115,22,0.55)] backdrop-blur-xl transition-all cursor-pointer"
+        >
+          Get Started
+        </motion.button>
+      </div>
 
-  const benefits = [
-    { icon: UtensilsCrossed, title: 'Fresh & Delicious', desc: 'Enjoy freshly prepared homestyle meals made with love, served hot every day.' },
-    { icon: Clock, title: 'Quick Ordering', desc: 'Skip the queue — order from your phone and pick up when it\'s ready.' },
-    { icon: Star, title: 'Daily Specials', desc: 'Exciting new dishes and combos every day. Never get bored of the menu.' },
+      {/* SECTION 1: HERO */}
+      <section
+        id="home"
+        onClick={() => navigate('/login')}
+        className="h-screen w-screen flex items-center justify-center overflow-hidden cursor-pointer relative p-0 m-0"
+      >
+        {/* Dynamic ColorBends WebGL Background */}
+        <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0">
+          <ColorBends
+            rotation={90}
+            speed={0.2}
+            colors={['#ff4500', '#ffb703', '#f97316']}
+            transparent
+            autoRotate={0}
+            scale={1}
+            frequency={1}
+            warpStrength={1}
+            mouseInfluence={1}
+            parallax={0.5}
+            noise={0.15}
+            iterations={1}
+            intensity={1.5}
+            bandWidth={6}
+            className="w-full h-full"
+          />
+        </div>
 
-  ];
+        {/* Ambient background soft glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(249,115,22,0.18)_0%,rgba(10,10,15,0.95)_75%)] pointer-events-none z-[1]" />
 
-  const faqs = [
-    { q: 'How do I place an order?', a: 'Sign up or log in, browse the menu, add items to your cart, and place your order.' },
-    { q: 'What payment methods are accepted?', a: 'Currently accepting COD only.' },
-    { q: 'Can I see today\'s menu before ordering?', a: 'Yes! The menu is updated daily with available items, specials, and combos. Just log in and check the Menu page.' },
-    { q: 'How will I know when my order is ready?', a: 'The order status in My Orders shows Preparing.' },
-    { q: 'Is there a minimum order amount?', a: 'No minimum order. You can order a single chai or a full meal — it\'s up to you!' },
-    { q: 'How do I contact support?', a: 'Call or WhatsApp us at 9603649488. We\'re happy to help with any queries.' },
-  ];
-
-  return (
-    <div className="lp">
-      {/* Animated stars background starting from Benefits section */}
-      <motion.div className="stars-container" style={{ opacity: starsOpacity }}>
-        <div id="stars"></div>
-        <div id="stars2"></div>
-        <div id="stars3"></div>
-      </motion.div>
-
-      {/* ─── Navbar ─── */}
-      <nav className="lp-nav">
-        <div className="lp-nav-inner">
-          <div className="lp-nav-brand">
-            <img src="/favicon.jpg" alt="Aparna Canteen" className="lp-nav-logo" />
-            <span className="lp-nav-name">AparnaCanteen</span>
-          </div>
-          <div className="lp-nav-links">
-            <a href="#benefits" className="lp-nav-link">Benefits</a>
-            <a href="#how-it-works" className="lp-nav-link">How It Works</a>
-            <a href="#features" className="lp-nav-link">Features</a>
-            <a href="#faq" className="lp-nav-link">FAQ</a>
-          </div>
-          <MotionButton
-            className="btn btn-primary lp-nav-cta"
-            onClick={() => navigate('/login')}
-            id="nav-get-started"
+        {/* 3D Perspective Character Container Responsive to Cursor */}
+        <div className="relative z-10 w-full h-full flex items-center justify-center pt-8 sm:pt-14 md:pt-18 pb-4 px-2 sm:px-4 md:px-6 [perspective:1200px]">
+          <motion.div
+            style={{
+              rotateX,
+              rotateY,
+              x: transX,
+              y: transY,
+              transformStyle: 'preserve-3d',
+            }}
+            whileTap={{ scale: 0.98 }}
+            className="relative aspect-[2/1] w-full max-w-none max-h-[88vh] flex items-center justify-center translate-y-3 sm:translate-y-6"
           >
-            Get Started
-          </MotionButton>
-          {/* Mobile menu button */}
-          <button className="lp-nav-mobile-btn" onClick={() => navigate('/login')}>
-            Get Started <ArrowRight size={16} />
+            {/* Main Character & Text Image */}
+            <img
+              src="/order-your-food.png"
+              alt="Order Your Food"
+              className="w-full h-full object-contain drop-shadow-[0_25px_60px_rgba(249,115,22,0.5)] select-none pointer-events-none transition-transform duration-200"
+            />
+
+            {/* Realistic Silky Continuous Steam Rising from the Pot */}
+            <PotSteam />
+          </motion.div>
+        </div>
+
+        {/* Bottom Left Paragraph (No boxes, no dots) */}
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            scrollToSection('menu');
+          }}
+          className="absolute bottom-5 sm:bottom-7 left-4 sm:left-7 z-20 pointer-events-auto select-none cursor-pointer group max-w-[230px] sm:max-w-[290px]"
+        >
+          <p className="hero-statement-text text-[10px] sm:text-[11px] md:text-xs text-zinc-300/90 group-hover:text-orange-400 transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
+            AUTHENTIC HOME-STYLE RECIPES,
+            <br />
+            PREPARED FRESH DAILY WITH
+            <br />
+            INSTANT DIGITAL TOKENS.
+          </p>
+        </div>
+
+        {/* Bottom Right Paragraph (No boxes, no dots, no timings) */}
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            scrollToSection('contact');
+          }}
+          className="absolute bottom-5 sm:bottom-7 right-4 sm:right-7 z-20 pointer-events-auto select-none cursor-pointer group max-w-[230px] sm:max-w-[290px] text-right"
+        >
+          <p className="hero-statement-text text-[10px] sm:text-[11px] md:text-xs text-zinc-300/90 group-hover:text-amber-400 transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
+            SERVING DELICIOUS DAILY SPECIALS,
+            <br />
+            ZERO-WAIT COUNTER PICKUPS,
+            <br />
+            AND WHOLESOME QUALITY DINING.
+          </p>
+        </div>
+      </section>
+
+      {/* SECTION 2: MENU (Landing Page Feature) */}
+      <section id="menu" className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/25 text-orange-400 text-xs font-semibold mb-3">
+            <Utensils size={13} strokeWidth={1.65} />
+            <span>Today's Specials</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+            Explore Canteen Delicacies
+          </h2>
+          <p className="text-zinc-400 text-sm sm:text-base max-w-2xl mx-auto">
+            Freshly prepared hot meals, crisp snacks, and beverages served daily with top hygiene and authentic flavors.
+          </p>
+        </div>
+
+        {/* Menu Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            {
+              name: 'Special Veg Biryani',
+              price: '₹120',
+              tag: 'Chef Special',
+              desc: 'Slow-cooked aromatic basmati rice infused with whole spices, tender vegetables, and raita.',
+            },
+            {
+              name: 'Ghee Podi Masala Dosa',
+              price: '₹60',
+              tag: 'Breakfast Favorite',
+              desc: 'Golden crisp crepe roasted in pure ghee, layered with spicy podi and potato masala.',
+            },
+            {
+              name: 'Deluxe South Thali',
+              price: '₹90',
+              tag: 'Full Lunch',
+              desc: 'Complete meal with hot steamed rice, sambar, rasam, 2 fresh curries, papad, and curd.',
+            },
+            {
+              name: 'Paneer Butter Masala & Roti',
+              price: '₹110',
+              tag: 'Dinner Star',
+              desc: 'Tender cottage cheese simmered in rich creamy tomato gravy with 3 butter rotis.',
+            },
+          ].map((item, idx) => (
+            <motion.div
+              key={idx}
+              whileHover={{ y: -6 }}
+              onClick={() => navigate('/login')}
+              className="p-5 rounded-2xl bg-white/[0.04] border border-white/[0.08] hover:border-orange-500/40 hover:bg-white/[0.07] backdrop-blur-md transition-all duration-200 cursor-pointer flex flex-col justify-between group shadow-lg"
+            >
+              <div>
+                <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">
+                  {item.tag}
+                </span>
+                <h3 className="text-lg font-bold text-white mt-3 group-hover:text-orange-400 transition-colors">
+                  {item.name}
+                </h3>
+                <p className="text-xs text-zinc-400 mt-2 line-clamp-2 leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+              <div className="mt-5 flex items-center justify-between pt-3 border-t border-white/[0.06]">
+                <span className="text-base font-extrabold text-amber-400">{item.price}</span>
+                <span className="text-xs font-semibold text-orange-400 group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                  Order <ArrowRight size={13} />
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="text-center mt-10">
+          <button
+            onClick={() => navigate('/login')}
+            className="px-6 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 rounded-full shadow-[0_4px_20px_rgba(249,115,22,0.35)] transition-all cursor-pointer"
+          >
+            View Full Digital Menu & Token System
           </button>
         </div>
-      </nav>
-
-      {/* ─── Hero Section ─── */}
-      <section className="lp-hero" ref={heroRef}>
-        <motion.div
-          className="lp-hero-bg"
-          style={{ scale: heroScale, opacity: heroOpacity }}
-        >
-          <img src="/landing-hero.jpg" alt="" className="lp-hero-bg-img" />
-          <div className="lp-hero-bg-overlay" />
-        </motion.div>
-
-        <div className="lp-hero-content">
-          <motion.h1
-            className="lp-hero-title"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...transition, delay: 0.2 }}
-          >
-            Delicious Meals, Delivered Fresh
-            <br />
-            <span className="lp-gradient-text">Right From Our Kitchen.</span>
-          </motion.h1>
-
-          <motion.p
-            className="lp-hero-desc"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...transition, delay: 0.35 }}
-          >
-            Order your favourite homestyle meals, daily specials, and snacks — all at your fingertips.
-            Skip the queue and enjoy fresh food effortlessly.
-          </motion.p>
-
-          <motion.div
-            className="lp-hero-actions"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...transition, delay: 0.5 }}
-          >
-            <MotionButton
-              className="btn btn-primary btn-lg lp-btn-hero"
-              onClick={() => navigate('/login')}
-              id="landing-get-started"
-            >
-              Get Started <ArrowRight size={20} />
-            </MotionButton>
-            <a href="#benefits" className="lp-btn-secondary-link">
-              Learn More <ChevronRight size={18} />
-            </a>
-          </motion.div>
-
-          <motion.div
-            className="lp-hero-tags"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ ...transition, delay: 0.65 }}
-          >
-            <ScrollingTags />
-          </motion.div>
-
-          <motion.a
-            href="#benefits"
-            className="lp-scroll-down-btn"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...transition, delay: 0.8 }}
-            onClick={(e) => {
-              e.preventDefault();
-              document.getElementById('benefits')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            aria-label="Scroll down to see more"
-          >
-            <span>Scroll down to see</span>
-            <ChevronDown size={18} className="lp-scroll-arrow" />
-          </motion.a>
-        </div>
       </section>
 
-
-
-      {/* ─── Benefits Grid ─── */}
-      <section className="lp-section" id="benefits">
-        <motion.div
-          className="lp-section-header"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={transition}
-        >
-          <span className="lp-section-tag">Benefits</span>
-          <h2 className="lp-section-title">Why Students Love Us</h2>
-          <p className="lp-section-desc">
-            Discover how AparnaCanteen makes campus dining effortless, delicious, and affordable.
-          </p>
-        </motion.div>
-
-        <div className="lp-benefits-grid">
-          {benefits.map((b, i) => (
-            <motion.div
-              key={b.title}
-              className="lp-benefit-card"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ ...transition, delay: i * 0.08 }}
-            >
-              <div className="lp-benefit-icon">
-                <b.icon size={24} />
-              </div>
-              <h3>{b.title}</h3>
-              <p>{b.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── Features Showcase ─── */}
-      <section className="lp-features-showcase" id="features">
-        <div className="lp-features-inner">
-          <motion.div
-            className="lp-section-header"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={transition}
-          >
-            <span className="lp-section-tag">Features</span>
-            <h2 className="lp-section-title">Everything You Need</h2>
-            <p className="lp-section-desc">
-              A seamless food ordering experience built for speed and convenience.
-            </p>
-          </motion.div>
-
-          <div className="lp-features-list">
-            {[
-              { icon: Smartphone, title: 'Mobile-First Design', desc: 'Order from any device — phone, tablet, or desktop. Optimized for your screen.' },
-              { icon: Zap, title: 'Instant Updates', desc: 'Real-time order status tracking from placement to pickup.' },
-              { icon: ShoppingBag, title: 'Easy Cart', desc: 'Add items, adjust quantities, and checkout in just a few taps.' },
-              { icon: Users, title: 'Community', desc: 'Join our WhatsApp community for daily menu updates and exclusive offers.' },
-            ].map((f, i) => (
-              <motion.div
-                key={f.title}
-                className="lp-feature-row"
-                initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ ...transition, delay: i * 0.1 }}
-              >
-                <div className="lp-feature-row-icon">
-                  <f.icon size={24} />
-                </div>
-                <div className="lp-feature-row-content">
-                  <h3>{f.title}</h3>
-                  <p>{f.desc}</p>
-                </div>
-              </motion.div>
-            ))}
+      {/* SECTION 3: FEATURES (Landing Page Feature) */}
+      <section id="features" className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs font-semibold mb-3">
+            <Sparkles size={13} strokeWidth={1.65} />
+            <span>Smart Canteen Experience</span>
           </div>
-        </div>
-      </section>
-
-      {/* ─── How It Works ─── */}
-      <section className="lp-section" id="how-it-works">
-        <motion.div
-          className="lp-section-header"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={transition}
-        >
-          <span className="lp-section-tag">Process</span>
-          <h2 className="lp-section-title">Getting Started Steps</h2>
-          <p className="lp-section-desc">
-            From sign-up to enjoying your meal — it's just 3 simple steps.
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+            Why Choose AparnaDevi Canteen?
+          </h2>
+          <p className="text-zinc-400 text-sm sm:text-base max-w-2xl mx-auto">
+            Built to give everyone a seamless, queue-free, delicious dining journey every day.
           </p>
-        </motion.div>
+        </div>
 
-        <div className="lp-steps">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { num: '01', title: 'Sign Up & Log In', desc: 'Create your account in seconds with your phone number. Quick and easy.' },
-            { num: '02', title: 'Browse & Order', desc: 'Explore the daily menu, pick your favourites, and place your order instantly.' },
-            { num: '03', title: 'Pick Up & Enjoy', desc: 'Get notified when your order is ready. Walk in, pick up, and enjoy!' },
-          ].map((s, i) => (
-            <motion.div
-              key={s.num}
-              className="lp-step-card"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ ...transition, delay: i * 0.15 }}
+            {
+              icon: <Zap className="text-orange-400" size={22} strokeWidth={1.65} />,
+              title: 'Instant Digital Tokens',
+              desc: 'Order in seconds, receive your digital token on your phone, and avoid waiting in long queues.',
+            },
+            {
+              icon: <Flame className="text-amber-400" size={22} strokeWidth={1.65} />,
+              title: 'Piping Hot & Fresh',
+              desc: 'Food prepared right when you need it with authentic recipes and zero compromise on taste.',
+            },
+            {
+              icon: <ShieldCheck className="text-emerald-400" size={22} strokeWidth={1.65} />,
+              title: '100% Hygienic Standards',
+              desc: 'Strict kitchen sanitization, quality oil, and fresh campus-inspected daily supplies.',
+            },
+            {
+              icon: <Clock className="text-orange-400" size={22} strokeWidth={1.65} />,
+              title: 'Live Order Tracking',
+              desc: 'Check live counter readiness so you can pick up your meal right when it comes off the stove.',
+            },
+          ].map((feature, idx) => (
+            <div
+              key={idx}
+              className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-orange-500/30 backdrop-blur-md transition-all duration-200"
             >
-              <div className="lp-step-num">{s.num}</div>
-              <h3>{s.title}</h3>
-              <p>{s.desc}</p>
-            </motion.div>
+              <div className="p-2.5 w-fit rounded-xl bg-white/[0.05] border border-white/[0.1] mb-4">
+                {feature.icon}
+              </div>
+              <h3 className="text-base font-bold text-white mb-2">{feature.title}</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">{feature.desc}</p>
+            </div>
           ))}
         </div>
       </section>
 
-
-      {/* ─── FAQ ─── */}
-      <section className="lp-section" id="faq">
-        <motion.div
-          className="lp-section-header"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={transition}
-        >
-          <span className="lp-section-tag">FAQ's</span>
-          <h2 className="lp-section-title">Frequently Asked Questions</h2>
-        </motion.div>
-
-        <motion.div
-          className="lp-faq-list"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-40px' }}
-          transition={transition}
-        >
-          {faqs.map((faq, i) => <FaqItem key={i} q={faq.q} a={faq.a} />)}
-        </motion.div>
-      </section>
-
-      {/* ─── CTA Section ─── */}
-      <section className="lp-cta">
-        <motion.div
-          className="lp-cta-card"
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={transition}
-        >
-          <ChefHat size={48} className="lp-cta-icon" />
-          <h2>Join Us Today</h2>
-          <p>Take the first step towards effortless campus dining — sign up now and start ordering.</p>
-          <div className="lp-cta-perks">
-            <span><Zap size={14} /> Instant Access</span>
-            <span><Star size={14} /> Daily Specials</span>
-            <span><Clock size={14} /> Quick Setup</span>
-          </div>
-          <MotionButton
-            className="btn btn-primary btn-lg lp-btn-hero"
-            onClick={() => navigate('/login')}
-            id="cta-get-started"
-          >
-            Get Started Now <ArrowRight size={20} />
-          </MotionButton>
-        </motion.div>
-      </section>
-
-      {/* ─── Footer ─── */}
-      <footer className="lp-footer">
-        <div className="lp-footer-inner">
-          <div className="lp-footer-brand-col">
-            <div className="lp-footer-brand">
-              <img src="/favicon.jpg" alt="Aparna Canteen" className="lp-footer-logo" />
-              <span>AparnaCanteen</span>
+      {/* SECTION 4: ABOUT (Landing Page Feature) */}
+      <section id="about" className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/25 text-orange-400 text-xs font-semibold mb-3">
+              <Info size={13} strokeWidth={1.65} />
+              <span>About Us</span>
             </div>
-            <p className="lp-footer-tagline">Delicious meals, fresh daily, right at your fingertips.</p>
-            <div className="lp-footer-contact">
-              <a href="tel:9603649488" className="lp-footer-contact-link">
-                <Phone size={14} /> 9603649488
-              </a>
-              <a href="https://wa.me/919603649488" target="_blank" rel="noopener noreferrer" className="lp-footer-contact-link lp-whatsapp">
-                <MessageCircle size={14} /> WhatsApp
-              </a>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
+              Serving Happiness, One Plate at a Time
+            </h2>
+            <p className="text-zinc-400 text-sm leading-relaxed mb-4">
+              AparnaDevi Canteen has been the culinary heartbeat of the campus, dedicated to preparing wholesome, nutritious, and appetizing meals for our vibrant community.
+            </p>
+            <p className="text-zinc-400 text-sm leading-relaxed mb-6">
+              From our morning filter coffee and steaming idlis to afternoon biryanis and evening snacks, we prioritize customer happiness, quick delivery, and hygienic practices in everything we cook.
+            </p>
+
+            <div className="flex flex-wrap gap-4">
+              <div className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08]">
+                <div className="text-xl font-bold text-orange-400">1000+</div>
+                <div className="text-xs text-zinc-400">Meals Served Daily</div>
+              </div>
+              <div className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08]">
+                <div className="text-xl font-bold text-amber-400">50+</div>
+                <div className="text-xs text-zinc-400">Menu Varieties</div>
+              </div>
+              <div className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08]">
+                <div className="text-xl font-bold text-emerald-400">4.9 ★</div>
+                <div className="text-xs text-zinc-400">Customer Rating</div>
+              </div>
             </div>
           </div>
-          <div className="lp-footer-links-col">
-            <h4>Quick Links</h4>
-            <a href="#benefits">Benefits</a>
-            <a href="#how-it-works">How It Works</a>
-            <a href="#features">Features</a>
-            <a href="#faq">FAQ</a>
-          </div>
-          <div className="lp-footer-links-col">
-            <h4>Get Started</h4>
-            <a href="/login" onClick={e => { e.preventDefault(); navigate('/login'); }}>Sign In</a>
-            <a href="/register" onClick={e => { e.preventDefault(); navigate('/register'); }}>Create Account</a>
+
+          <div className="relative rounded-3xl overflow-hidden border border-orange-500/30 shadow-[0_10px_40px_rgba(249,115,22,0.2)] bg-gradient-to-br from-orange-950/40 via-zinc-900/60 to-black/80 p-8 flex flex-col justify-center">
+            <div className="text-2xl font-black text-white mb-3">AparnaDevi Promise</div>
+            <p className="text-zinc-300 text-sm leading-relaxed mb-6">
+              "We believe great food fuels great minds. Every recipe is crafted with care, warmth, and fresh ingredients so you always feel at home."
+            </p>
+            <button
+              onClick={() => navigate('/register')}
+              className="w-fit px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 rounded-full transition-all cursor-pointer flex items-center gap-2"
+            >
+              Join the Canteen Community <ArrowRight size={14} />
+            </button>
           </div>
         </div>
-        <div className="lp-footer-bottom">
-          <p>&copy; {new Date().getFullYear()} AparnaCanteen. Made with ❤️ for students.</p>
+      </section>
+
+      {/* SECTION 5: CONTACT (Landing Page Feature) */}
+      <section id="contact" className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/25 text-orange-400 text-xs font-semibold mb-3">
+            <Phone size={13} strokeWidth={1.65} />
+            <span>Reach Out</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+            Visit Us or Contact Support
+          </h2>
+          <p className="text-zinc-400 text-sm sm:text-base max-w-2xl mx-auto">
+            Find us on campus or get in touch for pre-orders, party catering, and customer queries.
+          </p>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-center flex flex-col items-center">
+            <div className="p-3 rounded-full bg-orange-500/10 text-orange-400 mb-3">
+              <Clock size={20} strokeWidth={1.65} />
+            </div>
+            <h4 className="text-sm font-bold text-white mb-1">Operating Hours</h4>
+            <p className="text-xs text-zinc-400">Mon - Sat: 7:30 AM - 9:30 PM</p>
+            <p className="text-xs text-zinc-400">Sunday: 8:00 AM - 8:00 PM</p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-center flex flex-col items-center">
+            <div className="p-3 rounded-full bg-amber-500/10 text-amber-400 mb-3">
+              <MapPin size={20} strokeWidth={1.65} />
+            </div>
+            <h4 className="text-sm font-bold text-white mb-1">Campus Location</h4>
+            <p className="text-xs text-zinc-400">Main Block, Ground Floor</p>
+            <p className="text-xs text-zinc-400">Opposite Student Activity Center</p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-center flex flex-col items-center">
+            <div className="p-3 rounded-full bg-emerald-500/10 text-emerald-400 mb-3">
+              <Phone size={20} strokeWidth={1.65} />
+            </div>
+            <h4 className="text-sm font-bold text-white mb-1">Direct Helpline</h4>
+            <p className="text-xs text-zinc-400">+91 98765 43210</p>
+            <p className="text-xs text-zinc-400">canteen@aparnadevi.edu</p>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="relative z-20 py-8 px-4 border-t border-white/[0.08] text-center text-xs text-zinc-500">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <img src="/aparnadevi-logo.png" alt="AparnaDevi Logo" className="h-6 w-auto" />
+          <span className="font-semibold text-zinc-400">AparnaDevi Canteen</span>
+        </div>
+        <p>© {new Date().getFullYear()} AparnaDevi Canteen. All rights reserved.</p>
       </footer>
     </div>
   );
-};
-
-export default LandingPage;
+}

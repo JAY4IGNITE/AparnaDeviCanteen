@@ -1,0 +1,104 @@
+.dock-outer {
+  margin: 0;
+  display: flex;
+  max-width: 100%;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+/* Minimized, sleek floating top bar with rounded corners and edges */
+.dock-panel {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  gap: 0.2rem;
+  border-radius: 9999px;
+  background-color: rgba(12, 10, 16, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  padding: 0.18rem 0.35rem;
+  box-shadow: 
+    0 8px 24px -4px rgba(0, 0, 0, 0.6), 
+    0 0 14px rgba(249, 115, 22, 0.08);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  user-select: none;
+}
+
+.dock-panel:hover {
+  border-color: rgba(249, 115, 22, 0.38);
+  box-shadow: 
+    0 10px 28px -4px rgba(0, 0, 0, 0.7), 
+    0 0 18px rgba(249, 115, 22, 0.18);
+}
+
+/* Minimized sleek circular dock item */
+.dock-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  outline: none;
+  color: #a1a1aa;
+  transition: background-color 0.18s, border-color 0.18s, color 0.18s, box-shadow 0.18s;
+  flex-shrink: 0;
+}
+
+.dock-item:hover,
+.dock-item:focus-visible {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #ffb703;
+  border-color: rgba(249, 115, 22, 0.45);
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.28);
+}
+
+.dock-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Ultra-clean minimized tooltip positioned below */
+.dock-label {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  width: fit-content;
+  white-space: pre;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: rgba(14, 11, 18, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 0.15rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #f4f4f5;
+  transform: translateX(-50%);
+  pointer-events: none;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+  z-index: 60;
+}
+
+/* Subtle vertical divider */
+.dock-divider {
+  width: 1px;
+  height: 16px;
+  background-color: rgba(255, 255, 255, 0.12);
+  margin: 0 0.15rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .dock-panel {
+    gap: 0.15rem;
+    padding: 0.15rem 0.28rem;
+  }
+}

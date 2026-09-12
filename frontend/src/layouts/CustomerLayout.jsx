@@ -2,7 +2,17 @@ import { useState } from 'react';
 import { Outlet, useNavigate, NavLink } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { Home, UtensilsCrossed, ClipboardList, User, HelpCircle, Menu, X, Megaphone, MessageSquarePlus } from 'lucide-react';
+import { 
+  Compass, 
+  UtensilsCrossed, 
+  ShoppingBag, 
+  MessageSquareHeart, 
+  Bell, 
+  UserCheck, 
+  Headphones, 
+  Menu, 
+  X 
+} from 'lucide-react';
 import AppSidebar from '../components/layout/AppSidebar';
 import PageTransition from '../components/ui/PageTransition';
 
@@ -17,20 +27,21 @@ const CustomerLayout = () => {
   };
 
   const navLinks = [
-    { to: '/customer/home', icon: Home, label: 'Home' },
-    { to: '/customer/menu', icon: UtensilsCrossed, label: 'Menu' },
-    { to: '/customer/orders', icon: ClipboardList, label: 'My Orders' },
-    { to: '/customer/feedback', icon: MessageSquarePlus, label: 'Give Feedback' },
-    { to: '/customer/announcements', icon: Megaphone, label: 'Announcements' },
-    { to: '/customer/profile', icon: User, label: 'Profile' },
-    { to: '/customer/support', icon: HelpCircle, label: 'Support' },
+    { to: '/customer/home', icon: Compass, label: 'Dashboard' },
+    { to: '/customer/menu', icon: UtensilsCrossed, label: 'Browse Menu' },
+    { to: '/customer/orders', icon: ShoppingBag, label: 'My Orders' },
+    { to: '/customer/feedback', icon: MessageSquareHeart, label: 'Give Feedback' },
+    { to: '/customer/announcements', icon: Bell, label: 'Announcements' },
+    { section: 'SYSTEM CONTROLS' },
+    { to: '/customer/profile', icon: UserCheck, label: 'Profile Settings' },
+    { to: '/customer/support', icon: Headphones, label: 'Support' },
   ];
 
   const bottomNavItems = [
-    { to: '/customer/home', icon: Home, label: 'Home' },
+    { to: '/customer/home', icon: Compass, label: 'Home' },
     { to: '/customer/menu', icon: UtensilsCrossed, label: 'Menu' },
-    { to: '/customer/orders', icon: ClipboardList, label: 'Orders' },
-    { to: '/customer/profile', icon: User, label: 'Profile' },
+    { to: '/customer/orders', icon: ShoppingBag, label: 'Orders' },
+    { to: '/customer/profile', icon: UserCheck, label: 'Profile' },
   ];
 
   return (
@@ -59,7 +70,8 @@ const CustomerLayout = () => {
       </header>
 
       <AppSidebar
-        brand="AparnaCanteen"
+        brand="Aparna Devi"
+        subtitle="CANTEEN PORTAL"
         navLinks={navLinks}
         user={user}
         userRole={user?.role}

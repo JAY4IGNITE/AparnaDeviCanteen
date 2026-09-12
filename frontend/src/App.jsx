@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Landing Page
@@ -38,71 +39,73 @@ import ClickSpark from './components/ClickSpark';
 
 function App() {
   return (
-    <AuthProvider>
-      <ClickSpark
-        sparkColor="#ffffff"
-        sparkSize={10}
-        sparkRadius={15}
-        sparkCount={8}
-        duration={400}
-      >
-        <Router>
-          <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/verify-email/:token" element={<VerifyEmail />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
+    <ThemeProvider>
+      <AuthProvider>
+        <ClickSpark
+          sparkColor="#ffffff"
+          sparkSize={10}
+          sparkRadius={15}
+          sparkCount={8}
+          duration={400}
+        >
+          <Router>
+            <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/verify-email/:token" element={<VerifyEmail />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-          {/* Customer Routes (Protected) */}
-          <Route
-            path="/customer"
-            element={
-              <ProtectedRoute>
-                <CustomerLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="home" element={<CustomerHome />} />
-            <Route path="menu" element={<CustomerMenu />} />
-            <Route path="orders" element={<CustomerOrders />} />
-            <Route path="feedback" element={<CustomerFeedback />} />
-            <Route path="profile" element={<CustomerProfile />} />
-            <Route path="support" element={<CustomerSupport />} />
-            <Route path="announcements" element={<CustomerAnnouncements />} />
-            <Route path="" element={<Navigate to="home" replace />} />
-          </Route>
+            {/* Customer Routes (Protected) */}
+            <Route
+              path="/customer"
+              element={
+                <ProtectedRoute>
+                  <CustomerLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="home" element={<CustomerHome />} />
+              <Route path="menu" element={<CustomerMenu />} />
+              <Route path="orders" element={<CustomerOrders />} />
+              <Route path="feedback" element={<CustomerFeedback />} />
+              <Route path="profile" element={<CustomerProfile />} />
+              <Route path="support" element={<CustomerSupport />} />
+              <Route path="announcements" element={<CustomerAnnouncements />} />
+              <Route path="" element={<Navigate to="home" replace />} />
+            </Route>
 
-          {/* Admin Routes (Protected + Admin Role) */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute adminOnly>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="home" element={<AdminHome />} />
-            <Route path="manage-menu" element={<ManageMenu />} />
-            <Route path="orders" element={<AdminOrders />} />
-            <Route path="revenue" element={<Revenue />} />
-            <Route path="statistics" element={<Statistics />} />
-            <Route path="manage-customers" element={<ManageCustomers />} />
-            <Route path="announcements" element={<AdminAnnouncements />} />
-            <Route path="counter-sale" element={<CounterSale />} />
-            <Route path="feedbacks" element={<AdminFeedbacks />} />
-            <Route path="settings" element={<AdminSettings />} />
-            <Route path="" element={<Navigate to="home" replace />} />
-          </Route>
+            {/* Admin Routes (Protected + Admin Role) */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute adminOnly>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="home" element={<AdminHome />} />
+              <Route path="manage-menu" element={<ManageMenu />} />
+              <Route path="orders" element={<AdminOrders />} />
+              <Route path="revenue" element={<Revenue />} />
+              <Route path="statistics" element={<Statistics />} />
+              <Route path="manage-customers" element={<ManageCustomers />} />
+              <Route path="announcements" element={<AdminAnnouncements />} />
+              <Route path="counter-sale" element={<CounterSale />} />
+              <Route path="feedbacks" element={<AdminFeedbacks />} />
+              <Route path="settings" element={<AdminSettings />} />
+              <Route path="" element={<Navigate to="home" replace />} />
+            </Route>
 
-          {/* Fallback Route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
-    </ClickSpark>
-  </AuthProvider>
+            {/* Fallback Route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </ClickSpark>
+    </AuthProvider>
+  </ThemeProvider>
 );
 }
 

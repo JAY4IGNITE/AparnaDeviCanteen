@@ -3,7 +3,22 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { Home, UtensilsCrossed, ClipboardList, DollarSign, BarChart3, Users, Menu, X, Shield, Megaphone, Store, MessageSquarePlus, BellRing } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  Store, 
+  ChefHat, 
+  ReceiptText, 
+  TrendingUp, 
+  CircleDollarSign, 
+  Users2, 
+  Megaphone, 
+  MessageSquareHeart, 
+  SlidersHorizontal, 
+  Menu, 
+  X, 
+  Shield, 
+  BellRing 
+} from 'lucide-react';
 import AppSidebar from '../components/layout/AppSidebar';
 import PageTransition from '../components/ui/PageTransition';
 
@@ -134,16 +149,17 @@ const AdminLayout = () => {
   };
 
   const navLinks = [
-    { to: '/admin/home', icon: Home, label: 'Dashboard' },
+    { to: '/admin/home', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/admin/counter-sale', icon: Store, label: 'Counter Sale' },
-    { to: '/admin/manage-menu', icon: UtensilsCrossed, label: 'Manage Menu' },
-    { to: '/admin/orders', icon: ClipboardList, label: 'Orders', badge: pendingCount },
-    { to: '/admin/statistics', icon: BarChart3, label: 'Statistics' },
-    { to: '/admin/revenue', icon: DollarSign, label: 'Revenue' },
-    { to: '/admin/manage-customers', icon: Users, label: 'Customers' },
+    { to: '/admin/manage-menu', icon: ChefHat, label: 'Manage Menu' },
+    { to: '/admin/orders', icon: ReceiptText, label: 'Orders', badge: pendingCount },
+    { to: '/admin/statistics', icon: TrendingUp, label: 'Statistics' },
+    { to: '/admin/revenue', icon: CircleDollarSign, label: 'Revenue' },
+    { to: '/admin/manage-customers', icon: Users2, label: 'Customers' },
     { to: '/admin/announcements', icon: Megaphone, label: 'Announcements' },
-    { to: '/admin/feedbacks', icon: MessageSquarePlus, label: 'Feedbacks' },
-    { to: '/admin/settings', icon: Shield, label: 'Settings' },
+    { to: '/admin/feedbacks', icon: MessageSquareHeart, label: 'Feedbacks' },
+    { section: 'SYSTEM CONTROLS' },
+    { to: '/admin/settings', icon: SlidersHorizontal, label: 'Settings' },
   ];
 
   const adminBadge = (
@@ -178,7 +194,8 @@ const AdminLayout = () => {
       </header>
 
       <AppSidebar
-        brand="AparnaCanteen"
+        brand="Aparna Devi"
+        subtitle="ADMIN CONSOLE"
         badge={adminBadge}
         navLinks={navLinks}
         user={user}
@@ -205,7 +222,14 @@ const AdminLayout = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
+              padding: '0.75rem 1.25rem',
+              borderRadius: '9999px',
+              background: 'rgba(14, 11, 18, 0.95)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(249, 115, 22, 0.45)',
+              boxShadow: '0 10px 32px rgba(0, 0, 0, 0.75), 0 0 24px rgba(249, 115, 22, 0.25)',
+              color: '#ffffff'
             }}
             onClick={() => {
               setGlobalAlert(null);

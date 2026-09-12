@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'motion/react';
-import { ShoppingCart, Plus, Minus, X, CheckCircle, AlertCircle, Package, UtensilsCrossed, ArrowLeft, Banknote, Search } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, X, CheckCircle, AlertCircle, Package, UtensilsCrossed, ArrowLeft, Banknote, Search, Sparkles } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import AnimatedModal from '../../components/ui/AnimatedModal';
 import AlertBanner from '../../components/ui/AlertBanner';
@@ -170,23 +170,25 @@ const MenuPage = () => {
         <>
           <div className="menu-featured">
             <div className="menu-featured-copy">
-              <h2>Freshly made, served hot</h2>
-              <p>Handpicked favourites from the AparnaCanteen kitchen.</p>
+              <div className="menu-featured-tag">
+                <Sparkles size={13} /> Fresh & Hot Daily
+              </div>
+              <h2>Authentic Home-Style Specials</h2>
+              <p>Prepared fresh daily with instant digital token counter pickups.</p>
             </div>
           </div>
 
           {/* Search bar & Veg Only Quick Filter */}
-          <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-            <div className="search-bar" style={{ flex: 1, minWidth: '220px', margin: 0 }}>
+          <div className="menu-toolbar">
+            <div className="menu-search-wrap">
               <Search size={16} className="search-bar-icon" />
               <input
                 type="text"
-                className="form-input"
+                className="menu-search-input"
                 placeholder="Search menu (e.g. Biryani, Paneer, Starters...)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 id="menu-search-input"
-                style={{ paddingRight: searchQuery ? '2.5rem' : '1rem' }}
               />
               {searchQuery && (
                 <button type="button" className="search-bar-clear" onClick={() => setSearchQuery('')} aria-label="Clear search">
@@ -230,9 +232,30 @@ const MenuPage = () => {
           </div>
 
           <div className="menu-categories">
-            {displayedCategories.map(([category, items]) => (
+            {displayedCategories.length === 0 ? (
+              <EmptyState
+                icon={Search}
+                title="No matching dishes found"
+                description={
+                  searchQuery
+                    ? `No dishes found matching "${searchQuery}". Try a different search term or clear filters.`
+                    : vegOnly
+                    ? 'No vegetarian dishes found in this category.'
+                    : 'No dishes currently available in this category.'
+                }
+              />
+            ) : (
+              displayedCategories.map(([category, items]) => (
               <div key={category} className="menu-category-section">
-                <h2 className="category-title">{category}</h2>
+                <div className="category-header-wrap">
+                  <h2 className="category-title">
+                    {category}
+                    <span className="category-title-badge">
+                      {items.length} {items.length === 1 ? 'dish' : 'dishes'}
+                    </span>
+                  </h2>
+                </div>
+
                 <motion.div
                   className="menu-grid"
                   variants={staggerContainer}
@@ -247,7 +270,7 @@ const MenuPage = () => {
                         className={`menu-card ${isOutOfStock ? 'out-of-stock' : ''}`}
                         variants={fadeUp}
                         transition={{ delay: index * 0.04 }}
-                        whileHover={isOutOfStock ? {} : { y: -3, transition: { duration: 0.2 } }}
+                        whileHover={isOutOfStock ? {} : { y: -4, transition: { duration: 0.2 } }}
                       >
                         <div className="menu-card-img-wrap">
                           <div className="menu-card-img-badge">
@@ -288,30 +311,59 @@ const MenuPage = () => {
 
                         <div className="menu-card-body">
                           <div className="menu-card-header">
-                            <div>
-                              <div className="menu-item-name" style={isOutOfStock ? { color: 'var(--text-muted)' } : {}}>{item.item_name}</div>
-                              <div className="menu-item-category">{item.category || 'General'}</div>
+                            <div className="menu-card-top-row">
+                              <div
+                                className="menu-item-name"
+                                style={isOutOfStock ? { color: 'var(--text-muted)' } : {}}
+                                title={item.item_name}
+                              >
+                                {item.item_name}
+                              </div>
+                              <div
+                                className="menu-item-price"
+                                style={isOutOfStock ? { opacity: 0.5, color: 'var(--text-muted)' } : {}}
+                              >
+                                ₹{item.price}
+                              </div>
                             </div>
-                            <div className="menu-item-price" style={isOutOfStock ? { opacity: 0.5, color: 'var(--text-muted)' } : {}}>₹{item.price}</div>
+                            <div>
+                              <span className="menu-item-category-tag">
+                                {item.category || 'General'}
+                              </span>
+                            </div>
                           </div>
 
                           <div className="menu-card-actions">
                             {isOutOfStock ? (
-                              <button className="btn btn-sm btn-out-of-stock" disabled>
+                              <button className="btn-out-of-stock" disabled>
                                 Out of Stock
                               </button>
                             ) : cart[item.id] ? (
-                              <div className="quantity-control" style={{ width: '100%', justifyContent: 'space-between' }}>
-                                <MotionButton className="quantity-btn" onClick={() => removeFromCart(item.id)} id={`decrease-${item.id}`} aria-label={`Remove one ${item.item_name}`}>
+                              <div className="quantity-control">
+                                <MotionButton
+                                  className="quantity-btn"
+                                  onClick={() => removeFromCart(item.id)}
+                                  id={`decrease-${item.id}`}
+                                  aria-label={`Remove one ${item.item_name}`}
+                                >
                                   <Minus size={16} />
                                 </MotionButton>
                                 <span className="quantity-value">{cart[item.id].quantity}</span>
-                                <MotionButton className="quantity-btn" onClick={() => addToCart(item)} id={`increase-${item.id}`} aria-label={`Add one more ${item.item_name}`}>
+                                <MotionButton
+                                  className="quantity-btn"
+                                  onClick={() => addToCart(item)}
+                                  id={`increase-${item.id}`}
+                                  aria-label={`Add one more ${item.item_name}`}
+                                >
                                   <Plus size={16} />
                                 </MotionButton>
                               </div>
                             ) : (
-                              <MotionButton className="btn btn-primary btn-sm" onClick={() => addToCart(item)} id={`add-${item.id}`} style={{ width: '100%', justifyContent: 'center' }}>
+                              <MotionButton
+                                className="btn btn-primary"
+                                onClick={() => addToCart(item)}
+                                id={`add-${item.id}`}
+                              >
                                 <Plus size={16} /> Add to Cart
                               </MotionButton>
                             )}
@@ -322,7 +374,7 @@ const MenuPage = () => {
                   })}
                 </motion.div>
               </div>
-            ))}
+            )))}
           </div>
         </>
       )}

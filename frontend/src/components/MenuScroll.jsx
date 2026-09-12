@@ -53,14 +53,14 @@ const userDishes = [
 
 function MenuCard({ item }) {
   return (
-    <div className="menu-card">
+    <div className="menu-wall-card">
       <img
         src={item.image}
         alt={item.name}
         draggable="false"
       />
 
-      <div className="menu-card-info">
+      <div className="menu-wall-card-info">
         <span>{item.name}</span>
       </div>
     </div>

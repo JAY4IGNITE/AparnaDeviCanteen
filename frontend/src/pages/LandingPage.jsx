@@ -15,6 +15,7 @@ import {
   Zap,
   Flame,
   ArrowRight,
+  MessageCircle,
 } from 'lucide-react';
 import PotSteam from '../components/PotSteam';
 import ColorBends from '../components/ColorBends';
@@ -465,8 +466,38 @@ export default function LandingPage() {
               <Phone size={20} strokeWidth={1.65} />
             </div>
             <h4 className="text-sm font-bold text-white mb-1">Direct Helpline</h4>
-            <p className="text-xs text-zinc-400">+91 98765 43210</p>
+            <p className="text-xs font-semibold text-white">9491008797</p>
             <p className="text-xs text-zinc-400">canteen@aparnadevi.edu</p>
+          </div>
+        </div>
+
+        {/* Dedicated Password & Support Contact Box */}
+        <div className="mt-8 max-w-2xl mx-auto p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left shadow-lg">
+          <div>
+            <p className="text-xs sm:text-sm font-medium text-zinc-300">
+              If any Password related queries contact to this number
+            </p>
+            <div className="text-xl font-extrabold text-white tracking-wide mt-1">
+              9491008797
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <a
+              href="tel:9491008797"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.07] hover:bg-white/[0.12] border border-white/[0.1] text-white text-xs font-bold transition-colors"
+            >
+              <Phone size={14} className="text-orange-400" />
+              Call
+            </a>
+            <a
+              href="https://wa.me/919491008797"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold transition-all shadow-[0_4px_14px_rgba(37,211,102,0.35)]"
+            >
+              <MessageCircle size={15} />
+              WhatsApp
+            </a>
           </div>
         </div>
       </motion.section>

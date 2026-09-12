@@ -7,7 +7,7 @@ import MotionButton from '../components/ui/MotionButton';
 import AlertBanner from '../components/ui/AlertBanner';
 import { useMotionSafe } from '../lib/motion';
 import useNeonBorder from '../hooks/useNeonBorder';
-import './StarsBackground.css';
+import MagicRings from '../components/MagicRings';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -64,11 +64,45 @@ const Register = () => {
 
   return (
     <div className="auth-page" style={{ background: 'transparent' }}>
-      <div className="stars-container">
-        <div id="stars"></div>
-        <div id="stars2"></div>
-        <div id="stars3"></div>
+      {/* Simplified, Lightweight Themed MagicRings Background - Full Page Coverage */}
+      <div
+        className="auth-magic-rings"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          pointerEvents: 'none',
+          zIndex: 0,
+          overflow: 'hidden',
+        }}
+      >
+        <MagicRings
+          color="#f97316"
+          colorTwo="#f59e0b"
+          ringCount={4}
+          speed={0.6}
+          attenuation={8}
+          lineThickness={1.5}
+          baseRadius={0.36}
+          radiusStep={0.16}
+          scaleRate={0.1}
+          opacity={0.68}
+          blur={0}
+          noiseAmount={0.02}
+          rotation={0}
+          ringGap={1.35}
+          fadeIn={0.7}
+          fadeOut={0.5}
+          followMouse={false}
+          mouseInfluence={0}
+          hoverScale={1.0}
+          parallax={0}
+          clickBurst={false}
+        />
       </div>
+
       <motion.div
         className="auth-container"
         initial={{ opacity: 0, y: 12 }}

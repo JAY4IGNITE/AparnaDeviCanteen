@@ -2,13 +2,13 @@ import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { LogIn, Phone, Mail, Lock, AlertCircle, Eye, EyeOff, MessageCircle, X, ExternalLink, LogOut } from 'lucide-react';
+import { LogIn, Phone, Mail, Lock, AlertCircle, Eye, EyeOff, X, ExternalLink, LogOut } from 'lucide-react';
 import MotionButton from '../components/ui/MotionButton';
 import AlertBanner from '../components/ui/AlertBanner';
 import AnimatedModal from '../components/ui/AnimatedModal';
 import { useMotionSafe } from '../lib/motion';
 import useNeonBorder from '../hooks/useNeonBorder';
-import './StarsBackground.css';
+import MagicRings from '../components/MagicRings';
 
 const Login = () => {
   const [formData, setFormData] = useState({ identifier: '', password: '' });
@@ -131,11 +131,45 @@ const Login = () => {
 
   return (
     <div className="auth-page" style={{ background: 'transparent' }}>
-      <div className="stars-container">
-        <div id="stars"></div>
-        <div id="stars2"></div>
-        <div id="stars3"></div>
+      {/* Simplified, Lightweight Themed MagicRings Background */}
+      <div
+        className="auth-magic-rings"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          pointerEvents: 'none',
+          zIndex: 0,
+          overflow: 'hidden',
+        }}
+      >
+        <MagicRings
+          color="#f97316"
+          colorTwo="#f59e0b"
+          ringCount={4}
+          speed={0.6}
+          attenuation={8}
+          lineThickness={1.5}
+          baseRadius={0.36}
+          radiusStep={0.16}
+          scaleRate={0.1}
+          opacity={0.68}
+          blur={0}
+          noiseAmount={0.02}
+          rotation={0}
+          ringGap={1.35}
+          fadeIn={0.7}
+          fadeOut={0.5}
+          followMouse={false}
+          mouseInfluence={0}
+          hoverScale={1.0}
+          parallax={0}
+          clickBurst={false}
+        />
       </div>
+
       <motion.div
         className="auth-container"
         initial={{ opacity: 0, y: 12 }}
@@ -219,27 +253,6 @@ const Login = () => {
             </div>
             <div>
               Don't have an account? <Link to="/register">Sign Up</Link>
-            </div>
-            <div className="auth-contact-section">
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '0.4rem', fontSize: '0.8rem' }}>
-                If any Password related queries contact to this number
-              </p>
-              <div className="auth-contact-actions">
-                <span style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.925rem' }}>9491008797</span>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <a href="tel:9491008797" className="btn btn-secondary btn-sm">
-                    <Phone size={14} /> Call
-                  </a>
-                  <a
-                    href="https://wa.me/919491008797"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-secondary btn-sm btn-whatsapp"
-                  >
-                    <MessageCircle size={14} /> WhatsApp
-                  </a>
-                </div>
-              </div>
             </div>
           </div>
         </div>

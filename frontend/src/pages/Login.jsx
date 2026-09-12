@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { LogIn, Phone, Mail, Lock, AlertCircle, Eye, EyeOff, X, ExternalLink, LogOut } from 'lucide-react';
+import { Phone, Mail, Lock, AlertCircle, Eye, EyeOff, X, ExternalLink, LogOut } from 'lucide-react';
 import MotionButton from '../components/ui/MotionButton';
 import AlertBanner from '../components/ui/AlertBanner';
 import AnimatedModal from '../components/ui/AnimatedModal';
@@ -146,8 +146,9 @@ const Login = () => {
         }}
       >
         <MagicRings
-          color="#f97316"
-          colorTwo="#f59e0b"
+          color="#ff4500"
+          colorTwo="#f97316"
+          colorThree="#ffb703"
           ringCount={4}
           speed={0.6}
           attenuation={8}
@@ -184,7 +185,7 @@ const Login = () => {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ ...transition, delay: 0.1 }}
             >
-              <img src="/favicon.jpg" alt="Logo" className="sidebar-logo-img" />
+              <img src="/canteen-logo.png" alt="AparnaDevi Logo" className="auth-logo-img" />
             </motion.div>
             <h1 className="auth-title">Aparna Devi Canteen</h1>
             <p className="auth-subtitle">Welcome back</p>
@@ -243,12 +244,12 @@ const Login = () => {
               </div>
             </div>
             <MotionButton type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }} disabled={loading} id="login-submit">
-              {loading ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : <><LogIn size={18} /> Sign In</>}
+              {loading ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : 'Sign In'}
             </MotionButton>
           </form>
 
           <div className="auth-footer">
-            <div style={{ marginBottom: '1rem' }}>
+            <div style={{ marginBottom: '0.45rem' }}>
               <Link to="/forgot-password" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '500' }}>Forgot Password?</Link>
             </div>
             <div>

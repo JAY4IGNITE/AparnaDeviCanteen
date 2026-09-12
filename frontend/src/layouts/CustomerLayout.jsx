@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, NavLink } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { Home, UtensilsCrossed, ClipboardList, User, HelpCircle, Menu, X, Megaphone, MessageSquarePlus } from 'lucide-react';
@@ -26,18 +26,37 @@ const CustomerLayout = () => {
     { to: '/customer/support', icon: HelpCircle, label: 'Support' },
   ];
 
+  const bottomNavItems = [
+    { to: '/customer/home', icon: Home, label: 'Home' },
+    { to: '/customer/menu', icon: UtensilsCrossed, label: 'Menu' },
+    { to: '/customer/orders', icon: ClipboardList, label: 'Orders' },
+    { to: '/customer/profile', icon: User, label: 'Profile' },
+  ];
+
   return (
     <div className="app-layout">
-      <motion.button
-        className="hamburger-btn"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        id="hamburger-toggle"
-        aria-label="Toggle navigation menu"
-        aria-expanded={sidebarOpen}
-        whileTap={{ scale: 0.95 }}
-      >
-        {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
-      </motion.button>
+      {/* Mobile Top App Header Bar */}
+      <header className="mobile-app-header">
+        <motion.button
+          className="mobile-menu-trigger"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          id="hamburger-toggle"
+          aria-label="Toggle navigation menu"
+          aria-expanded={sidebarOpen}
+          whileTap={{ scale: 0.92 }}
+        >
+          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+        </motion.button>
+        <div className="mobile-app-brand">
+          <img src="/canteen-logo.png" alt="AparnaDevi Logo" className="mobile-app-logo" />
+          <span className="mobile-app-title">AparnaCanteen</span>
+        </div>
+        <div className="mobile-header-user">
+          <span className="mobile-header-user-badge">
+            {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+          </span>
+        </div>
+      </header>
 
       <AppSidebar
         brand="AparnaCanteen"
@@ -50,13 +69,27 @@ const CustomerLayout = () => {
         logoutId="logout-btn"
       />
 
-      <main className="main-content">
+      <main className="main-content customer-layout-main">
         <PageTransition>
           <div className="page-container">
             <Outlet />
           </div>
         </PageTransition>
       </main>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="mobile-bottom-nav" aria-label="Mobile Bottom Navigation">
+        {bottomNavItems.map(({ to, icon: Icon, label }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) => `mobile-bottom-item ${isActive ? 'active' : ''}`}
+          >
+            <Icon size={20} strokeWidth={2} />
+            <span>{label}</span>
+          </NavLink>
+        ))}
+      </nav>
     </div>
   );
 };

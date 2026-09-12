@@ -272,9 +272,9 @@ export default function LandingPage() {
             e.stopPropagation();
             scrollToSection('menu');
           }}
-          className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3.5 z-20 pointer-events-auto select-none cursor-pointer group max-w-[220px] sm:max-w-[280px]"
+          className="absolute bottom-16 left-2 sm:bottom-3 sm:left-3.5 z-20 pointer-events-auto select-none cursor-pointer group max-w-[170px] xs:max-w-[220px] sm:max-w-[280px]"
         >
-          <p className="hero-statement-text text-[10px] sm:text-[11px] md:text-xs text-zinc-300/90 group-hover:text-orange-400 transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
+          <p className="hero-statement-text text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs text-zinc-300/90 group-hover:text-orange-400 transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
             AUTHENTIC HOME-STYLE RECIPES,
             <br />
             PREPARED FRESH DAILY WITH
@@ -290,9 +290,9 @@ export default function LandingPage() {
             e.stopPropagation();
             scrollToSection('contact');
           }}
-          className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3.5 z-20 pointer-events-auto select-none cursor-pointer group max-w-[220px] sm:max-w-[280px] text-right"
+          className="absolute bottom-16 right-2 sm:bottom-3 sm:right-3.5 z-20 pointer-events-auto select-none cursor-pointer group max-w-[170px] xs:max-w-[220px] sm:max-w-[280px] text-right"
         >
-          <p className="hero-statement-text text-[10px] sm:text-[11px] md:text-xs text-zinc-300/90 group-hover:text-amber-400 transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
+          <p className="hero-statement-text text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs text-zinc-300/90 group-hover:text-amber-400 transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
             SERVING DELICIOUS DAILY SPECIALS,
             <br />
             ZERO-WAIT COUNTER PICKUPS,

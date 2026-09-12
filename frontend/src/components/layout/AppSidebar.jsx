@@ -34,7 +34,7 @@ const AppSidebar = ({
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <div className="sidebar-logo">
-            <img src="/favicon.jpg" alt="Logo" className="sidebar-logo-img" />
+            <img src="/canteen-logo.png" alt="AparnaDevi Logo" className="sidebar-logo-img" />
           </div>
           <span className="sidebar-brand">{brand}</span>
           {badge}

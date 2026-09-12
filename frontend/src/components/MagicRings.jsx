@@ -18,7 +18,8 @@ uniform float uFadeIn, uFadeOut;
 uniform float uMouseInfluence, uHoverAmount, uHoverScale, uParallax, uBurst;
 uniform float uCoverageAlpha;
 uniform vec2 uResolution, uMouse;
-uniform vec3 uColor, uColorTwo;
+uniform vec3 uColor, uColorTwo, uColorThree;
+uniform int uHasColorThree;
 uniform int uRingCount;
 
 const float HP = 1.5707963;
@@ -54,7 +55,13 @@ void main() {
     if (i >= uRingCount) break;
     float fi = float(i);
     vec2 pr = p - fi * uParallax * uMouse;
-    vec3 rc = mix(uColor, uColorTwo, fi / rcf);
+    vec3 rc;
+    if (uHasColorThree > 0) {
+      float t = fi / rcf;
+      rc = t < 0.5 ? mix(uColor, uColorTwo, t * 2.0) : mix(uColorTwo, uColorThree, (t - 0.5) * 2.0);
+    } else {
+      rc = mix(uColor, uColorTwo, fi / rcf);
+    }
     float ringAmount = ring(pr, uBaseRadius + fi * uRadiusStep, pow(uRingGap, fi), i == 0 ? 0.0 : 2.95 * fi, px);
     c = mix(c, rc, vec3(ringAmount));
     coverage = max(coverage, ringAmount);
@@ -71,8 +78,9 @@ void main() {
 `;
 
 export default function MagicRings({
-  color = '#f97316',
-  colorTwo = '#f59e0b',
+  color = '#ff4500',
+  colorTwo = '#f97316',
+  colorThree = '#ffb703',
   speed = 0.6,
   ringCount = 4,
   attenuation = 8,
@@ -105,6 +113,7 @@ export default function MagicRings({
   propsRef.current = {
     color,
     colorTwo,
+    colorThree,
     speed,
     ringCount,
     attenuation,
@@ -150,6 +159,8 @@ export default function MagicRings({
       uResolution: { value: new THREE.Vector2() },
       uColor: { value: new THREE.Color() },
       uColorTwo: { value: new THREE.Color() },
+      uColorThree: { value: new THREE.Color() },
+      uHasColorThree: { value: 0 },
       uLineThickness: { value: 0 },
       uBaseRadius: { value: 0 },
       uRadiusStep: { value: 0 },
@@ -262,6 +273,12 @@ export default function MagicRings({
       uniforms.uAttenuation.value = p.attenuation;
       uniforms.uColor.value.set(p.color);
       uniforms.uColorTwo.value.set(p.colorTwo);
+      if (p.colorThree) {
+        uniforms.uColorThree.value.set(p.colorThree);
+        uniforms.uHasColorThree.value = 1;
+      } else {
+        uniforms.uHasColorThree.value = 0;
+      }
       uniforms.uLineThickness.value = p.lineThickness;
       uniforms.uBaseRadius.value = p.baseRadius;
       uniforms.uRadiusStep.value = p.radiusStep;

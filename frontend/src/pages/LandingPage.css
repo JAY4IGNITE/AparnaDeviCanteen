@@ -36,6 +36,23 @@
   pointer-events: auto;
 }
 
+@media (max-width: 640px) {
+  .top-dock-container {
+    top: auto;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    z-index: 50;
+  }
+
+  .top-dock-container .dock-panel {
+    background: rgba(10, 15, 25, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(249, 115, 22, 0.2);
+    padding: 0.25rem 0.5rem;
+  }
+}
+
 /* Typography matching the user's high-impact uppercase statement reference */
 .hero-statement-text {
   font-family: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;

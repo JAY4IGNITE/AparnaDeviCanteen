@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { Home, UtensilsCrossed, ClipboardList, DollarSign, BarChart3, Users, Menu, X, Shield, Megaphone, Store, MessageSquarePlus, BellRing, ChevronRight } from 'lucide-react';
+import { Home, UtensilsCrossed, ClipboardList, DollarSign, BarChart3, Users, Menu, X, Shield, Megaphone, Store, MessageSquarePlus, BellRing } from 'lucide-react';
 import AppSidebar from '../components/layout/AppSidebar';
 import PageTransition from '../components/ui/PageTransition';
 
@@ -154,16 +154,28 @@ const AdminLayout = () => {
 
   return (
     <div className="app-layout">
-      <motion.button
-        className="hamburger-btn"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        id="admin-hamburger"
-        aria-label="Toggle navigation menu"
-        aria-expanded={sidebarOpen}
-        whileTap={{ scale: 0.95 }}
-      >
-        {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
-      </motion.button>
+      {/* Mobile Top App Header Bar */}
+      <header className="mobile-app-header">
+        <motion.button
+          className="mobile-menu-trigger"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          id="admin-hamburger"
+          aria-label="Toggle navigation menu"
+          aria-expanded={sidebarOpen}
+          whileTap={{ scale: 0.92 }}
+        >
+          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+        </motion.button>
+        <div className="mobile-app-brand">
+          <img src="/canteen-logo.png" alt="AparnaDevi Logo" className="mobile-app-logo" />
+          <span className="mobile-app-title">Admin Panel</span>
+        </div>
+        <div className="mobile-header-user">
+          <span className="badge badge-completed" style={{ fontSize: '0.65rem', padding: '0.15rem 0.4rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+            <Shield size={10} /> Admin
+          </span>
+        </div>
+      </header>
 
       <AppSidebar
         brand="AparnaCanteen"

@@ -55,8 +55,9 @@ const ForgotPassword = () => {
         }}
       >
         <MagicRings
-          color="#f97316"
-          colorTwo="#f59e0b"
+          color="#ff4500"
+          colorTwo="#f97316"
+          colorThree="#ffb703"
           ringCount={4}
           speed={0.6}
           attenuation={8}
@@ -93,7 +94,7 @@ const ForgotPassword = () => {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ ...transition, delay: 0.1 }}
             >
-              <img src="/favicon.jpg" alt="Logo" className="sidebar-logo-img" />
+              <img src="/canteen-logo.png" alt="AparnaDevi Logo" className="auth-logo-img" />
             </motion.div>
             <h1 className="auth-title">Reset Password</h1>
             <p className="auth-subtitle">Enter your email address to receive a password reset link.</p>
@@ -134,7 +135,7 @@ const ForgotPassword = () => {
             </form>
           )}
 
-          <div className="auth-footer" style={{ marginTop: '1.5rem', justifyContent: 'center' }}>
+          <div className="auth-footer" style={{ marginTop: '0.85rem', justifyContent: 'center' }}>
             <Link to="/login" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', textDecoration: 'none' }}>
               <ArrowLeft size={16} /> Back to Login
             </Link>

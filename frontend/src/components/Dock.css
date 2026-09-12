@@ -185,3 +185,14 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
 }
 
+@media (max-width: 480px) {
+  .dock-item.dock-signin-pill,
+  .dock-item.dock-getstarted-pill {
+    padding: 0 0.5rem;
+  }
+  .dock-item.dock-signin-pill .dock-pill-text,
+  .dock-item.dock-getstarted-pill .dock-pill-text {
+    font-size: 0.68rem;
+  }
+}
+

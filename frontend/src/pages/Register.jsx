@@ -56,7 +56,13 @@ const Register = () => {
       setSuccess('Registration successful! Please check your email to verify your account. Redirecting to login...');
       setTimeout(() => navigate('/login'), 5000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.message?.includes('Network Error') || err.code === 'ERR_NETWORK') {
+        setError('Unable to connect to the server. Please check your connection or try again shortly.');
+      } else {
+        setError(err.message || 'Registration failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

@@ -3,9 +3,15 @@ import axios from 'axios';
 
 const AuthContext = createContext(null);
 
-const API_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api` 
-  : (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
+const resolveApiUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    const base = import.meta.env.VITE_API_URL.replace(/\/+$/, '');
+    return base.endsWith('/api') ? base : `${base}/api`;
+  }
+  return 'https://aparnadevicanteen.onrender.com/api';
+};
+
+const API_URL = resolveApiUrl();
 
 // Configure axios defaults
 axios.defaults.baseURL = API_URL;

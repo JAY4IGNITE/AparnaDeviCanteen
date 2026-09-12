@@ -32,7 +32,13 @@ const ForgotPassword = () => {
       setMessage(res.message);
       setEmail('');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send reset link. Please try again.');
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.message?.includes('Network Error') || err.code === 'ERR_NETWORK') {
+        setError('Unable to connect to the server. Please check your connection or try again shortly.');
+      } else {
+        setError(err.message || 'Failed to send reset link. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

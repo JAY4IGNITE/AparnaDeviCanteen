@@ -32,7 +32,7 @@ const DashboardHeader = () => {
     <header className="customer-header" aria-label="Dashboard greeting and quick actions">
       <div className="header-greeting-block">
         <h1 className="header-greeting-title" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-          <BlurText text={greetingFull} delay={45} animateBy="words" />
+          <BlurText text={greetingFull} delay={25} animateBy="words" />
         </h1>
         <p className="header-greeting-subtitle">What are you craving today?</p>
       </div>

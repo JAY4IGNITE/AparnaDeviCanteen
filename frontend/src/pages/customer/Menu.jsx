@@ -3,13 +3,11 @@ import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'motion/react';
 import { ShoppingCart, Plus, Minus, X, CheckCircle, AlertCircle, Package, UtensilsCrossed, ArrowLeft, Banknote, Search } from 'lucide-react';
-import PageHeader from '../../components/ui/PageHeader';
 import AnimatedModal from '../../components/ui/AnimatedModal';
 import AlertBanner from '../../components/ui/AlertBanner';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
 import MotionButton from '../../components/ui/MotionButton';
-import { staggerContainer, fadeUp } from '../../lib/motion';
 import { useCart } from '../../context/CartContext';
 
 const MenuPage = () => {
@@ -142,7 +140,6 @@ const MenuPage = () => {
 
   return (
     <div>
-      <PageHeader title="Menu" subtitle="Browse items and add to your cart" />
 
       <AlertBanner type={message.type} show={!!message.text}>
         {message.type === 'success' ? <CheckCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} /> : <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />}
@@ -231,20 +228,13 @@ const MenuPage = () => {
                   </h2>
                 </div>
 
-                <motion.div
-                  className="menu-grid"
-                  variants={staggerContainer}
-                  initial="initial"
-                  animate="animate"
-                >
-                  {items.map((item, index) => {
+                <div className="menu-grid">
+                  {items.map((item) => {
                     const isOutOfStock = !item.is_available;
                     return (
-                      <motion.div
+                      <div
                         key={item.id}
                         className={`menu-card ${isOutOfStock ? 'out-of-stock' : ''}`}
-                        variants={fadeUp}
-                        transition={{ delay: index * 0.04 }}
                       >
                         <div className="menu-card-img-wrap">
                           <div className="menu-card-img-badge">
@@ -354,10 +344,10 @@ const MenuPage = () => {
                             )}
                           </div>
                         </div>
-                      </motion.div>
+                      </div>
                     );
                   })}
-                </motion.div>
+                </div>
               </div>
             )))}
           </div>

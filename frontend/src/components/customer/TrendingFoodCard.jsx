@@ -4,7 +4,6 @@ import { Plus, Minus, Check, Flame, UtensilsCrossed } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import MotionButton from '../ui/MotionButton';
 import SpotlightCard from '../ui/SpotlightCard';
-import CountUp from '../ui/CountUp';
 
 const TrendingFoodCard = ({ item, isTopOne = false }) => {
   const { cart, addToCart, removeFromCart } = useCart();
@@ -36,12 +35,10 @@ const TrendingFoodCard = ({ item, isTopOne = false }) => {
             <span>{isTopOne ? '#1 Trending Today' : 'Trending Today'}</span>
           </span>
 
-          {/* Portion Count Animated Metric */}
+          {/* Portion Count Metric */}
           {item.orders_today > 0 && (
             <span className="trending-count-tag" title="Total portions ordered today">
-              <strong>
-                <CountUp to={item.orders_today} duration={0.8} />
-              </strong> ordered today
+              <strong>{item.orders_today}</strong> ordered today
             </span>
           )}
         </div>

@@ -55,24 +55,6 @@ const TrendingToday = () => {
         </MotionButton>
       </div>
 
-      {/* Loading Skeleton */}
-      {loading && (
-        <div className="trending-grid" aria-label="Loading trending items">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="trending-card-skeleton">
-              <div className="skeleton-image" />
-              <div className="skeleton-body">
-                <div className="skeleton-line" style={{ width: '40%', height: 14 }} />
-                <div className="skeleton-line" style={{ width: '80%', height: 20 }} />
-                <div className="skeleton-footer">
-                  <div className="skeleton-line" style={{ width: '30%', height: 22 }} />
-                  <div className="skeleton-line" style={{ width: '35%', height: 36, borderRadius: 8 }} />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* Error Fallback */}
       {!loading && error && (

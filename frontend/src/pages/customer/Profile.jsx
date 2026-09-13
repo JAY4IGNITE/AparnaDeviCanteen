@@ -124,7 +124,7 @@ const Profile = () => {
   ];
 
   return (
-    <div>
+    <div className="profile-page-container">
       <PageHeader title="My Profile" subtitle="Manage your account settings and details" />
 
       <AnimatedTabs
@@ -134,49 +134,56 @@ const Profile = () => {
         className="profile-tabs"
       />
 
-      <div style={{ maxWidth: '600px', margin: '0 auto 1.5rem' }}>
-        <AlertBanner type="success" show={!!success}>
-          <CheckCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />
-          {success}
-        </AlertBanner>
-        <AlertBanner type="error" show={!!error}>
-          <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />
-          {error}
-        </AlertBanner>
-      </div>
+      {(success || error) && (
+        <div style={{ maxWidth: '660px', margin: '0 auto 0.85rem' }}>
+          <AlertBanner type="success" show={!!success}>
+            <CheckCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />
+            {success}
+          </AlertBanner>
+          <AlertBanner type="error" show={!!error}>
+            <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />
+            {error}
+          </AlertBanner>
+        </div>
+      )}
 
-      <div className="card-static" style={{ maxWidth: '600px', margin: '0 auto' }}>
+      <div className="profile-card">
         {activeTab === 'view' && (
           <div>
-            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div className="sidebar-avatar" style={{ width: '72px', height: '72px', fontSize: '1.5rem', margin: '0 auto 1rem' }}>
+            <div className="profile-header-group">
+              <div className="profile-avatar-wrap">
                 {user?.name?.charAt(0)?.toUpperCase() || 'C'}
               </div>
-              <h2 style={{ marginBottom: '0.25rem' }}>{user?.name}</h2>
-              <span className="badge badge-active">{user?.role}</span>
+              <div className="profile-header-info">
+                <h2 className="profile-header-name">{user?.name}</h2>
+                <div>
+                  <span className="badge badge-active">{user?.role}</span>
+                </div>
+              </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="profile-details-grid">
               <div className="detail-row">
-                <User size={20} className="detail-row-icon" />
-                <div>
+                <User size={18} className="detail-row-icon" />
+                <div className="detail-row-content">
                   <div className="detail-row-label">Name</div>
                   <div className="detail-row-value">{user?.name || '—'}</div>
                 </div>
               </div>
+
               <div className="detail-row">
-                <Mail size={20} className="detail-row-icon" />
-                <div>
+                <Mail size={18} className="detail-row-icon" />
+                <div className="detail-row-content">
                   <div className="detail-row-label">Email</div>
-                  <div className="detail-row-value" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    {user?.email || '—'}
+                  <div className="detail-row-value" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    <span style={{ wordBreak: 'break-all' }}>{user?.email || '—'}</span>
                     {user?.email ? (
                       user.email_verified ? (
-                        <span style={{ fontSize: '0.75rem', padding: '0.15rem 0.5rem', borderRadius: '12px', background: 'rgba(20, 255, 100, 0.15)', color: '#14FF64', fontWeight: 600 }}>
+                        <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.45rem', borderRadius: '12px', background: 'rgba(20, 255, 100, 0.15)', color: '#14FF64', fontWeight: 600 }}>
                           Verified
                         </span>
                       ) : (
-                        <span style={{ fontSize: '0.75rem', padding: '0.15rem 0.5rem', borderRadius: '12px', background: 'rgba(255, 170, 0, 0.15)', color: '#FFAA00', fontWeight: 600 }}>
+                        <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.45rem', borderRadius: '12px', background: 'rgba(255, 170, 0, 0.15)', color: '#FFAA00', fontWeight: 600 }}>
                           Unverified
                         </span>
                       )
@@ -184,16 +191,18 @@ const Profile = () => {
                   </div>
                 </div>
               </div>
+
               <div className="detail-row">
-                <Phone size={20} className="detail-row-icon" />
-                <div>
+                <Phone size={18} className="detail-row-icon" />
+                <div className="detail-row-content">
                   <div className="detail-row-label">Phone</div>
                   <div className="detail-row-value">{user?.phone || '—'}</div>
                 </div>
               </div>
+
               <div className="detail-row">
-                <Building size={20} className="detail-row-icon" />
-                <div>
+                <Building size={18} className="detail-row-icon" />
+                <div className="detail-row-content">
                   <div className="detail-row-label">Hostel Block</div>
                   <div className="detail-row-value">{normalizeBlock(user?.hostelBlock) || 'Not specified'}</div>
                 </div>
@@ -204,74 +213,95 @@ const Profile = () => {
 
         {activeTab === 'edit' && (
           <form onSubmit={handleProfileSubmit}>
-            <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-              Update Profile Details
-            </h3>
+            <h3 className="profile-form-title">Update Profile Details</h3>
 
-            <div className="form-group">
-              <label className="form-label">Full Name</label>
-              <div className="auth-input-wrapper">
-                <User size={18} className="auth-input-icon" />
-                <input type="text" name="name" className="form-input" value={profileData.name} onChange={handleProfileChange} required />
+            <div className="profile-form-grid">
+              <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                <label className="form-label" style={{ marginBottom: '0.3rem', fontSize: '0.82rem' }}>Full Name</label>
+                <div className="auth-input-wrapper">
+                  <User size={16} className="auth-input-icon" />
+                  <input type="text" name="name" className="form-input" value={profileData.name} onChange={handleProfileChange} required style={{ height: '38px', fontSize: '0.9rem' }} />
+                </div>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                <label className="form-label" style={{ marginBottom: '0.3rem', fontSize: '0.82rem' }}>Phone Number</label>
+                <div className="auth-input-wrapper">
+                  <Phone size={16} className="auth-input-icon" />
+                  <input type="tel" name="phone" className="form-input" value={profileData.phone} onChange={handleProfileChange} required style={{ height: '38px', fontSize: '0.9rem' }} />
+                </div>
               </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Phone Number</label>
+            <div className="form-group" style={{ marginBottom: '0.95rem' }}>
+              <label className="form-label" style={{ marginBottom: '0.3rem', fontSize: '0.82rem' }}>Hostel Block</label>
               <div className="auth-input-wrapper">
-                <Phone size={18} className="auth-input-icon" />
-                <input type="tel" name="phone" className="form-input" value={profileData.phone} onChange={handleProfileChange} required />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Hostel Block</label>
-              <div className="auth-input-wrapper">
-                <Building size={18} className="auth-input-icon" />
-                <select name="hostelBlock" className="form-input" value={profileData.hostelBlock} onChange={handleProfileChange} required>
+                <Building size={16} className="auth-input-icon" />
+                <select name="hostelBlock" className="form-input" value={profileData.hostelBlock} onChange={handleProfileChange} required style={{ height: '38px', fontSize: '0.9rem' }}>
                   <option value="F Block (Old)">F Block (Old)</option>
                   <option value="Others(A, B, C, D, F)">Others(A, B, C, D, F)</option>
                 </select>
               </div>
             </div>
 
-            <MotionButton type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={loading}>
-              {loading ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : <><Save size={18} /> Save Changes</>}
+            <MotionButton type="submit" className="btn btn-primary" style={{ width: '100%', height: '40px' }} disabled={loading}>
+              {loading ? <div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> : <><Save size={16} /> Save Changes</>}
             </MotionButton>
           </form>
         )}
 
         {activeTab === 'password' && (
           <form onSubmit={handlePasswordSubmit}>
-            <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-              Change Account Password
-            </h3>
+            <h3 className="profile-form-title">Change Account Password</h3>
 
-            {['current', 'new', 'confirm'].map((field) => (
-              <div className="form-group" key={field}>
-                <label className="form-label">
-                  {field === 'current' ? 'Current Password' : field === 'new' ? 'New Password' : 'Confirm New Password'}
-                </label>
-                <div className="auth-input-wrapper">
-                  <Lock size={18} className="auth-input-icon" />
-                  <input
-                    type={showPassword[field] ? 'text' : 'password'}
-                    name={`${field}Password`}
-                    className="form-input has-toggle"
-                    placeholder={field === 'new' ? 'Min. 6 characters' : field === 'confirm' ? 'Re-enter new password' : 'Enter current password'}
-                    value={passwordData[`${field}Password`]}
-                    onChange={handlePasswordChange}
-                    required
-                  />
-                  <button type="button" className="auth-toggle-password" onClick={() => togglePasswordVisibility(field)}>
-                    {showPassword[field] ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
+            <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+              <label className="form-label" style={{ marginBottom: '0.3rem', fontSize: '0.82rem' }}>Current Password</label>
+              <div className="auth-input-wrapper">
+                <Lock size={16} className="auth-input-icon" />
+                <input
+                  type={showPassword.current ? 'text' : 'password'}
+                  name="currentPassword"
+                  className="form-input has-toggle"
+                  placeholder="Enter current password"
+                  value={passwordData.currentPassword}
+                  onChange={handlePasswordChange}
+                  required
+                  style={{ height: '38px', fontSize: '0.9rem' }}
+                />
+                <button type="button" className="auth-toggle-password" onClick={() => togglePasswordVisibility('current')}>
+                  {showPassword.current ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
-            ))}
+            </div>
 
-            <MotionButton type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={loading}>
-              {loading ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : <><Lock size={18} /> Update Password</>}
+            <div className="profile-form-grid">
+              {['new', 'confirm'].map((field) => (
+                <div className="form-group" key={field} style={{ marginBottom: '0.95rem' }}>
+                  <label className="form-label" style={{ marginBottom: '0.3rem', fontSize: '0.82rem' }}>
+                    {field === 'new' ? 'New Password' : 'Confirm Password'}
+                  </label>
+                  <div className="auth-input-wrapper">
+                    <Lock size={16} className="auth-input-icon" />
+                    <input
+                      type={showPassword[field] ? 'text' : 'password'}
+                      name={`${field}Password`}
+                      className="form-input has-toggle"
+                      placeholder={field === 'new' ? 'Min. 6 chars' : 'Re-enter'}
+                      value={passwordData[`${field}Password`]}
+                      onChange={handlePasswordChange}
+                      required
+                      style={{ height: '38px', fontSize: '0.9rem' }}
+                    />
+                    <button type="button" className="auth-toggle-password" onClick={() => togglePasswordVisibility(field)}>
+                      {showPassword[field] ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <MotionButton type="submit" className="btn btn-primary" style={{ width: '100%', height: '40px' }} disabled={loading}>
+              {loading ? <div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> : <><Lock size={16} /> Update Password</>}
             </MotionButton>
           </form>
         )}

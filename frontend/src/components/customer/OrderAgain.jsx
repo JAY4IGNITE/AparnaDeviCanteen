@@ -53,16 +53,7 @@ const OrderAgain = ({ orders = [], allMenuItems = [], loading = false }) => {
   };
 
   if (loading) {
-    return (
-      <section className="dashboard-section" aria-label="Loading previous dishes">
-        <div className="skeleton-line" style={{ width: 140, height: 22, borderRadius: 6, marginBottom: '1rem' }} />
-        <div className="order-again-grid">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="order-again-card-skeleton" />
-          ))}
-        </div>
-      </section>
-    );
+    return null;
   }
 
   // If no past orders

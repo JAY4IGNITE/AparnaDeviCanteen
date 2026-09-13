@@ -29,16 +29,16 @@ export default function LandingPage() {
   const lenisRef = useRef(null);
   const heroRef = useRef(null);
 
-  // Smooth inertial momentum scrolling with Lenis
+  // Smooth inertial momentum scrolling with Lenis (Apple-like friction & velocity)
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.35,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
-      wheelMultiplier: 0.95,
-      touchMultiplier: 1.8,
+      wheelMultiplier: 0.9,
+      touchMultiplier: 1.6,
       infinite: false,
     });
     lenisRef.current = lenis;
@@ -61,12 +61,12 @@ export default function LandingPage() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  // Featherlight, subtle micro-parallax tracking
-  const springConfig = { damping: 45, stiffness: 220, mass: 0.4 };
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [1.8, -1.8]), springConfig);
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-2.2, 2.2]), springConfig);
-  const transX = useSpring(useTransform(mouseX, [-0.5, 0.5], [-5, 5]), springConfig);
-  const transY = useSpring(useTransform(mouseY, [-0.5, 0.5], [-3.5, 3.5]), springConfig);
+  // Featherlight, silky micro-parallax tracking
+  const mouseSpring = { damping: 50, stiffness: 180, mass: 0.4 };
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [1.8, -1.8]), mouseSpring);
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-2.2, 2.2]), mouseSpring);
+  const transX = useSpring(useTransform(mouseX, [-0.5, 0.5], [-5, 5]), mouseSpring);
+  const transY = useSpring(useTransform(mouseY, [-0.5, 0.5], [-3.5, 3.5]), mouseSpring);
 
   // Scroll-linked cinematic transitions for the starting page
   const { scrollYProgress } = useScroll({
@@ -74,11 +74,48 @@ export default function LandingPage() {
     offset: ['start start', 'end start'],
   });
 
-  const heroScale = useTransform(scrollYProgress, [0, 0.8], [1, 0.95]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
-  const statementOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
-  const statementY = useTransform(scrollYProgress, [0, 0.25], [0, -15]);
-  const bgOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.35]);
+  // Soft spring smoothing on scroll progress to eliminate any scroll-wheel notch stepping
+  const smoothProgress = useSpring(scrollYProgress, {
+    damping: 35,
+    stiffness: 160,
+    mass: 0.25,
+    restDelta: 0.0001,
+  });
+
+  const heroScale = useTransform(smoothProgress, [0, 0.95], [1, 0.94]);
+  const heroOpacity = useTransform(smoothProgress, [0, 0.88], [1, 0]);
+  const heroY = useTransform(smoothProgress, [0, 0.95], [0, 45]);
+  const heroYCombined = useTransform([transY, heroY], ([ty, hy]) => (ty || 0) + (hy || 0));
+  const statementOpacity = useTransform(smoothProgress, [0, 0.35], [1, 0]);
+  const statementY = useTransform(smoothProgress, [0, 0.35], [0, -20]);
+  const bgOpacity = useTransform(smoothProgress, [0, 0.9], [1, 0.25]);
+
+  // Section stagger reveal animation variants
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 35 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.85,
+        ease: [0.16, 1, 0.3, 1],
+        staggerChildren: 0.1,
+        delayChildren: 0.05,
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 22 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.65,
+        ease: [0.16, 1, 0.3, 1],
+      },
+    },
+  };
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -97,14 +134,21 @@ export default function LandingPage() {
     const element = document.getElementById(id);
     if (element) {
       if (lenisRef.current) {
-        const offset = id === 'menu' || id === 'home' ? 0 : -24;
-        lenisRef.current.scrollTo(element, { offset, duration: 1.25 });
+        const offset = id === 'menu' || id === 'home' ? 0 : -28;
+        lenisRef.current.scrollTo(element, {
+          offset,
+          duration: 1.35,
+          easing: (t) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)),
+        });
       } else {
         element.scrollIntoView({ behavior: 'smooth' });
       }
     } else {
       if (lenisRef.current) {
-        lenisRef.current.scrollTo(0, { duration: 1.1 });
+        lenisRef.current.scrollTo(0, {
+          duration: 1.2,
+          easing: (t) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)),
+        });
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
@@ -156,7 +200,7 @@ export default function LandingPage() {
 
 
   return (
-    <div className="landing-container min-h-screen w-full bg-[#0a0a0f] text-zinc-100 relative select-none scroll-smooth overflow-x-hidden">
+    <div className="landing-container min-h-screen w-full bg-[#0a0a0f] text-zinc-100 relative select-none overflow-x-hidden">
       {/* Top Utmost Left: Logo */}
       <div
         onClick={() => scrollToSection('home')}
@@ -247,7 +291,7 @@ export default function LandingPage() {
               rotateX,
               rotateY,
               x: transX,
-              y: transY,
+              y: heroYCombined,
               transformStyle: 'preserve-3d',
               transformOrigin: 'center bottom',
             }}
@@ -309,13 +353,13 @@ export default function LandingPage() {
       {/* SECTION 3: FEATURES (Landing Page Feature) */}
       <motion.section
         id="features"
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-70px' }}
-        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '0px 0px -80px 0px', amount: 0.15 }}
+        variants={sectionVariants}
         className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.06]"
       >
-        <div className="text-center mb-12">
+        <motion.div variants={cardVariants} className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs font-semibold mb-3">
             <Sparkles size={13} strokeWidth={1.65} />
             <span>Smart Canteen Experience</span>
@@ -326,7 +370,7 @@ export default function LandingPage() {
           <p className="text-zinc-400 text-sm sm:text-base max-w-2xl mx-auto">
             Built to give everyone a seamless, queue-free, delicious dining journey every day.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
@@ -351,16 +395,17 @@ export default function LandingPage() {
               desc: 'Check live counter readiness so you can pick up your meal right when it comes off the stove.',
             },
           ].map((feature, idx) => (
-            <div
+            <motion.div
               key={idx}
-              className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-orange-500/30 backdrop-blur-md transition-all duration-200"
+              variants={cardVariants}
+              className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] landing-smooth-card backdrop-blur-md"
             >
               <div className="p-2.5 w-fit rounded-xl bg-white/[0.05] border border-white/[0.1] mb-4">
                 {feature.icon}
               </div>
               <h3 className="text-base font-bold text-white mb-2">{feature.title}</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">{feature.desc}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </motion.section>
@@ -368,14 +413,14 @@ export default function LandingPage() {
       {/* SECTION 4: ABOUT (Landing Page Feature) */}
       <motion.section
         id="about"
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-70px' }}
-        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '0px 0px -80px 0px', amount: 0.15 }}
+        variants={sectionVariants}
         className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.06]"
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          <div>
+          <motion.div variants={cardVariants}>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/25 text-orange-400 text-xs font-semibold mb-3">
               <Info size={13} strokeWidth={1.65} />
               <span>About Us</span>
@@ -391,15 +436,15 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <div className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08]">
+              <div className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] landing-smooth-card">
                 <div className="text-xl font-bold text-orange-400">1000+</div>
                 <div className="text-xs text-zinc-400">Meals Served Daily</div>
               </div>
-              <div className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08]">
+              <div className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] landing-smooth-card">
                 <div className="text-xl font-bold text-amber-400">50+</div>
                 <div className="text-xs text-zinc-400">Menu Varieties</div>
               </div>
-              <div className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08]">
+              <div className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] landing-smooth-card">
                 <div className="text-xl font-bold text-emerald-400 flex items-center gap-1">
                   <span>4.9</span>
                   <Star size={16} className="fill-emerald-400 text-emerald-400" />
@@ -407,9 +452,12 @@ export default function LandingPage() {
                 <div className="text-xs text-zinc-400">Customer Rating</div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="relative rounded-3xl overflow-hidden border border-orange-500/30 shadow-[0_10px_40px_rgba(249,115,22,0.2)] bg-gradient-to-br from-orange-950/40 via-zinc-900/60 to-black/80 p-8 flex flex-col justify-center">
+          <motion.div
+            variants={cardVariants}
+            className="relative rounded-3xl overflow-hidden border border-orange-500/30 shadow-[0_10px_40px_rgba(249,115,22,0.2)] bg-gradient-to-br from-orange-950/40 via-zinc-900/60 to-black/80 p-8 flex flex-col justify-center landing-smooth-card"
+          >
             <div className="text-2xl font-black text-white mb-3">AparnaDevi Promise</div>
             <p className="text-zinc-300 text-sm leading-relaxed mb-6">
               "We believe great food fuels great minds. Every recipe is crafted with care, warmth, and fresh ingredients so you always feel at home."
@@ -420,20 +468,20 @@ export default function LandingPage() {
             >
               Join the Canteen Community <ArrowRight size={14} />
             </button>
-          </div>
+          </motion.div>
         </div>
       </motion.section>
 
       {/* SECTION 5: CONTACT (Landing Page Feature) */}
       <motion.section
         id="contact"
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-70px' }}
-        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '0px 0px -80px 0px', amount: 0.15 }}
+        variants={sectionVariants}
         className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.06]"
       >
-        <div className="text-center mb-12">
+        <motion.div variants={cardVariants} className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/25 text-orange-400 text-xs font-semibold mb-3">
             <Phone size={13} strokeWidth={1.65} />
             <span>Reach Out</span>
@@ -444,35 +492,35 @@ export default function LandingPage() {
           <p className="text-zinc-400 text-sm sm:text-base max-w-2xl mx-auto">
             Find us on campus or get in touch for pre-orders, party catering, and customer queries.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-center flex flex-col items-center">
+          <motion.div variants={cardVariants} className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-center flex flex-col items-center landing-smooth-card">
             <div className="p-3 rounded-full bg-orange-500/10 text-orange-400 mb-3">
               <Clock size={20} strokeWidth={1.65} />
             </div>
             <h4 className="text-sm font-bold text-white mb-1">Operating Hours</h4>
             <p className="text-xs text-zinc-400">Mon - Sat: 7:30 AM - 9:30 PM</p>
             <p className="text-xs text-zinc-400">Sunday: 8:00 AM - 8:00 PM</p>
-          </div>
+          </motion.div>
 
-          <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-center flex flex-col items-center">
+          <motion.div variants={cardVariants} className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-center flex flex-col items-center landing-smooth-card">
             <div className="p-3 rounded-full bg-amber-500/10 text-amber-400 mb-3">
               <MapPin size={20} strokeWidth={1.65} />
             </div>
             <h4 className="text-sm font-bold text-white mb-1">Campus Location</h4>
             <p className="text-xs text-zinc-400">Main Block, Ground Floor</p>
             <p className="text-xs text-zinc-400">Opposite Student Activity Center</p>
-          </div>
+          </motion.div>
 
-          <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-center flex flex-col items-center">
+          <motion.div variants={cardVariants} className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-center flex flex-col items-center landing-smooth-card">
             <div className="p-3 rounded-full bg-emerald-500/10 text-emerald-400 mb-3">
               <Phone size={20} strokeWidth={1.65} />
             </div>
             <h4 className="text-sm font-bold text-white mb-1">Direct Helpline</h4>
             <p className="text-xs font-semibold text-white">9491008797</p>
             <p className="text-xs text-zinc-400">canteen@aparnadevi.edu</p>
-          </div>
+          </motion.div>
         </div>
 
         {/* Dedicated Password & Support Contact Box */}

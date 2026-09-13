@@ -16,30 +16,26 @@ const CustomerHome = () => {
   const [loadingOrders, setLoadingOrders] = useState(true);
 
   const fetchData = useCallback(async () => {
-
-    // 2. Menu Items
+    setLoadingOrders(true);
     try {
-      const res = await axios.get('/menu');
-      if (res.data.success) {
-        setMenuItems(res.data.data || []);
+      const [menuRes, ordersRes] = await Promise.allSettled([
+        axios.get('/menu'),
+        axios.get('/orders/me')
+      ]);
+
+      if (menuRes.status === 'fulfilled' && menuRes.value.data?.success) {
+        setMenuItems(menuRes.value.data.data || []);
+      }
+      if (ordersRes.status === 'fulfilled' && ordersRes.value.data?.success) {
+        setCustomerOrders(ordersRes.value.data.data || []);
       }
     } catch (err) {
-      console.error('Failed to fetch menu:', err);
-    }
-
-    // 3. Customer Orders
-    try {
-      setLoadingOrders(true);
-      const res = await axios.get('/orders/me');
-      if (res.data.success) {
-        setCustomerOrders(res.data.data || []);
-      }
-    } catch (err) {
-      console.error('Failed to fetch user orders:', err);
+      console.error('Failed to load dashboard data:', err);
     } finally {
       setLoadingOrders(false);
     }
   }, []);
+
 
   useEffect(() => {
     fetchData();

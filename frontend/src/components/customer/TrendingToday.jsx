@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { motion } from 'motion/react';
 import { ChevronRight, RefreshCw, AlertCircle } from 'lucide-react';
 import TrendingFoodCard from './TrendingFoodCard';
 import MotionButton from '../ui/MotionButton';

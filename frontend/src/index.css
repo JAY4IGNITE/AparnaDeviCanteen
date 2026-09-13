@@ -3,7 +3,7 @@
    further down this file) would land after `utilities` and override it. */
 @layer theme, base, components, utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+/* Fonts loaded via index.html preconnect + link stylesheet to eliminate render-blocking CSS imports */
 
 /* ======================== TAILWIND v4 (PREFLIGHT INTENTIONALLY OMITTED) ========
    This app ships its own reset and semantic component styles (below). Tailwind's
@@ -2000,7 +2000,7 @@ body:has(.auth-page) {
 /* ======================== MENU GRID & DISH CARDS ======================== */
 .menu-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 1.5rem;
   align-items: stretch;
 }
@@ -6094,7 +6094,7 @@ body:has(.auth-page) {
 /* ----------------- Trending Today Section ----------------- */
 .trending-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 1.25rem;
   width: 100%;
 }

@@ -8,7 +8,7 @@ import LoadingState from '../../components/ui/LoadingState';
 import MotionButton from '../../components/ui/MotionButton';
 import { fadeUp } from '../../lib/motion';
 import { useAuth } from '../../context/AuthContext';
-import generateInvoice from '../../components/ui/InvoiceGenerator';
+
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -47,6 +47,7 @@ const Orders = () => {
   const handleDownloadInvoice = async (order) => {
     setDownloadingId(order.id);
     try {
+      const generateInvoice = (await import('../../components/ui/InvoiceGenerator')).default;
       await generateInvoice(order, user);
     } catch (err) {
       console.error('Failed to generate invoice:', err);
@@ -55,6 +56,7 @@ const Orders = () => {
       setDownloadingId(null);
     }
   };
+
 
   const formatDate = (dateStr) => {
     return new Date(dateStr).toLocaleString('en-IN', {

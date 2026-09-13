@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import axios from 'axios';
-import { Download, CheckCircle, Clock, Package, Phone, Trash2, Search, X, ChefHat, BellRing, Volume2, MessageCircle } from 'lucide-react';
+import { Download, CheckCircle, Clock, Package, Phone, Trash2, Search, X, ChefHat, MessageCircle } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
@@ -53,18 +54,37 @@ const AdminOrders = () => {
 
 
 
+  const outletCtx = useOutletContext();
+
+  // Sync with AdminLayout's unified polling stream when no custom filters are active
   useEffect(() => {
-    fetchOrders();
+    if (!startDateFilter && !endDateFilter && !statusFilter) {
+      if (outletCtx?.ordersData && outletCtx.ordersData.length > 0) {
+        setOrders(outletCtx.ordersData);
+        setLoading(false);
+      }
+    }
+  }, [outletCtx?.ordersData, startDateFilter, endDateFilter, statusFilter]);
+
+  useEffect(() => {
+    if (startDateFilter || endDateFilter || statusFilter) {
+      fetchOrders();
+    } else if (!outletCtx?.ordersData || outletCtx.ordersData.length === 0) {
+      fetchOrders();
+    }
   }, [startDateFilter, endDateFilter, statusFilter]);
 
-  // Live Auto-Refresh Interval
+  // Only run an independent poll if custom date/status filters are active and autoSync is enabled
   useEffect(() => {
-    if (!autoSync) return;
+    const hasCustomFilter = !!(startDateFilter || endDateFilter || statusFilter);
+    if (!autoSync || !hasCustomFilter) return;
+
     const interval = setInterval(() => {
       fetchOrders(true);
     }, 10000);
     return () => clearInterval(interval);
   }, [autoSync, startDateFilter, endDateFilter, statusFilter]);
+
 
   const fetchOrders = async (isSilent = false) => {
     if (!isSilent) setLoading(true);
@@ -75,14 +95,7 @@ const AdminOrders = () => {
       const res = await axios.get(url);
       const fetchedOrders = res.data.data || [];
 
-      // Check if new orders arrived since last poll
-      if (!isFirstLoadRef.current) {
-        const newIncoming = fetchedOrders.filter(
-          order => !prevOrdersRef.current.some(prev => prev.id === order.id)
-        );
-        // We removed the local alert logic here to rely on the global AdminLayout alert
-      }
-
+      // Global new order sound & alert handled by AdminLayout context
       prevOrdersRef.current = fetchedOrders;
       isFirstLoadRef.current = false;
       setOrders(fetchedOrders);

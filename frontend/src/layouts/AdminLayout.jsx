@@ -26,8 +26,10 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [globalAlert, setGlobalAlert] = useState(null);
   const [pendingCount, setPendingCount] = useState(0);
+  const [ordersData, setOrdersData] = useState([]);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
 
   const prevOrdersRef = useRef([]);
   const isFirstLoadRef = useRef(true);
@@ -112,9 +114,11 @@ const AdminLayout = () => {
     try {
       const res = await axios.get('/admin/orders');
       const orders = res.data.data || [];
+      setOrdersData(orders);
 
       const pending = orders.filter(o => o.status === 'Pending' || o.status === 'Preparing').length;
       setPendingCount(pending);
+
 
       if (!isFirstLoadRef.current) {
         const newIncoming = orders.filter(
@@ -263,9 +267,10 @@ const AdminLayout = () => {
         )}
         <PageTransition>
           <div className="page-container">
-            <Outlet />
+            <Outlet context={{ ordersData, refreshOrders: checkNewOrders }} />
           </div>
         </PageTransition>
+
       </main>
     </div>
   );

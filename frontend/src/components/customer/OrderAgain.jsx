@@ -132,16 +132,28 @@ const OrderAgain = ({ orders = [], allMenuItems = [], loading = false }) => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', width: '100%' }}>
                 <div className="order-again-img-wrap">
                   {item.image_url ? (
-                    <img
-                      src={item.image_url}
-                      alt={item.item_name}
-                      className="order-again-img"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
+                    <picture>
+                      <source
+                        srcSet={item.image_url.endsWith('.png') ? item.image_url.replace(/\.png$/, '-thumb.webp') : item.image_url}
+                        type="image/webp"
+                      />
+                      <img
+                        src={item.image_url}
+                        alt={item.item_name}
+                        className="order-again-img"
+                        loading="lazy"
+                        decoding="async"
+                        width="54"
+                        height="54"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const placeholder = e.currentTarget.closest('.order-again-img-wrap')?.querySelector('.order-again-placeholder');
+                          if (placeholder) placeholder.style.display = 'flex';
+                        }}
+                      />
+                    </picture>
                   ) : null}
+
                   <div
                     className="order-again-placeholder"
                     style={{ display: item.image_url ? 'none' : 'flex' }}

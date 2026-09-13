@@ -114,12 +114,12 @@ const SidebarDockItem = ({
 };
 
 const AppSidebar = ({
-  brand = 'Aparna Devi',
-  subtitle = 'CANTEEN PORTAL',
-  badge,
+  brand: _brand = 'Aparna Devi',
+  subtitle: _subtitle = 'CANTEEN PORTAL',
+  badge: _badge,
   navLinks = [],
   user,
-  userRole,
+  userRole: _userRole,
   onLogout,
   sidebarOpen,
   setSidebarOpen,
@@ -130,7 +130,7 @@ const AppSidebar = ({
   const [isCollapsed, setIsCollapsed] = useState(() => {
     try {
       return localStorage.getItem('aparna_sidebar_collapsed') === 'true';
-    } catch (e) {
+    } catch {
       return false;
     }
   });
@@ -143,7 +143,9 @@ const AppSidebar = ({
       const next = !prev;
       try {
         localStorage.setItem('aparna_sidebar_collapsed', String(next));
-      } catch (e) {}
+      } catch {
+        // Ignore storage errors in restricted contexts
+      }
       return next;
     });
   };

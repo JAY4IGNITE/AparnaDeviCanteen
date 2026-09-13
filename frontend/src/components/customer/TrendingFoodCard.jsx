@@ -49,17 +49,28 @@ const TrendingFoodCard = ({ item, isTopOne = false }) => {
         {/* Food Image Container */}
         <div className="trending-card-img-wrap">
           {item.image_url ? (
-            <img
-              src={item.image_url}
-              alt={item.item_name}
-              className="trending-food-image"
-              loading="lazy"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
-              }}
-            />
+            <picture>
+              <source
+                srcSet={item.image_url.endsWith('.png') ? item.image_url.replace(/\.png$/, '.webp') : item.image_url}
+                type="image/webp"
+              />
+              <img
+                src={item.image_url}
+                alt={item.item_name}
+                className="trending-food-image"
+                loading="lazy"
+                decoding="async"
+                width="320"
+                height="190"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const placeholder = e.currentTarget.closest('.trending-card-img-wrap')?.querySelector('.trending-card-img-placeholder');
+                  if (placeholder) placeholder.style.display = 'flex';
+                }}
+              />
+            </picture>
           ) : null}
+
           <div
             className="trending-card-img-placeholder"
             style={{ display: item.image_url ? 'none' : 'flex' }}

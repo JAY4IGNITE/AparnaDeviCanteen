@@ -63,9 +63,9 @@
   text-transform: uppercase;
 }
 
-/* Smooth scrolling and root setup */
+/* Smooth scrolling and root setup (controlled smoothly by Lenis rAF loop) */
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto !important;
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
 }
@@ -85,6 +85,7 @@ html {
 html.lenis,
 html.lenis body {
   height: auto;
+  scroll-behavior: auto !important;
 }
 
 .lenis.lenis-smooth {
@@ -101,6 +102,21 @@ html.lenis body {
 
 .lenis.lenis-smooth iframe {
   pointer-events: none;
+}
+
+/* Fluid hardware-accelerated transitions */
+.landing-smooth-card {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.landing-smooth-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(249, 115, 22, 0.35) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 0 0 24px rgba(249, 115, 22, 0.12) !important;
 }
 
 /* Subtle pulse animation for culinary accents */

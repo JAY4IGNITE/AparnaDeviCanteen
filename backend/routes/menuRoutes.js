@@ -20,6 +20,18 @@ const getKolkataDayRange = () => {
   return { kolkataDateStr, startISO, endISO };
 };
 
+// In-memory cache for trending dishes and menu to avoid hammering database
+let trendingCache = {
+  data: null,
+  timestamp: 0,
+  dateStr: null,
+};
+
+let menuItemsCache = {
+  data: null,
+  timestamp: 0,
+};
+
 // GET /api/menu/trending-today — Fetch dynamically ranked trending dishes for today (Asia/Kolkata)
 router.get('/trending-today', protect, async (req, res) => {
   try {
@@ -29,6 +41,14 @@ router.get('/trending-today', protect, async (req, res) => {
     }
 
     const { kolkataDateStr, startISO, endISO } = getKolkataDayRange();
+
+    // Check cache (30s TTL)
+    const now = Date.now();
+    if (trendingCache.data && (now - trendingCache.timestamp < 30000) && trendingCache.dateStr === kolkataDateStr) {
+      res.setHeader('Cache-Control', 'private, max-age=15, stale-while-revalidate=30');
+      return res.json(trendingCache.data);
+    }
+
 
     // 1. Fetch valid orders placed today (Asia/Kolkata)
     // Valid statuses: Pending, Preparing, Completed. Strictly exclude Cancelled.
@@ -125,13 +145,22 @@ router.get('/trending-today', protect, async (req, res) => {
       }
     }
 
-    res.json({
+    const responsePayload = {
       success: true,
       count: rankedTrending.length,
       date: kolkataDateStr,
       timezone: 'Asia/Kolkata',
       data: rankedTrending
-    });
+    };
+
+    trendingCache = {
+      data: responsePayload,
+      timestamp: Date.now(),
+      dateStr: kolkataDateStr,
+    };
+
+    res.setHeader('Cache-Control', 'private, max-age=15, stale-while-revalidate=30');
+    res.json(responsePayload);
   } catch (error) {
     console.error('Trending calculation error:', error);
     res.status(500).json({ success: false, message: error.message });
@@ -146,6 +175,13 @@ router.get('/', protect, async (req, res) => {
       return res.json({ success: true, data: [] });
     }
 
+    // Check menu cache (30s TTL)
+    const now = Date.now();
+    if (menuItemsCache.data && (now - menuItemsCache.timestamp < 30000)) {
+      res.setHeader('Cache-Control', 'private, max-age=15, stale-while-revalidate=30');
+      return res.json(menuItemsCache.data);
+    }
+
     const { data: menuItems, error } = await supabase
       .from('menu_items')
       .select('*')
@@ -156,7 +192,15 @@ router.get('/', protect, async (req, res) => {
       return res.status(500).json({ success: false, message: error.message });
     }
 
-    res.json({ success: true, data: menuItems });
+    const menuPayload = { success: true, data: menuItems };
+    menuItemsCache = {
+      data: menuPayload,
+      timestamp: Date.now(),
+    };
+
+    res.setHeader('Cache-Control', 'private, max-age=15, stale-while-revalidate=30');
+    res.json(menuPayload);
+
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

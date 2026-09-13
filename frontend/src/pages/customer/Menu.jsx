@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'motion/react';
-import { ShoppingCart, Plus, Minus, X, CheckCircle, AlertCircle, Package, UtensilsCrossed, ArrowLeft, Banknote, Search, Sparkles } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, X, CheckCircle, AlertCircle, Package, UtensilsCrossed, ArrowLeft, Banknote, Search } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import AnimatedModal from '../../components/ui/AnimatedModal';
 import AlertBanner from '../../components/ui/AlertBanner';
@@ -88,47 +88,57 @@ const MenuPage = () => {
     }
   };
 
+  const allCategories = useMemo(() => {
+    return Array.from(new Set(menuItems.map(item => item.category || 'General'))).sort((a, b) => {
+      const isStarterA = a.toLowerCase().includes('starter') || a.toLowerCase().includes('starer');
+      const isStarterB = b.toLowerCase().includes('starter') || b.toLowerCase().includes('starer');
+      if (isStarterA && !isStarterB) return -1;
+      if (!isStarterA && isStarterB) return 1;
+      return a.localeCompare(b);
+    });
+  }, [menuItems]);
+
+  const categoryNames = useMemo(() => ['All', ...allCategories], [allCategories]);
+
+  // Filter items by Search text and Veg Only preference (memoized)
+  const filteredMenuItems = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    return menuItems.filter(item => {
+      const matchesVeg = !vegOnly || item.is_veg !== false;
+      const matchesSearch = !q ||
+        item.item_name.toLowerCase().includes(q) ||
+        (item.category || '').toLowerCase().includes(q);
+      return matchesVeg && matchesSearch;
+    });
+  }, [menuItems, vegOnly, searchQuery]);
+
+  const categories = useMemo(() => {
+    return Object.entries(
+      filteredMenuItems.reduce((acc, item) => {
+        const cat = item.category || 'General';
+        if (!acc[cat]) acc[cat] = [];
+        acc[cat].push(item);
+        return acc;
+      }, {})
+    ).sort(([catA], [catB]) => {
+      const isStarterA = catA.toLowerCase().includes('starter') || catA.toLowerCase().includes('starer');
+      const isStarterB = catB.toLowerCase().includes('starter') || catB.toLowerCase().includes('starer');
+      if (isStarterA && !isStarterB) return -1;
+      if (!isStarterA && isStarterB) return 1;
+      return catA.localeCompare(catB);
+    });
+  }, [filteredMenuItems]);
+
+  const displayedCategories = useMemo(() => {
+    return selectedCategory === 'All'
+      ? categories
+      : categories.filter(([cat]) => cat === selectedCategory);
+  }, [categories, selectedCategory]);
+
   if (loading) {
     return <LoadingState />;
   }
 
-  // Filter items by Search text and Veg Only preference
-  const filteredMenuItems = menuItems.filter(item => {
-    const matchesVeg = !vegOnly || item.is_veg !== false;
-    const q = searchQuery.toLowerCase().trim();
-    const matchesSearch = !q ||
-      item.item_name.toLowerCase().includes(q) ||
-      (item.category || '').toLowerCase().includes(q);
-    return matchesVeg && matchesSearch;
-  });
-
-  const categories = Object.entries(
-    filteredMenuItems.reduce((acc, item) => {
-      const cat = item.category || 'General';
-      if (!acc[cat]) acc[cat] = [];
-      acc[cat].push(item);
-      return acc;
-    }, {})
-  ).sort(([catA], [catB]) => {
-    const isStarterA = catA.toLowerCase().includes('starter') || catA.toLowerCase().includes('starer');
-    const isStarterB = catB.toLowerCase().includes('starter') || catB.toLowerCase().includes('starer');
-    if (isStarterA && !isStarterB) return -1;
-    if (!isStarterA && isStarterB) return 1;
-    return catA.localeCompare(catB);
-  });
-
-  const allCategories = Array.from(new Set(menuItems.map(item => item.category || 'General'))).sort((a, b) => {
-    const isStarterA = a.toLowerCase().includes('starter') || a.toLowerCase().includes('starer');
-    const isStarterB = b.toLowerCase().includes('starter') || b.toLowerCase().includes('starer');
-    if (isStarterA && !isStarterB) return -1;
-    if (!isStarterA && isStarterB) return 1;
-    return a.localeCompare(b);
-  });
-
-  const categoryNames = ['All', ...allCategories];
-  const displayedCategories = selectedCategory === 'All'
-    ? categories
-    : categories.filter(([cat]) => cat === selectedCategory);
 
   return (
     <div>
@@ -250,18 +260,29 @@ const MenuPage = () => {
                             </div>
                           )}
                           {item.image_url ? (
-                            <img
-                              src={item.image_url}
-                              alt={item.item_name}
-                              className="menu-card-img"
-                              style={isOutOfStock ? { filter: 'grayscale(100%) brightness(0.6)' } : {}}
-                              loading="lazy"
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                                if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
-                              }}
-                            />
+                            <picture>
+                              <source
+                                srcSet={item.image_url.endsWith('.png') ? item.image_url.replace(/\.png$/, '.webp') : item.image_url}
+                                type="image/webp"
+                              />
+                              <img
+                                src={item.image_url}
+                                alt={item.item_name}
+                                className="menu-card-img"
+                                style={isOutOfStock ? { filter: 'grayscale(100%) brightness(0.6)' } : {}}
+                                loading="lazy"
+                                decoding="async"
+                                width="320"
+                                height="190"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const placeholder = e.currentTarget.closest('.menu-card-img-wrap')?.querySelector('.menu-card-img-placeholder');
+                                  if (placeholder) placeholder.style.display = 'flex';
+                                }}
+                              />
+                            </picture>
                           ) : null}
+
                           <div
                             className="menu-card-img-placeholder"
                             style={{

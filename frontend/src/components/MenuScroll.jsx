@@ -2,52 +2,52 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import "./MenuScroll.css";
 
-// User's authentic uploaded menu dishes ONLY (9 newly added items)
+// User's authentic uploaded menu dishes ONLY (9 newly added items, optimized WebP)
 const userDishes = [
   {
     id: "lollipops",
     name: "Chicken Lollipops",
-    image: "/menu/lollipops.png",
+    image: "/menu/lollipops.webp",
   },
   {
     id: "dum-biryani",
     name: "Chicken Dum Biryani",
-    image: "/menu/dum-biryani.png",
+    image: "/menu/dum-biryani.webp",
   },
   {
     id: "fry-piece",
     name: "Chicken Fry Piece Biryani",
-    image: "/menu/fry-piece.png",
+    image: "/menu/fry-piece.webp",
   },
   {
     id: "mughalai-biryani",
     name: "Mughalai Biryani",
-    image: "/menu/mughalai-biryani.png",
+    image: "/menu/mughalai-biryani.webp",
   },
   {
     id: "lollipop-biryani",
     name: "Lollipop Biryani",
-    image: "/menu/lollipop-biryani.png",
+    image: "/menu/lollipop-biryani.webp",
   },
   {
     id: "chicken-fried-rice",
     name: "Chicken Fried Rice",
-    image: "/menu/chicken-fried-rice.png",
+    image: "/menu/chicken-fried-rice.webp",
   },
   {
     id: "veg-fried-rice",
     name: "Veg Fried Rice",
-    image: "/menu/veg-fried-rice.png",
+    image: "/menu/veg-fried-rice.webp",
   },
   {
     id: "chilli-chicken",
     name: "Chilli Chicken",
-    image: "/menu/chilli-chicken.png",
+    image: "/menu/chilli-chicken.webp",
   },
   {
     id: "chilli-paneer",
     name: "Chilli Paneer",
-    image: "/menu/chilli-paneer.png",
+    image: "/menu/chilli-paneer.webp",
   },
 ];
 
@@ -58,7 +58,12 @@ function MenuCard({ item }) {
         src={item.image}
         alt={item.name}
         draggable="false"
+        loading="lazy"
+        decoding="async"
+        width="280"
+        height="158"
       />
+
 
       <div className="menu-wall-card-info">
         <span>{item.name}</span>

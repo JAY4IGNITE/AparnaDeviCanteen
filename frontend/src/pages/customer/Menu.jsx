@@ -1,21 +1,28 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'motion/react';
 import { ShoppingCart, Plus, Minus, X, CheckCircle, AlertCircle, Package, UtensilsCrossed, ArrowLeft, Banknote, Search, Clock } from 'lucide-react';
 import AnimatedModal from '../../components/ui/AnimatedModal';
-import OrderingPausedModal from '../../components/OrderingPausedModal';
 import AlertBanner from '../../components/ui/AlertBanner';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
 import MotionButton from '../../components/ui/MotionButton';
 import { useCart } from '../../context/CartContext';
-import { checkOperatingHours } from '../../lib/operatingHours';
 
 const MenuPage = () => {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { cart, addToCart, removeFromCart, clearCart, getCartCount, getCartTotal } = useCart();
+  const { 
+    cart, 
+    addToCart, 
+    removeFromCart, 
+    clearCart, 
+    getCartCount, 
+    getCartTotal,
+    isOrdersActive,
+    setIsPausedModalOpen,
+    statusMessage
+  } = useCart();
 
   const [menuItems, setMenuItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(() => searchParams.get('category') || 'All');
@@ -27,11 +34,12 @@ const MenuPage = () => {
   const [loading, setLoading] = useState(true);
   const [orderLoading, setOrderLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
-  const operatingStatus = useMemo(() => checkOperatingHours(), []);
   const [serverOperatingStatus, setServerOperatingStatus] = useState(null);
-  const [isPausedModalOpen, setIsPausedModalOpen] = useState(false);
 
-  const activeStatus = serverOperatingStatus || operatingStatus;
+  const activeStatus = serverOperatingStatus || {
+    isOpen: isOrdersActive,
+    message: statusMessage || 'Sorry, we are not taking orders currently. Ordering will open when activated by the admin.'
+  };
 
   useEffect(() => {
     fetchMenu();
@@ -48,7 +56,7 @@ const MenuPage = () => {
         }
       }
     } catch (err) {
-      if (!operatingStatus.isOpen) {
+      if (!isOrdersActive) {
         setIsPausedModalOpen(true);
       }
     }
@@ -228,29 +236,6 @@ const MenuPage = () => {
               </span>
             </div>
           </div>
-
-          {/* Operating Hours Notice if Closed */}
-          {!operatingStatus.isOpen && (
-            <div className="operating-hours-closed-banner" style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              padding: '0.85rem 1.15rem',
-              marginBottom: '1.25rem',
-              borderRadius: '1rem',
-              background: 'rgba(245, 158, 11, 0.12)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
-              color: '#fbbf24',
-              fontSize: '0.875rem',
-              lineHeight: 1.4
-            }}>
-              <Clock size={20} style={{ flexShrink: 0, color: '#f59e0b' }} />
-              <div>
-                <strong style={{ fontWeight: 700, marginRight: '0.35rem' }}>Ordering Closed:</strong>
-                <span>{operatingStatus.message}</span>
-              </div>
-            </div>
-          )}
 
           {/* Search bar & Veg Only Quick Filter */}
           <div className="menu-toolbar">
@@ -537,19 +522,19 @@ const MenuPage = () => {
                 <MotionButton className="btn btn-secondary" onClick={clearCart} id="clear-cart">
                   Clear Cart
                 </MotionButton>
-                {operatingStatus.isOpen ? (
+                {activeStatus.isOpen ? (
                   <MotionButton className="btn btn-primary" onClick={handleProceedToPayment} id="proceed-to-payment">
                     Place Order
                   </MotionButton>
                 ) : (
                   <MotionButton
                     className="btn btn-primary"
-                    disabled
-                    style={{ opacity: 0.6, cursor: 'not-allowed' }}
+                    onClick={() => setIsPausedModalOpen(true)}
+                    style={{ opacity: 0.85, cursor: 'pointer', background: 'rgba(239, 68, 68, 0.25)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#fca5a5' }}
                     id="proceed-to-payment"
-                    title={operatingStatus.message}
+                    title="Online ordering is currently paused"
                   >
-                    Closed (Sundays Only)
+                    Not Taking Orders
                   </MotionButton>
                 )}
               </div>
@@ -629,16 +614,6 @@ const MenuPage = () => {
           </>
         )}
       </AnimatedModal>
-
-      {/* Professional "Not Taking Orders" Customer Modal */}
-      <OrderingPausedModal
-        open={isPausedModalOpen}
-        onClose={() => setIsPausedModalOpen(false)}
-        customMessage={activeStatus?.message}
-        operatingHoursText={activeStatus?.operatingHoursText}
-        onExploreMenu={() => setIsPausedModalOpen(false)}
-        onBackHome={() => navigate('/customer/home')}
-      />
     </div>
   );
 };

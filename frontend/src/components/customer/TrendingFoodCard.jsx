@@ -15,9 +15,11 @@ const TrendingFoodCard = ({ item, isTopOne = false }) => {
 
   const handleAdd = () => {
     if (isOutOfStock) return;
-    addToCart(item);
-    setJustAdded(true);
-    setTimeout(() => setJustAdded(false), 1200);
+    const added = addToCart(item);
+    if (added !== false) {
+      setJustAdded(true);
+      setTimeout(() => setJustAdded(false), 1200);
+    }
   };
 
   return (

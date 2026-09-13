@@ -383,7 +383,7 @@ export default function LandingPage() {
 
             {/* Subtitle */}
             <p className="text-zinc-400 text-sm sm:text-base leading-relaxed mb-8 max-w-xl">
-              Connect with fellow campus foodies. Get instant Sunday morning menu announcements, live counter token alerts, secret chef specials, and student combo deals directly on your phone.
+              Connect with fellow campus foodies. Get instant live menu announcements, active ordering alerts, secret chef specials, and student combo deals directly on your phone.
             </p>
 
             {/* 2x2 Bento Feature Cards */}
@@ -444,7 +444,7 @@ export default function LandingPage() {
                   100% VERIFIED & SPAM-FREE
                 </h3>
                 <p className="text-xs text-zinc-400 leading-relaxed">
-                  Admin-managed updates strictly focused on food drops, timings, and canteen service.
+                  Admin-managed updates strictly focused on food drops, active order slots, and canteen service.
                 </p>
               </div>
             </div>
@@ -545,10 +545,10 @@ export default function LandingPage() {
                 className="text-xl sm:text-2xl text-white mb-1.5 tracking-wider uppercase leading-none"
                 style={{ fontFamily: "'Bebas Neue', cursive, sans-serif" }}
               >
-                OPERATING HOURS
+                CANTEEN SERVICE
               </h3>
-              <p className="text-sm font-semibold text-orange-400 mb-0.5">Sundays: 8:00 AM – 8:00 PM</p>
-              <p className="text-xs text-zinc-400">Monday – Saturday: Closed</p>
+              <p className="text-sm font-semibold text-orange-400 mb-0.5">Admin-Activated Live Ordering</p>
+              <p className="text-xs text-zinc-400">Orders accepted during active canteen slots</p>
             </motion.div>
 
             <motion.div variants={cardVariants} className="p-6 sm:p-7 rounded-2xl bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.08] hover:border-emerald-500/30 transition-all duration-300 text-center flex flex-col items-center group shadow-lg">

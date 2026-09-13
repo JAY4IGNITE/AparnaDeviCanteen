@@ -45,11 +45,13 @@ const OrderAgain = ({ orders = [], allMenuItems = [], loading = false }) => {
 
   const handleAddAgain = (item) => {
     if (!item.is_available) return;
-    addToCart(item);
-    setAddedIds((prev) => ({ ...prev, [item.id || item.item_name]: true }));
-    setTimeout(() => {
-      setAddedIds((prev) => ({ ...prev, [item.id || item.item_name]: false }));
-    }, 1200);
+    const added = addToCart(item);
+    if (added !== false) {
+      setAddedIds((prev) => ({ ...prev, [item.id || item.item_name]: true }));
+      setTimeout(() => {
+        setAddedIds((prev) => ({ ...prev, [item.id || item.item_name]: false }));
+      }, 1200);
+    }
   };
 
   if (loading) {

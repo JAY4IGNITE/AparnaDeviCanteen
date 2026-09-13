@@ -1,4 +1,4 @@
-import { Clock, Utensils, X, Info, Sparkles, Store } from 'lucide-react';
+import { Clock, Utensils, X, Store } from 'lucide-react';
 import AnimatedModal from './ui/AnimatedModal';
 import MotionButton from './ui/MotionButton';
 
@@ -6,7 +6,7 @@ const OrderingPausedModal = ({
   open,
   onClose,
   customMessage = '',
-  operatingHoursText = 'Sundays only, 8:00 AM – 8:00 PM IST',
+  operatingHoursText = 'Admin-Controlled Live Service',
   onExploreMenu,
   onBackHome
 }) => {
@@ -102,7 +102,7 @@ const OrderingPausedModal = ({
           }}
         >
           {customMessage ||
-            'AparnaDevi Canteen online ordering is temporarily paused. Our kitchen is currently not accepting new orders to prepare fresh batches and maintain top-tier service.'}
+            'AparnaDevi Canteen online ordering is temporarily paused. Orders are accepted only when activated by the canteen administrator. Please check back when ordering is resumed.'}
         </p>
 
         {/* Schedule & Kitchen Information Card */}
@@ -121,15 +121,15 @@ const OrderingPausedModal = ({
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: 'var(--text-muted)' }}>Operating Schedule:</span>
-            <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-              {operatingHoursText}
+            <span style={{ color: 'var(--text-muted)' }}>Ordering Status:</span>
+            <span style={{ fontWeight: 600, color: '#f59e0b' }}>
+              ● Currently Inactive
             </span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: 'var(--text-muted)' }}>Kitchen Status:</span>
-            <span style={{ fontWeight: 600, color: '#f59e0b' }}>
-              ● Orders Temporarily Closed
+            <span style={{ color: 'var(--text-muted)' }}>Service Mode:</span>
+            <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+              {operatingHoursText}
             </span>
           </div>
         </div>

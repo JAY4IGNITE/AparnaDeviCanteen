@@ -73,11 +73,11 @@ const AdminHome = () => {
       setMenuVisible(nextVal);
       setMessage({
         type: 'success',
-        text: `Online Ordering has been turned ${nextVal ? 'ON (Accepting Orders)' : 'OFF (Paused)'}`
+        text: `Online Ordering is now ${nextVal ? 'ACTIVE (Accepting Orders)' : 'PAUSED (Customers will see Not Taking Orders popup)'}`
       });
       setTimeout(() => {
         if (isMountedRef.current) setMessage({ type: '', text: '' });
-      }, 4000);
+      }, 4500);
     } catch (err) {
       setMessage({ type: 'error', text: 'Failed to update ordering status' });
       setTimeout(() => {
@@ -274,7 +274,7 @@ const AdminHome = () => {
               title="Toggle online ordering status for customers"
             >
               <Power size={15} />
-              <span>Ordering: {menuVisible ? 'ON (Live)' : 'PAUSED'}</span>
+              <span>Orders: {menuVisible ? 'ACTIVE (Accepting)' : 'PAUSED (Closed)'}</span>
             </MotionButton>
 
             {/* Manual Refresh Button */}

@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { motion } from 'motion/react';
 import { Clock } from 'lucide-react';
@@ -9,21 +8,20 @@ import TrendingToday from '../../components/customer/TrendingToday';
 import ActiveOrderCard from '../../components/customer/ActiveOrderCard';
 import OrderAgain from '../../components/customer/OrderAgain';
 import ErrorBoundary from '../../components/ui/ErrorBoundary';
-import OrderingPausedModal from '../../components/OrderingPausedModal';
+import { useCart } from '../../context/CartContext';
 import { staggerContainer, fadeUp } from '../../lib/motion';
-import { checkOperatingHours } from '../../lib/operatingHours';
 
 const CustomerHome = () => {
-  const navigate = useNavigate();
+  const { setIsPausedModalOpen, isOrdersActive, statusMessage } = useCart();
   const [menuItems, setMenuItems] = useState([]);
-
   const [customerOrders, setCustomerOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [serverOperatingStatus, setServerOperatingStatus] = useState(null);
-  const [isPausedModalOpen, setIsPausedModalOpen] = useState(false);
 
-  const operatingStatus = useMemo(() => checkOperatingHours(), []);
-  const activeStatus = serverOperatingStatus || operatingStatus;
+  const activeStatus = serverOperatingStatus || {
+    isOpen: isOrdersActive,
+    message: statusMessage || 'Sorry, we are not taking orders currently. Ordering will open when activated by the admin.'
+  };
 
   const fetchData = useCallback(async () => {
     setLoadingOrders(true);
@@ -73,7 +71,7 @@ const CustomerHome = () => {
         initial="initial"
         animate="animate"
       >
-        {/* Operating Hours Notice if Closed */}
+        {/* Operating Status Notice if Orders are Inactive */}
         {!activeStatus.isOpen && (
           <motion.div
             variants={fadeUp}
@@ -86,7 +84,7 @@ const CustomerHome = () => {
               <Clock size={18} className="shrink-0 text-amber-400" />
               <div>
                 <strong className="font-bold mr-1.5">Ordering Notice:</strong>
-                <span>{activeStatus.message || 'Orders are not currently being accepted.'}</span>
+                <span>{activeStatus.message || 'Sorry, we are not taking orders currently.'}</span>
               </div>
             </div>
             <span className="text-xs underline opacity-90 shrink-0">View Details</span>
@@ -127,19 +125,6 @@ const CustomerHome = () => {
           </ErrorBoundary>
         </motion.div>
       </motion.div>
-
-      {/* Professional "Not Taking Orders" Customer Modal */}
-      <OrderingPausedModal
-        open={isPausedModalOpen}
-        onClose={() => setIsPausedModalOpen(false)}
-        customMessage={activeStatus?.message}
-        operatingHoursText={activeStatus?.operatingHoursText}
-        onExploreMenu={() => {
-          setIsPausedModalOpen(false);
-          navigate('/customer/menu');
-        }}
-        onBackHome={() => setIsPausedModalOpen(false)}
-      />
     </div>
   );
 };

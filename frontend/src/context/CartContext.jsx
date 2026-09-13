@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import axios from 'axios';
 
 const CartContext = createContext(null);
 
@@ -15,6 +16,32 @@ export const CartProvider = ({ children }) => {
     }
   });
 
+  const [isOrdersActive, setIsOrdersActive] = useState(true);
+  const [isPausedModalOpen, setIsPausedModalOpen] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+
+  const checkOrdersStatus = useCallback(async () => {
+    try {
+      const res = await axios.get('/menu/operating-status');
+      if (res.data?.success && res.data?.data) {
+        const active = Boolean(res.data.data.isOpen);
+        setIsOrdersActive(active);
+        setStatusMessage(res.data.data.message || '');
+        return active;
+      }
+    } catch (err) {
+      console.error('Failed to check operating status:', err);
+    }
+    return true;
+  }, []);
+
+  useEffect(() => {
+    checkOrdersStatus();
+    // Poll status periodically (every 15s) so live updates by admin reflect dynamically
+    const timer = setInterval(checkOrdersStatus, 15000);
+    return () => clearInterval(timer);
+  }, [checkOrdersStatus]);
+
   // Sync to localStorage whenever cart changes
   useEffect(() => {
     try {
@@ -25,7 +52,11 @@ export const CartProvider = ({ children }) => {
   }, [cart]);
 
   const addToCart = useCallback((item) => {
-    if (!item || item.is_available === false) return;
+    if (!item || item.is_available === false) return false;
+    if (!isOrdersActive) {
+      setIsPausedModalOpen(true);
+      return false;
+    }
     setCart((prev) => ({
       ...prev,
       [item.id]: {
@@ -33,7 +64,8 @@ export const CartProvider = ({ children }) => {
         quantity: (prev[item.id]?.quantity || 0) + 1,
       },
     }));
-  }, []);
+    return true;
+  }, [isOrdersActive]);
 
   const removeFromCart = useCallback((itemId) => {
     setCart((prev) => {
@@ -90,7 +122,27 @@ export const CartProvider = ({ children }) => {
     getCartTotal,
     cartCount,
     cartTotal,
-  }), [cart, addToCart, removeFromCart, setItemQuantity, clearCart, getCartCount, getCartTotal, cartCount, cartTotal]);
+    isOrdersActive,
+    setIsOrdersActive,
+    isPausedModalOpen,
+    setIsPausedModalOpen,
+    statusMessage,
+    checkOrdersStatus,
+  }), [
+    cart,
+    addToCart,
+    removeFromCart,
+    setItemQuantity,
+    clearCart,
+    getCartCount,
+    getCartTotal,
+    cartCount,
+    cartTotal,
+    isOrdersActive,
+    isPausedModalOpen,
+    statusMessage,
+    checkOrdersStatus,
+  ]);
 
   return (
     <CartContext.Provider value={value}>

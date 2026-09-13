@@ -68,29 +68,32 @@ router.get('/public-stats', async (req, res) => {
   }
 });
 
-// GET /api/menu/operating-status — Operating hours and active ordering status (Public, no auth required)
+// GET /api/menu/operating-status — Active ordering status (Public, no auth required)
 router.get('/operating-status', async (req, res) => {
   try {
-    const isMenuVisible = await getMenuVisibility();
-    const status = checkOperatingHours();
-    const isOpen = Boolean(status.isOpen && isMenuVisible);
-    
+    const isOrdersActive = await getMenuVisibility();
     return res.json({
       success: true,
       data: {
-        ...status,
-        isOpen,
-        isMenuVisible,
-        message: !isMenuVisible
-          ? 'Sorry, we are not taking orders currently. Online ordering is temporarily paused.'
-          : status.message
+        isOpen: Boolean(isOrdersActive),
+        isOrdersActive: Boolean(isOrdersActive),
+        isMenuVisible: Boolean(isOrdersActive),
+        operatingHoursText: 'Admin-Controlled Live Service',
+        message: isOrdersActive
+          ? 'Online ordering is currently active.'
+          : 'Sorry, we are not taking orders currently. Ordering will open when activated by the admin.'
       }
     });
   } catch (error) {
-    const status = checkOperatingHours();
     return res.json({
       success: true,
-      data: status
+      data: {
+        isOpen: false,
+        isOrdersActive: false,
+        isMenuVisible: false,
+        operatingHoursText: 'Admin-Controlled Live Service',
+        message: 'Sorry, we are not taking orders currently.'
+      }
     });
   }
 });
@@ -98,11 +101,6 @@ router.get('/operating-status', async (req, res) => {
 // GET /api/menu/trending-today — Fetch dynamically ranked trending dishes for today (Asia/Kolkata)
 router.get('/trending-today', protect, async (req, res) => {
   try {
-    const isMenuVisible = await getMenuVisibility();
-    if (!isMenuVisible) {
-      return res.json({ success: true, count: 0, data: [] });
-    }
-
     const { kolkataDateStr, startISO, endISO } = getKolkataDayRange();
 
     // Check cache (30s TTL)
@@ -233,11 +231,6 @@ router.get('/trending-today', protect, async (req, res) => {
 // GET /api/menu — Fetch all available menu items
 router.get('/', protect, async (req, res) => {
   try {
-    const isMenuVisible = await getMenuVisibility();
-    if (!isMenuVisible) {
-      return res.json({ success: true, data: [] });
-    }
-
     // Check menu cache (30s TTL)
     const now = Date.now();
     if (menuItemsCache.data && (now - menuItemsCache.timestamp < 30000)) {

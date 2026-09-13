@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Outlet, useNavigate, NavLink } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import OrderingPausedModal from '../components/OrderingPausedModal';
 import { 
   LayoutGrid, 
   UtensilsCrossed, 
@@ -15,10 +17,12 @@ import {
 } from 'lucide-react';
 import AppSidebar from '../components/layout/AppSidebar';
 import PageTransition from '../components/ui/PageTransition';
+import ErrorBoundary from '../components/ui/ErrorBoundary';
 
 const CustomerLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { isPausedModalOpen, setIsPausedModalOpen, statusMessage } = useCart();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -84,7 +88,9 @@ const CustomerLayout = () => {
       <main className="main-content customer-layout-main">
         <PageTransition>
           <div className="page-container">
-            <Outlet />
+            <ErrorBoundary>
+              <Outlet />
+            </ErrorBoundary>
           </div>
         </PageTransition>
       </main>
@@ -102,6 +108,21 @@ const CustomerLayout = () => {
           </NavLink>
         ))}
       </nav>
+
+      {/* Global Customer Ordering Inactive Pop-up Modal */}
+      <OrderingPausedModal
+        open={isPausedModalOpen}
+        onClose={() => setIsPausedModalOpen(false)}
+        customMessage={statusMessage}
+        onExploreMenu={() => {
+          setIsPausedModalOpen(false);
+          navigate('/customer/menu');
+        }}
+        onBackHome={() => {
+          setIsPausedModalOpen(false);
+          navigate('/customer/home');
+        }}
+      />
     </div>
   );
 };

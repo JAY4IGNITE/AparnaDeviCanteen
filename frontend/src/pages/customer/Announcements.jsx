@@ -38,6 +38,8 @@ const CustomerAnnouncements = () => {
       <PageHeader
         title="Offers & Updates"
         subtitle="Stay updated with the latest happenings, daily specials, and offers at AparnaDevi Canteen"
+        showBack={true}
+        backTo="/customer/home"
       />
 
       {error && <AlertBanner type="error" message={error} onClose={() => setError(null)} />}

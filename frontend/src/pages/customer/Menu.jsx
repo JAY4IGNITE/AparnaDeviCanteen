@@ -8,6 +8,7 @@ import AlertBanner from '../../components/ui/AlertBanner';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
 import MotionButton from '../../components/ui/MotionButton';
+import PageHeader from '../../components/ui/PageHeader';
 import { useCart } from '../../context/CartContext';
 
 const MenuPage = () => {
@@ -227,15 +228,14 @@ const MenuPage = () => {
         <EmptyState icon={Package} title="No items available" description="Check back later for new menu items." />
       ) : (
         <>
-          {/* Menu Page Header */}
-          <div className="menu-page-header">
-            <div className="menu-header-titles">
-              <h1 className="menu-page-title">Menu</h1>
-              <span className="menu-items-count-badge">
-                {filteredMenuItems.length} {filteredMenuItems.length === 1 ? 'dish' : 'dishes'}
-              </span>
-            </div>
-          </div>
+          {/* Menu Page Header with Back Navigation */}
+          <PageHeader
+            title="Menu"
+            subtitle="Explore our freshly cooked canteen specialties"
+            badge={`${filteredMenuItems.length} ${filteredMenuItems.length === 1 ? 'dish' : 'dishes'}`}
+            showBack={true}
+            backTo="/customer/home"
+          />
 
           {/* Search bar & Veg Only Quick Filter */}
           <div className="menu-toolbar">

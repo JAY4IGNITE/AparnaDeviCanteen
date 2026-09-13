@@ -88,6 +88,8 @@ We hope you enjoyed your meal and look forward to serving you again!
       <PageHeader 
         title="Settings" 
         subtitle="Manage automated email templates and system preferences" 
+        showBack={true}
+        backTo="/admin/home"
       />
 
       <motion.div 

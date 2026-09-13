@@ -119,6 +119,8 @@ const Statistics = () => {
         title="Item Sales Statistics" 
         subtitle="Analyze quantity ordered and revenue generated for each menu item" 
         badge={`${items.length} Items Ordered`}
+        showBack={true}
+        backTo="/admin/home"
       />
 
       {/* Preset Quick-Picks */}

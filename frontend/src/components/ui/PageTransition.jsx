@@ -1,15 +1,18 @@
 import { motion } from 'motion/react';
-import { useMotionSafe, fadeUp } from '../../lib/motion';
+import { useLocation } from 'react-router-dom';
+import { useMotionSafe } from '../../lib/motion';
 
 const PageTransition = ({ children, className = '' }) => {
-  const { transition } = useMotionSafe();
+  const location = useLocation();
+  const { reduced } = useMotionSafe();
 
   return (
     <motion.div
+      key={location.pathname}
       className={className}
-      initial={fadeUp.initial}
-      animate={fadeUp.animate}
-      transition={transition}
+      initial={reduced ? { opacity: 1 } : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.18, ease: 'easeOut' }}
     >
       {children}
     </motion.div>

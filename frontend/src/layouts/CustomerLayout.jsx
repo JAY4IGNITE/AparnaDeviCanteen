@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Outlet, useNavigate, NavLink } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Outlet, useNavigate, useLocation, NavLink } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -24,6 +24,12 @@ const CustomerLayout = () => {
   const { user, logout } = useAuth();
   const { isPausedModalOpen, setIsPausedModalOpen, statusMessage } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Reset any open modal automatically when navigating between pages
+  useEffect(() => {
+    setIsPausedModalOpen(false);
+  }, [location.pathname, setIsPausedModalOpen]);
 
   const handleLogout = () => {
     logout();
@@ -116,11 +122,15 @@ const CustomerLayout = () => {
         customMessage={statusMessage}
         onExploreMenu={() => {
           setIsPausedModalOpen(false);
-          navigate('/customer/menu');
+          if (location.pathname !== '/customer/menu') {
+            navigate('/customer/menu');
+          }
         }}
         onBackHome={() => {
           setIsPausedModalOpen(false);
-          navigate('/customer/home');
+          if (location.pathname !== '/customer/home') {
+            navigate('/customer/home', { replace: true });
+          }
         }}
       />
     </div>

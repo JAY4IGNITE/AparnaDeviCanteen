@@ -22,25 +22,24 @@ const Login = () => {
   const [emailInput, setEmailInput] = useState('');
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
-  const { login, updateEmail, resendVerification, logout } = useAuth();
+  const { user, login, updateEmail, resendVerification, logout } = useAuth();
   const navigate = useNavigate();
   const { transition } = useMotionSafe();
   const cardRef = useRef(null);
   useNeonBorder(cardRef, { color: '#f97316', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
 
-  // When in sign-in page, moving/navigating back redirects to the landing page
+  // If already authenticated, redirect to the dashboard without adding extra history entries
   useEffect(() => {
-    window.history.pushState(null, '', window.location.href);
+    if (user) {
+      if (user.role === 'admin') {
+        navigate('/admin/home', { replace: true });
+      } else {
+        navigate('/customer/home', { replace: true });
+      }
+    }
+  }, [user, navigate]);
 
-    const handlePopState = () => {
-      navigate('/', { replace: true });
-    };
 
-    window.addEventListener('popstate', handlePopState);
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-    };
-  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -86,9 +85,9 @@ const Login = () => {
 
   const proceedToApp = (userObj) => {
     if (userObj.role === 'admin') {
-      navigate('/admin/home');
+      navigate('/admin/home', { replace: true });
     } else {
-      navigate('/customer/home');
+      navigate('/customer/home', { replace: true });
     }
   };
 

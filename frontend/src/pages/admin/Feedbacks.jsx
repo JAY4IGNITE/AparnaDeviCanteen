@@ -69,6 +69,8 @@ const Feedbacks = () => {
         title="Customer Feedbacks"
         subtitle="Read opinions and reviews shared by hostel customers"
         badge={`${filteredFeedbacks.length} Received`}
+        showBack={true}
+        backTo="/admin/home"
       />
 
       {/* Filters & Search Row */}

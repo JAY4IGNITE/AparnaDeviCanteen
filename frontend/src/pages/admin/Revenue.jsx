@@ -81,6 +81,8 @@ const Revenue = () => {
       <PageHeader 
         title="Revenue & Earnings" 
         subtitle="Monitor sales totals, order counts, and average order value across custom date ranges" 
+        showBack={true}
+        backTo="/admin/home"
       />
 
       {/* Preset Quick-Picks */}

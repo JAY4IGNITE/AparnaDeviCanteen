@@ -150,6 +150,8 @@ const CounterSale = () => {
       <PageHeader
         title="Counter Sale"
         subtitle="Record direct walk-in sales and view real-time statistics"
+        showBack={true}
+        backTo="/admin/home"
         actions={
           <MotionButton
             type="button"

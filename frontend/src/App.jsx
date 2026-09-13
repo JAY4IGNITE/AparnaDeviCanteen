@@ -6,6 +6,7 @@ import { CartProvider } from './context/CartContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingState from './components/ui/LoadingState';
 import ScrollProgressBar from './components/ui/ScrollProgressBar';
+import ScrollToTop from './components/ui/ScrollToTop';
 import ClickSpark from './components/ClickSpark';
 
 // Landing Page (Lazy Loaded)
@@ -56,6 +57,7 @@ function App() {
           >
             <Router>
               <ScrollProgressBar />
+              <ScrollToTop />
               <Suspense fallback={<LoadingState />}>
                 <Routes>
                   {/* Public Routes */}

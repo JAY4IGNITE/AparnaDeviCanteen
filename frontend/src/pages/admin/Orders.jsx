@@ -201,6 +201,8 @@ const AdminOrders = () => {
       <PageHeader
         title="Orders"
         subtitle="View and manage all customer orders"
+        showBack={true}
+        backTo="/admin/home"
         actions={
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
             <MotionButton

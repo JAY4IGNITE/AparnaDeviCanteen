@@ -125,7 +125,12 @@ const Profile = () => {
 
   return (
     <div className="profile-page-container">
-      <PageHeader title="My Profile" subtitle="Manage your account settings and details" />
+      <PageHeader
+        title="My Profile"
+        subtitle="Manage your account settings and details"
+        showBack={true}
+        backTo="/customer/home"
+      />
 
       <AnimatedTabs
         tabs={tabs}

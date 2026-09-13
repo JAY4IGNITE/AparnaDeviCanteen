@@ -91,6 +91,8 @@ const AdminAnnouncements = () => {
       <PageHeader
         title="Manage Announcements"
         subtitle="Add and update customer announcements"
+        showBack={true}
+        backTo="/admin/home"
         actions={
           announcements.length > 0 ? (
             <MotionButton

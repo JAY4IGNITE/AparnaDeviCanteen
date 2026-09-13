@@ -120,7 +120,12 @@ const Orders = () => {
 
   return (
     <div>
-      <PageHeader title="My Orders" subtitle="Track your past and current orders" />
+      <PageHeader
+        title="My Orders"
+        subtitle="Track your past and current orders"
+        showBack={true}
+        backTo="/customer/home"
+      />
 
       {orders.length === 0 ? (
         <EmptyState icon={Package} title="No orders yet" description="Place your first order from the menu!" />

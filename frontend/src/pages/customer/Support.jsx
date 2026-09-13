@@ -63,7 +63,12 @@ const Support = () => {
 
   return (
     <div className="support-hub-page">
-      <PageHeader title="Help & Support" subtitle="Get in touch with our canteen team for any assistance." />
+      <PageHeader
+        title="Help & Support"
+        subtitle="Get in touch with our canteen team for any assistance."
+        showBack={true}
+        backTo="/customer/home"
+      />
 
       {/* Direct Contact Channels */}
       <section className="support-channels-section" aria-label="Direct Support Contacts">

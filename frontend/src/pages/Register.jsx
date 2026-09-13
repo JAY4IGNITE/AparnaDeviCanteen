@@ -22,25 +22,24 @@ const Register = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { register } = useAuth();
+  const { user, register } = useAuth();
   const navigate = useNavigate();
   const { transition } = useMotionSafe();
   const cardRef = useRef(null);
   useNeonBorder(cardRef, { color: '#f97316', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
 
-  // When in sign-up page, moving/navigating back redirects to the landing page
+  // If already authenticated, redirect to the dashboard
   useEffect(() => {
-    window.history.pushState(null, '', window.location.href);
+    if (user) {
+      if (user.role === 'admin') {
+        navigate('/admin/home', { replace: true });
+      } else {
+        navigate('/customer/home', { replace: true });
+      }
+    }
+  }, [user, navigate]);
 
-    const handlePopState = () => {
-      navigate('/', { replace: true });
-    };
 
-    window.addEventListener('popstate', handlePopState);
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-    };
-  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

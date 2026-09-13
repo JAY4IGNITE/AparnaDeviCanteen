@@ -202,6 +202,8 @@ const ManageMenu = () => {
       <PageHeader
         title="Manage Menu"
         subtitle="Add, edit, or remove menu items with images"
+        showBack={true}
+        backTo="/admin/home"
         actions={
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <MotionButton

@@ -121,6 +121,8 @@ const ManageCustomers = () => {
         title="Manage Customers"
         subtitle="View, block, or delete registered customer accounts"
         badge={`${customers.length} ${customers.length === 1 ? 'Customer' : 'Customers'}`}
+        showBack={true}
+        backTo="/admin/home"
       />
 
       <AlertBanner type={message.type} show={!!message.text}>

@@ -2874,8 +2874,8 @@ body:has(.auth-page) {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: calc(100vh - 200px);
-  padding: 2.5rem 1rem;
+  min-height: calc(100vh - 140px);
+  padding: 3.5rem 1rem 2.5rem;
   margin: 0 auto;
   text-align: center;
 }
@@ -2886,6 +2886,7 @@ body:has(.auth-page) {
   align-items: center;
   justify-content: center;
   margin: 0 auto;
+  transform: translateY(75px);
 }
 
 /* Precision Modern SVG Arc Spinner */
@@ -3249,6 +3250,15 @@ body:has(.auth-page) {
 
   .welcome-title {
     font-size: 1.75rem;
+  }
+
+  .loading-spinner {
+    min-height: calc(100vh - 160px);
+    padding: 2.5rem 1rem 2rem;
+  }
+
+  .loading-content-center {
+    transform: translateY(42px);
   }
 }
 

@@ -150,18 +150,28 @@ const MenuPage = () => {
         <EmptyState icon={Package} title="No items available" description="Check back later for new menu items." />
       ) : (
         <>
+          {/* Menu Page Header */}
+          <div className="menu-page-header">
+            <div className="menu-header-titles">
+              <h1 className="menu-page-title">Menu</h1>
+              <span className="menu-items-count-badge">
+                {filteredMenuItems.length} {filteredMenuItems.length === 1 ? 'dish' : 'dishes'}
+              </span>
+            </div>
+          </div>
+
           {/* Search bar & Veg Only Quick Filter */}
           <div className="menu-toolbar">
             <div className="menu-search-wrap">
-              <Search size={16} className="search-bar-icon" />
               <input
                 type="text"
                 className="menu-search-input"
-                placeholder="Search menu (e.g. Biryani, Paneer, Starters...)"
+                placeholder="Search dishes (e.g. Biryani, Paneer, Starters...)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 id="menu-search-input"
               />
+              <Search size={18} className="search-bar-icon" />
               {searchQuery && (
                 <button type="button" className="search-bar-clear" onClick={() => setSearchQuery('')} aria-label="Clear search">
                   <X size={16} />
@@ -173,15 +183,17 @@ const MenuPage = () => {
               type="button"
               className={`veg-toggle-btn ${vegOnly ? 'active' : ''}`}
               onClick={() => setVegOnly(!vegOnly)}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.96 }}
               id="veg-only-toggle"
             >
-              <span className="veg-indicator veg" style={{ width: 10, height: 10 }} />
+              <span className="food-indicator veg">
+                <span className="food-indicator-dot" />
+              </span>
               <span>Veg Only</span>
             </MotionButton>
           </div>
 
-          {/* Side-by-side Category Buttons Navigation */}
+          {/* Horizontal Category Filter Navigation */}
           <div className="category-buttons-container" role="tablist" aria-label="Menu categories">
             {categoryNames.map(cat => {
               const count = cat === 'All'
@@ -193,7 +205,7 @@ const MenuPage = () => {
                   type="button"
                   className={`category-btn ${selectedCategory === cat ? 'active' : ''}`}
                   onClick={() => setSelectedCategory(cat)}
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={{ scale: 0.96 }}
                   id={`cat-btn-${cat.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                 >
                   <span>{cat}</span>
@@ -231,46 +243,43 @@ const MenuPage = () => {
                 <div className="menu-grid">
                   {items.map((item) => {
                     const isOutOfStock = !item.is_available;
+                    const isVeg = item.is_veg !== false;
                     return (
                       <div
                         key={item.id}
                         className={`menu-card ${isOutOfStock ? 'out-of-stock' : ''}`}
                       >
                         <div className="menu-card-img-wrap">
-                          <div className="menu-card-img-badge">
+                          <div className="menu-card-badge-wrap">
                             <span
-                              className={`veg-indicator ${item.is_veg !== false ? 'veg' : 'non-veg'}`}
-                              title={item.is_veg !== false ? 'Veg' : 'Non-Veg'}
-                            />
-                            <span>{item.is_veg !== false ? 'Veg' : 'Non-Veg'}</span>
+                              className={`food-indicator ${isVeg ? 'veg' : 'non-veg'}`}
+                              title={isVeg ? 'Veg' : 'Non-Veg'}
+                            >
+                              <span className="food-indicator-dot" />
+                            </span>
+                            <span className="food-indicator-text">{isVeg ? 'Veg' : 'Non-Veg'}</span>
                           </div>
+
                           {isOutOfStock && (
                             <div className="out-of-stock-overlay">
                               Out of Stock
                             </div>
                           )}
+
                           {item.image_url ? (
-                            <picture>
-                              <source
-                                srcSet={item.image_url.endsWith('.png') ? item.image_url.replace(/\.png$/, '.webp') : item.image_url}
-                                type="image/webp"
-                              />
-                              <img
-                                src={item.image_url}
-                                alt={item.item_name}
-                                className="menu-card-img"
-                                style={isOutOfStock ? { filter: 'grayscale(100%) brightness(0.6)' } : {}}
-                                loading="lazy"
-                                decoding="async"
-                                width="320"
-                                height="190"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                  const placeholder = e.currentTarget.closest('.menu-card-img-wrap')?.querySelector('.menu-card-img-placeholder');
-                                  if (placeholder) placeholder.style.display = 'flex';
-                                }}
-                              />
-                            </picture>
+                            <img
+                              src={item.image_url}
+                              alt={item.item_name}
+                              className="menu-card-img"
+                              style={isOutOfStock ? { filter: 'grayscale(100%) brightness(0.6)' } : {}}
+                              loading="lazy"
+                              decoding="async"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                const placeholder = e.currentTarget.closest('.menu-card-img-wrap')?.querySelector('.menu-card-img-placeholder');
+                                if (placeholder) placeholder.style.display = 'flex';
+                              }}
+                            />
                           ) : null}
 
                           <div
@@ -280,68 +289,71 @@ const MenuPage = () => {
                               ...(isOutOfStock ? { filter: 'grayscale(100%) brightness(0.6)' } : {})
                             }}
                           >
-                            <UtensilsCrossed size={36} />
+                            <div className="placeholder-icon-circle">
+                              <UtensilsCrossed size={26} />
+                            </div>
                           </div>
                         </div>
 
                         <div className="menu-card-body">
-                          <div className="menu-card-header">
-                            <div className="menu-card-top-row">
-                              <div
-                                className="menu-item-name"
-                                style={isOutOfStock ? { color: 'var(--text-muted)' } : {}}
-                                title={item.item_name}
-                              >
-                                {item.item_name}
-                              </div>
-                              <div
-                                className="menu-item-price"
-                                style={isOutOfStock ? { opacity: 0.5, color: 'var(--text-muted)' } : {}}
-                              >
-                                ₹{item.price}
-                              </div>
-                            </div>
-                            <div>
-                              <span className="menu-item-category-tag">
-                                {item.category || 'General'}
-                              </span>
-                            </div>
+                          <div className="menu-card-info">
+                            <h3
+                              className="menu-item-name"
+                              style={isOutOfStock ? { color: 'var(--text-muted)' } : {}}
+                              title={item.item_name}
+                            >
+                              {item.item_name}
+                            </h3>
                           </div>
 
-                          <div className="menu-card-actions">
-                            {isOutOfStock ? (
-                              <button className="btn-out-of-stock" disabled>
-                                Out of Stock
-                              </button>
-                            ) : cart[item.id] ? (
-                              <div className="quantity-control">
+                          <div className="menu-card-footer">
+                            <div
+                              className="menu-item-price"
+                              style={isOutOfStock ? { opacity: 0.5, color: 'var(--text-muted)' } : {}}
+                            >
+                              <span className="price-currency">₹</span>
+                              <span className="price-value">{item.price}</span>
+                            </div>
+
+                            <div className="menu-card-actions">
+                              {isOutOfStock ? (
+                                <span className="btn-out-of-stock-badge">
+                                  Sold Out
+                                </span>
+                              ) : cart[item.id] ? (
+                                <div className="menu-stepper">
+                                  <MotionButton
+                                    className="menu-stepper-btn"
+                                    onClick={() => removeFromCart(item.id)}
+                                    id={`decrease-${item.id}`}
+                                    aria-label={`Remove one ${item.item_name}`}
+                                    whileTap={{ scale: 0.9 }}
+                                  >
+                                    <Minus size={13} />
+                                  </MotionButton>
+                                  <span className="menu-stepper-qty">{cart[item.id].quantity}</span>
+                                  <MotionButton
+                                    className="menu-stepper-btn"
+                                    onClick={() => addToCart(item)}
+                                    id={`increase-${item.id}`}
+                                    aria-label={`Add one more ${item.item_name}`}
+                                    whileTap={{ scale: 0.9 }}
+                                  >
+                                    <Plus size={13} />
+                                  </MotionButton>
+                                </div>
+                              ) : (
                                 <MotionButton
-                                  className="quantity-btn"
-                                  onClick={() => removeFromCart(item.id)}
-                                  id={`decrease-${item.id}`}
-                                  aria-label={`Remove one ${item.item_name}`}
-                                >
-                                  <Minus size={16} />
-                                </MotionButton>
-                                <span className="quantity-value">{cart[item.id].quantity}</span>
-                                <MotionButton
-                                  className="quantity-btn"
+                                  className="menu-add-btn"
                                   onClick={() => addToCart(item)}
-                                  id={`increase-${item.id}`}
-                                  aria-label={`Add one more ${item.item_name}`}
+                                  id={`add-${item.id}`}
+                                  whileTap={{ scale: 0.95 }}
                                 >
-                                  <Plus size={16} />
+                                  <Plus size={14} />
+                                  <span>Add</span>
                                 </MotionButton>
-                              </div>
-                            ) : (
-                              <MotionButton
-                                className="btn btn-primary"
-                                onClick={() => addToCart(item)}
-                                id={`add-${item.id}`}
-                              >
-                                <Plus size={16} /> Add to Cart
-                              </MotionButton>
-                            )}
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -430,7 +442,7 @@ const MenuPage = () => {
 
             {Object.values(cart).length > 0 && (
               <div className="modal-footer">
-                <MotionButton className="btn btn-secondary" onClick={() => setCart({})} id="clear-cart">
+                <MotionButton className="btn btn-secondary" onClick={clearCart} id="clear-cart">
                   Clear Cart
                 </MotionButton>
                 <MotionButton className="btn btn-primary" onClick={handleProceedToPayment} id="proceed-to-payment">

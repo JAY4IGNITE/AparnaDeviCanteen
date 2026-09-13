@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'motion/react';
 import { ShoppingCart, Plus, Minus, X, CheckCircle, AlertCircle, Package, UtensilsCrossed, ArrowLeft, Banknote, Search, Clock } from 'lucide-react';
 import AnimatedModal from '../../components/ui/AnimatedModal';
+import OrderingPausedModal from '../../components/OrderingPausedModal';
 import AlertBanner from '../../components/ui/AlertBanner';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
@@ -12,6 +13,7 @@ import { useCart } from '../../context/CartContext';
 import { checkOperatingHours } from '../../lib/operatingHours';
 
 const MenuPage = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { cart, addToCart, removeFromCart, clearCart, getCartCount, getCartTotal } = useCart();
 
@@ -26,10 +28,31 @@ const MenuPage = () => {
   const [orderLoading, setOrderLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const operatingStatus = useMemo(() => checkOperatingHours(), []);
+  const [serverOperatingStatus, setServerOperatingStatus] = useState(null);
+  const [isPausedModalOpen, setIsPausedModalOpen] = useState(false);
+
+  const activeStatus = serverOperatingStatus || operatingStatus;
 
   useEffect(() => {
     fetchMenu();
+    fetchOperatingStatus();
   }, []);
+
+  const fetchOperatingStatus = async () => {
+    try {
+      const res = await axios.get('/menu/operating-status');
+      if (res.data?.success && res.data?.data) {
+        setServerOperatingStatus(res.data.data);
+        if (!res.data.data.isOpen) {
+          setIsPausedModalOpen(true);
+        }
+      }
+    } catch (err) {
+      if (!operatingStatus.isOpen) {
+        setIsPausedModalOpen(true);
+      }
+    }
+  };
 
   // Update category and search if URL search params change
   useEffect(() => {
@@ -53,9 +76,8 @@ const MenuPage = () => {
   };
 
   const handleProceedToPayment = () => {
-    const status = checkOperatingHours();
-    if (!status.isOpen) {
-      setMessage({ type: 'error', text: status.message });
+    if (!activeStatus.isOpen) {
+      setIsPausedModalOpen(true);
       return;
     }
     setCartStep('payment');
@@ -71,9 +93,8 @@ const MenuPage = () => {
   };
 
   const placeOrder = async () => {
-    const status = checkOperatingHours();
-    if (!status.isOpen) {
-      setMessage({ type: 'error', text: status.message });
+    if (!activeStatus.isOpen) {
+      setIsPausedModalOpen(true);
       return;
     }
 
@@ -93,7 +114,11 @@ const MenuPage = () => {
       setMessage({ type: 'success', text: 'Order placed successfully!' });
       setTimeout(() => setMessage({ type: '', text: '' }), 4000);
     } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to place order' });
+      if (err.response?.data?.isNotTakingOrders || !activeStatus.isOpen) {
+        setIsPausedModalOpen(true);
+      } else {
+        setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to place order' });
+      }
     } finally {
       setOrderLoading(false);
     }
@@ -153,6 +178,37 @@ const MenuPage = () => {
 
   return (
     <div>
+      {/* Clickable Operating Notice Banner when orders not taking */}
+      {!activeStatus.isOpen && (
+        <div 
+          onClick={() => setIsPausedModalOpen(true)}
+          style={{
+            cursor: 'pointer',
+            padding: '0.8rem 1.15rem',
+            marginBottom: '1rem',
+            borderRadius: '0.875rem',
+            background: 'rgba(245, 158, 11, 0.12)',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.75rem',
+            color: '#fbbf24',
+            transition: 'all 0.2s ease'
+          }}
+          title="Click to read ordering status details"
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+            <Clock size={17} style={{ shrink: 0 }} />
+            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>
+              Orders Currently Paused: {activeStatus.message || 'We are not taking orders currently.'}
+            </span>
+          </div>
+          <span style={{ fontSize: '0.75rem', textDecoration: 'underline', opacity: 0.9, whiteSpace: 'nowrap' }}>
+            View Details
+          </span>
+        </div>
+      )}
 
       <AlertBanner type={message.type} show={!!message.text}>
         {message.type === 'success' ? <CheckCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} /> : <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />}
@@ -558,13 +614,13 @@ const MenuPage = () => {
               <MotionButton
                 className="btn btn-primary"
                 onClick={placeOrder}
-                disabled={orderLoading || !operatingStatus.isOpen}
+                disabled={orderLoading || !activeStatus.isOpen}
                 id="confirm-order"
               >
                 {orderLoading ? (
                   <div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} />
-                ) : !operatingStatus.isOpen ? (
-                  'Closed (Sundays Only)'
+                ) : !activeStatus.isOpen ? (
+                  'Orders Paused'
                 ) : (
                   'Confirm Order'
                 )}
@@ -573,6 +629,16 @@ const MenuPage = () => {
           </>
         )}
       </AnimatedModal>
+
+      {/* Professional "Not Taking Orders" Customer Modal */}
+      <OrderingPausedModal
+        open={isPausedModalOpen}
+        onClose={() => setIsPausedModalOpen(false)}
+        customMessage={activeStatus?.message}
+        operatingHoursText={activeStatus?.operatingHoursText}
+        onExploreMenu={() => setIsPausedModalOpen(false)}
+        onBackHome={() => navigate('/customer/home')}
+      />
     </div>
   );
 };

@@ -68,13 +68,31 @@ router.get('/public-stats', async (req, res) => {
   }
 });
 
-// GET /api/menu/operating-status — Operating hours status (Public, no auth required)
-router.get('/operating-status', (req, res) => {
-  const status = checkOperatingHours();
-  return res.json({
-    success: true,
-    data: status
-  });
+// GET /api/menu/operating-status — Operating hours and active ordering status (Public, no auth required)
+router.get('/operating-status', async (req, res) => {
+  try {
+    const isMenuVisible = await getMenuVisibility();
+    const status = checkOperatingHours();
+    const isOpen = Boolean(status.isOpen && isMenuVisible);
+    
+    return res.json({
+      success: true,
+      data: {
+        ...status,
+        isOpen,
+        isMenuVisible,
+        message: !isMenuVisible
+          ? 'Sorry, we are not taking orders currently. Online ordering is temporarily paused.'
+          : status.message
+      }
+    });
+  } catch (error) {
+    const status = checkOperatingHours();
+    return res.json({
+      success: true,
+      data: status
+    });
+  }
 });
 
 // GET /api/menu/trending-today — Fetch dynamically ranked trending dishes for today (Asia/Kolkata)

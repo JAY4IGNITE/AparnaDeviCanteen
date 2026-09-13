@@ -1,27 +1,36 @@
 import { useState, useEffect, useRef } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
-import { Download, CheckCircle, Clock, Package, Phone, Trash2, Search, X, ChefHat, MessageCircle } from 'lucide-react';
+import { Download, CheckCircle, Clock, Package, Phone, Trash2, Search, X, ChefHat, MessageCircle, FileText } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
 import MotionButton from '../../components/ui/MotionButton';
 import AnimatedModal from '../../components/ui/AnimatedModal';
-
 const AdminOrders = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [autoSync, setAutoSync] = useState(true);
   const [startDateFilter, setStartDateFilter] = useState('');
   const [endDateFilter, setEndDateFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '');
   const [blockFilter, setBlockFilter] = useState('');
   const [orderIdFilter, setOrderIdFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
+  const [downloadingId, setDownloadingId] = useState(null);
 
   const prevOrdersRef = useRef([]);
   const isFirstLoadRef = useRef(true);
+
+  // Synchronize status filter when URL parameter changes (e.g. clicked from dashboard stat card)
+  useEffect(() => {
+    const urlStatus = searchParams.get('status');
+    if (urlStatus !== null) {
+      setStatusFilter(urlStatus);
+    }
+  }, [searchParams]);
 
   const handleWhatsAppNotify = (order) => {
     const rawPhone = order.customer?.phone;
@@ -50,6 +59,19 @@ const AdminOrders = () => {
     const encodedMsg = encodeURIComponent(msgText);
     const whatsappUrl = `https://wa.me/${cleaned}?text=${encodedMsg}`;
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleDownloadInvoice = async (order) => {
+    setDownloadingId(order.id);
+    try {
+      const generateInvoice = (await import('../../components/ui/InvoiceGenerator')).default;
+      await generateInvoice(order, order.customer || { name: 'Customer' });
+    } catch (err) {
+      console.error('Failed to generate invoice:', err);
+      alert('Failed to generate invoice: ' + (err.message || 'Please try again.'));
+    } finally {
+      setDownloadingId(null);
+    }
   };
 
 
@@ -232,7 +254,7 @@ const AdminOrders = () => {
           <input type="text" className="form-input" placeholder="e.g. 1" value={orderIdFilter} onChange={(e) => setOrderIdFilter(e.target.value)} id="order-id-filter" style={{ width: '120px' }} />
         </div>
         {(startDateFilter || endDateFilter || statusFilter || blockFilter || orderIdFilter || searchQuery) && (
-          <MotionButton className="btn btn-ghost btn-sm" onClick={() => { setStartDateFilter(''); setEndDateFilter(''); setStatusFilter(''); setBlockFilter(''); setOrderIdFilter(''); setSearchQuery(''); }}>
+          <MotionButton className="btn btn-ghost btn-sm" onClick={() => { setStartDateFilter(''); setEndDateFilter(''); setStatusFilter(''); setBlockFilter(''); setOrderIdFilter(''); setSearchQuery(''); setSearchParams({}); }}>
             Clear Filters
           </MotionButton>
         )}
@@ -364,6 +386,15 @@ const AdminOrders = () => {
                           <Phone size={14} />
                         </a>
                       )}
+                      <MotionButton
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => handleDownloadInvoice(order)}
+                        disabled={downloadingId === order.id}
+                        title="Generate & Download Token Receipt / Invoice PDF"
+                        id={`invoice-btn-${order.id}`}
+                      >
+                        <FileText size={14} />
+                      </MotionButton>
                     </div>
                   </td>
                 </tr>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'motion/react';
-import { Save, Loader2, Mail, Settings as SettingsIcon } from 'lucide-react';
+import { Save, Loader2, Mail, Settings as SettingsIcon, Check } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import MotionButton from '../../components/ui/MotionButton';
 import LoadingState from '../../components/ui/LoadingState';
@@ -13,25 +13,25 @@ const AdminSettings = () => {
   const [saveSuccess, setSaveSuccess] = useState(false);
   
   const [templates, setTemplates] = useState({
-    preparing_email_template: `👨‍🍳 *Order Update – AparnaCanteen*
+    preparing_email_template: `*Order Update – AparnaCanteen*
 
-Hello [Name]! 😊
+Hello [Name]!
 
-Your *Order #[OrderNumber]* is now being *prepared in the kitchen*. 👨‍🍳
+Your *Order #[OrderNumber]* is now being *prepared in the kitchen*.
 
-💰 *Total Amount:* ₹[TotalAmount]
+*Total Amount:* ₹[TotalAmount]
 
-Your order will be ready shortly. Thank you for your patience! 🙏
+Your order will be ready shortly. Thank you for your patience!
 
 — *AparnaCanteen*`,
-    completed_email_template: `✅ *Order Completed – AparnaCanteen*
+    completed_email_template: `*Order Completed – AparnaCanteen*
 
-Hello [Name]! 😊
+Hello [Name]!
 
-Your *Order #[OrderNumber]* has been *successfully completed*. 🎉
+Your *Order #[OrderNumber]* has been *successfully completed*.
 
-Thank you for ordering from *AparnaCanteen*! ❤️
-We hope you enjoyed your meal and look forward to serving you again! 🙏
+Thank you for ordering from *AparnaCanteen*!
+We hope you enjoyed your meal and look forward to serving you again!
 
 — *AparnaCanteen*`
   });
@@ -101,7 +101,7 @@ We hope you enjoyed your meal and look forward to serving you again! 🙏
         </div>
 
         <div style={{ background: 'rgba(234, 88, 12, 0.05)', border: '1px solid rgba(234, 88, 12, 0.2)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
-          <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--primary-400)', fontSize: '0.9rem' }}>💡 Tip: Use Placeholders</h4>
+          <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--primary-400)', fontSize: '0.9rem' }}>Tip: Use Placeholders</h4>
           <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
             You can type these exact words in your templates, and the system will magically replace them with real data before sending:
             <br />
@@ -158,9 +158,10 @@ We hope you enjoyed your meal and look forward to serving you again! 🙏
             <motion.span 
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              style={{ color: 'var(--success)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+              style={{ color: 'var(--success)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
             >
-              ✓ Saved successfully!
+              <Check size={16} />
+              <span>Saved successfully!</span>
             </motion.span>
           )}
         </div>

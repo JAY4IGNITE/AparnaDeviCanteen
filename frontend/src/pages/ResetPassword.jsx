@@ -15,7 +15,7 @@ const ResetPassword = () => {
   const { resetPassword } = useAuth();
   const { transition } = useMotionSafe();
   const cardRef = useRef(null);
-  useNeonBorder(cardRef, { color: '#CC9149', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
+  useNeonBorder(cardRef, { color: '#f97316', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
   
   const [formData, setFormData] = useState({ newPassword: '', confirmPassword: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -169,8 +169,14 @@ const ResetPassword = () => {
                 </div>
               </div>
 
-              <MotionButton type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%' }}>
-                {loading ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : 'Reset Password'}
+              <MotionButton
+                type="submit"
+                className="btn btn-primary btn-lg auth-submit-btn"
+                disabled={loading}
+                style={{ width: '100%' }}
+                id="reset-password-submit"
+              >
+                {loading ? <span className="btn-spinner" aria-hidden="true" /> : 'Reset Password'}
               </MotionButton>
             </form>
           )}

@@ -228,7 +228,7 @@ const AdminLayout = () => {
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
               border: '1px solid rgba(249, 115, 22, 0.45)',
-              boxShadow: '0 10px 32px rgba(0, 0, 0, 0.75), 0 0 24px rgba(249, 115, 22, 0.25)',
+              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.75)',
               color: '#ffffff'
             }}
             onClick={() => {
@@ -240,7 +240,7 @@ const AdminLayout = () => {
               <BellRing size={22} className="bell-ring-anim" />
               <div>
                 <div style={{ fontWeight: 700, fontSize: '1rem' }}>
-                  🔔 New Order Received! (#{globalAlert.orderNumber})
+                  New Order Received! (#{globalAlert.orderNumber})
                 </div>
                 <div style={{ fontSize: '0.85rem', opacity: 0.95 }}>
                   {globalAlert.count} new customer order(s) arrived. Click to view.

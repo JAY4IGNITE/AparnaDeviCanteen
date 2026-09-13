@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'motion/react';
 import { ShoppingCart, Plus, Minus, X, CheckCircle, AlertCircle, Package, UtensilsCrossed, ArrowLeft, Banknote, Search, Sparkles } from 'lucide-react';
@@ -9,21 +10,17 @@ import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
 import MotionButton from '../../components/ui/MotionButton';
 import { staggerContainer, fadeUp } from '../../lib/motion';
+import { useCart } from '../../context/CartContext';
 
 const MenuPage = () => {
+  const [searchParams] = useSearchParams();
+  const { cart, addToCart, removeFromCart, clearCart, getCartCount, getCartTotal } = useCart();
+
   const [menuItems, setMenuItems] = useState([]);
-  const [cart, setCart] = useState(() => {
-    try {
-      const savedCart = localStorage.getItem('foodnest_cart');
-      return savedCart ? JSON.parse(savedCart) : {};
-    } catch (e) {
-      return {};
-    }
-  });
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(() => searchParams.get('category') || 'All');
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '');
   const [vegOnly, setVegOnly] = useState(false);
-  const [showCart, setShowCart] = useState(false);
+  const [showCart, setShowCart] = useState(() => searchParams.get('cart') === 'open');
   const [cartStep, setCartStep] = useState('cart'); // 'cart' or 'payment'
   const [paymentMethod, setPaymentMethod] = useState('COD');
   const [loading, setLoading] = useState(true);
@@ -34,9 +31,14 @@ const MenuPage = () => {
     fetchMenu();
   }, []);
 
+  // Update category and search if URL search params change
   useEffect(() => {
-    localStorage.setItem('foodnest_cart', JSON.stringify(cart));
-  }, [cart]);
+    const cat = searchParams.get('category');
+    if (cat) setSelectedCategory(cat);
+    const q = searchParams.get('q');
+    if (q) setSearchQuery(q);
+    if (searchParams.get('cart') === 'open') setShowCart(true);
+  }, [searchParams]);
 
   const fetchMenu = async () => {
     try {
@@ -49,33 +51,6 @@ const MenuPage = () => {
       setLoading(false);
     }
   };
-
-  const addToCart = (item) => {
-    if (item.is_available === false) return;
-    setCart(prev => ({
-      ...prev,
-      [item.id]: {
-        ...item,
-        quantity: (prev[item.id]?.quantity || 0) + 1
-      }
-    }));
-  };
-
-  const removeFromCart = (itemId) => {
-    setCart(prev => {
-      const updated = { ...prev };
-      if (updated[itemId]?.quantity > 1) {
-        updated[itemId] = { ...updated[itemId], quantity: updated[itemId].quantity - 1 };
-      } else {
-        delete updated[itemId];
-      }
-      return updated;
-    });
-  };
-
-  const getCartCount = () => Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
-
-  const getCartTotal = () => Object.values(cart).reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   const handleProceedToPayment = () => {
     setCartStep('payment');
@@ -101,10 +76,10 @@ const MenuPage = () => {
     setOrderLoading(true);
     try {
       await axios.post('/orders', { items, payment_method: paymentMethod });
-      setCart({});
+      clearCart();
       setShowCart(false);
       setCartStep('cart');
-      setMessage({ type: 'success', text: 'Order placed successfully! 🎉' });
+      setMessage({ type: 'success', text: 'Order placed successfully!' });
       setTimeout(() => setMessage({ type: '', text: '' }), 4000);
     } catch (err) {
       setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to place order' });
@@ -260,7 +235,6 @@ const MenuPage = () => {
                         className={`menu-card ${isOutOfStock ? 'out-of-stock' : ''}`}
                         variants={fadeUp}
                         transition={{ delay: index * 0.04 }}
-                        whileHover={isOutOfStock ? {} : { y: -4, transition: { duration: 0.2 } }}
                       >
                         <div className="menu-card-img-wrap">
                           <div className="menu-card-img-badge">

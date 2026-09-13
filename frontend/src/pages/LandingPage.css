@@ -66,39 +66,19 @@
 /* Smooth scrolling and root setup */
 html {
   scroll-behavior: smooth;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(249, 115, 22, 0.45) rgba(10, 10, 15, 0.95);
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
-/* ==================== ULTRA-SLEEK THIN SCROLLBAR ==================== */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(10, 10, 15, 0.95);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(249, 115, 22, 0.45);
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(249, 115, 22, 0.85);
-  box-shadow: 0 0 10px rgba(249, 115, 22, 0.55);
-}
-
-::-webkit-scrollbar-corner {
-  background: rgba(10, 10, 15, 0.95);
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 * {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(249, 115, 22, 0.45) rgba(10, 10, 15, 0.95);
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
 /* ==================== LENIS SMOOTH SCROLLING ==================== */

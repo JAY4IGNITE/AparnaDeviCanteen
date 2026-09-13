@@ -1,9 +1,117 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useMotionValue } from 'motion/react';
 import { NavLink } from 'react-router-dom';
 import { LogOut, PanelLeftClose, PanelLeftOpen, ChevronRight, Sun, Moon } from 'lucide-react';
 import { useMotionSafe } from '../../lib/motion';
 import { useTheme } from '../../context/ThemeContext';
+import { useVerticalDockItem } from '../../lib/dock';
+import MotionButton from '../ui/MotionButton';
+
+/**
+ * Sidebar navigation item with vertical Apple macOS Dock magnification effect.
+ */
+const SidebarDockItem = ({
+  item,
+  mouseY,
+  isCollapsed,
+  hoveredLink,
+  setHoveredLink,
+  setSidebarOpen,
+}) => {
+  const itemRef = useRef(null);
+  const Icon = item.icon;
+  const isHovered = hoveredLink === item.to;
+
+  // Only scale wrapper gently in collapsed mode (44px circle); in expanded mode, row width is 100% so scale is 1 to never exceed sidebar width
+  const { scale } = useVerticalDockItem(itemRef, mouseY, {
+    distance: 80,
+    magnification: isCollapsed ? 1.06 : 1,
+  });
+
+  // Smooth dock magnification on the icon itself
+  const { scale: iconScale } = useVerticalDockItem(itemRef, mouseY, {
+    distance: 80,
+    magnification: isCollapsed ? 1.1 : 1.15,
+  });
+
+  return (
+    <motion.div
+      ref={itemRef}
+      style={{
+        scale: isCollapsed ? scale : 1,
+        transformOrigin: 'center center',
+      }}
+      whileTap={{ scale: 0.96 }}
+      className="sidebar-link-motion-wrap"
+      onHoverStart={() => setHoveredLink(item.to)}
+      onHoverEnd={() => setHoveredLink(null)}
+    >
+      <NavLink
+        to={item.to}
+        className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+        id={item.id || undefined}
+      >
+        {({ isActive }) => (
+          <>
+            <div className="sidebar-link-content">
+              <motion.div
+                className="sidebar-link-icon-wrap"
+                style={{ scale: iconScale, transformOrigin: 'center center' }}
+              >
+                <Icon size={isCollapsed ? 20 : 19} strokeWidth={1.85} />
+              </motion.div>
+              <span className={`sidebar-link-label${isCollapsed ? ' sidebar-link-label--hidden' : ''}`}>
+                {item.label}
+              </span>
+            </div>
+
+            <div className={`sidebar-link-trailing${isCollapsed ? ' sidebar-link-trailing--hidden' : ''}`}>
+              {item.badge != null && item.badge > 0 && (
+                <span className="sidebar-badge">{item.badge}</span>
+              )}
+              <ChevronRight
+                size={16}
+                className={`sidebar-link-chevron ${isActive ? 'active' : ''}`}
+              />
+            </div>
+
+            {/* Tooltip in Collapsed Mode */}
+            <AnimatePresence>
+              {isCollapsed && isHovered && (
+                <motion.div
+                  className="sidebar-dock-tooltip"
+                  initial={{ opacity: 0, x: -6, scale: 0.95 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  exit={{ opacity: 0, x: -6, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  role="tooltip"
+                >
+                  <span>{item.label}</span>
+                  {item.badge != null && item.badge > 0 && (
+                    <span
+                      style={{
+                        marginLeft: '0.45rem',
+                        background: '#f97316',
+                        color: '#fff',
+                        fontSize: '0.65rem',
+                        padding: '0.05rem 0.35rem',
+                        borderRadius: '9999px',
+                        fontWeight: 700,
+                      }}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </>
+        )}
+      </NavLink>
+    </motion.div>
+  );
+};
 
 const AppSidebar = ({
   brand = 'Aparna Devi',
@@ -28,6 +136,7 @@ const AppSidebar = ({
   });
 
   const [hoveredLink, setHoveredLink] = useState(null);
+  const navMouseY = useMotionValue(Infinity);
 
   const toggleCollapse = () => {
     setIsCollapsed((prev) => {
@@ -40,13 +149,21 @@ const AppSidebar = ({
   };
 
   useEffect(() => {
-    const appLayout = document.querySelector('.app-layout');
-    if (appLayout) {
-      if (isCollapsed) {
-        appLayout.classList.add('sidebar-collapsed');
-      } else {
-        appLayout.classList.remove('sidebar-collapsed');
+    const handleKeyDown = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === '[' || e.key === ']') {
+        toggleCollapse();
       }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    if (isCollapsed) {
+      document.body.classList.add('sidebar-is-collapsed');
+    } else {
+      document.body.classList.remove('sidebar-is-collapsed');
     }
   }, [isCollapsed]);
 
@@ -70,7 +187,7 @@ const AppSidebar = ({
         )}
       </AnimatePresence>
 
-      {/* Floating Modern Sidebar matching MindVault reference */}
+      {/* Floating Modern Sidebar with Vertical Dock Effect */}
       <aside
         className={`sidebar theme-${theme} ${sidebarOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`}
         aria-label="Sidebar Navigation"
@@ -91,19 +208,25 @@ const AppSidebar = ({
           </div>
 
           {/* Desktop Collapse / Expand Button */}
-          <button
+          <MotionButton
             type="button"
             className="sidebar-collapse-btn hidden md:flex"
             onClick={toggleCollapse}
             aria-label={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
             title={isCollapsed ? 'Expand Sidebar' : 'Compact Sidebar'}
+            dockMagnification={1.05}
           >
-            {isCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
-          </button>
+            {isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={16} />}
+          </MotionButton>
         </div>
 
-        {/* Navigation Items */}
-        <nav className="sidebar-nav" aria-label="Primary">
+        {/* Navigation Items with Dock Magnification Wave */}
+        <nav
+          className="sidebar-nav"
+          aria-label="Primary"
+          onMouseMove={(e) => navMouseY.set(e.clientY)}
+          onMouseLeave={() => navMouseY.set(Infinity)}
+        >
           {navLinks.map((item, index) => {
             if (item.section) {
               if (isCollapsed) {
@@ -116,90 +239,26 @@ const AppSidebar = ({
               );
             }
 
-            const Icon = item.icon;
-            const isHovered = hoveredLink === item.to;
-
             return (
-              <motion.div
+              <SidebarDockItem
                 key={item.to}
-                whileHover={{ scale: isCollapsed ? 1.08 : 1.015 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: 'spring', stiffness: 420, damping: 26 }}
-                style={{ position: 'relative', width: '100%' }}
-                onHoverStart={() => setHoveredLink(item.to)}
-                onHoverEnd={() => setHoveredLink(null)}
-              >
-                <NavLink
-                  to={item.to}
-                  className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                  onClick={() => setSidebarOpen(false)}
-                  id={item.id || undefined}
-                >
-                  {({ isActive }) => (
-                    <>
-                      <div className="sidebar-link-content">
-                        <div className="sidebar-link-icon-wrap">
-                          <Icon size={19} strokeWidth={1.85} />
-                        </div>
-                        <span className={`sidebar-link-label${isCollapsed ? ' sidebar-link-label--hidden' : ''}`}>
-                          {item.label}
-                        </span>
-                      </div>
-
-                      <div className={`sidebar-link-trailing${isCollapsed ? ' sidebar-link-trailing--hidden' : ''}`}>
-                        {item.badge != null && item.badge > 0 && (
-                          <span className="sidebar-badge">{item.badge}</span>
-                        )}
-                        <ChevronRight
-                          size={16}
-                          className={`sidebar-link-chevron ${isActive ? 'active' : ''}`}
-                        />
-                      </div>
-
-                      {/* Tooltip in Collapsed Mode */}
-                      <AnimatePresence>
-                        {isCollapsed && isHovered && (
-                          <motion.div
-                            className="sidebar-dock-tooltip"
-                            initial={{ opacity: 0, x: -6, scale: 0.95 }}
-                            animate={{ opacity: 1, x: 0, scale: 1 }}
-                            exit={{ opacity: 0, x: -6, scale: 0.95 }}
-                            transition={{ duration: 0.15 }}
-                            role="tooltip"
-                          >
-                            <span>{item.label}</span>
-                            {item.badge != null && item.badge > 0 && (
-                              <span
-                                style={{
-                                  marginLeft: '0.45rem',
-                                  background: '#f97316',
-                                  color: '#fff',
-                                  fontSize: '0.65rem',
-                                  padding: '0.05rem 0.35rem',
-                                  borderRadius: '9999px',
-                                  fontWeight: 700,
-                                }}
-                              >
-                                {item.badge}
-                              </span>
-                            )}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </>
-                  )}
-                </NavLink>
-              </motion.div>
+                item={item}
+                mouseY={navMouseY}
+                isCollapsed={isCollapsed}
+                hoveredLink={hoveredLink}
+                setHoveredLink={setHoveredLink}
+                setSidebarOpen={setSidebarOpen}
+              />
             );
           })}
         </nav>
 
-        {/* Sidebar Footer with Elevated Profile Card */}
+        {/* Bottom Profile / Action Footer */}
         <div className="sidebar-footer">
-          {/* Expanded profile card */}
+          {/* Expanded Profile Card */}
           <div className={`sidebar-profile-card${isCollapsed ? ' sidebar-profile-card--hidden' : ''}`}>
             <div className="sidebar-profile-top">
-              <div className="sidebar-avatar">
+              <div className="sidebar-avatar" title={`${userName} (${userEmail})`}>
                 {userInitial}
               </div>
               <div className="sidebar-user-info">
@@ -210,15 +269,17 @@ const AppSidebar = ({
                   {userEmail}
                 </div>
               </div>
+
+              {/* Theme Toggle Pill */}
               <div
                 className="sidebar-theme-toggle"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleTheme();
-                }}
+                onClick={toggleTheme}
+                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
                 role="button"
                 tabIndex={0}
-                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') toggleTheme();
+                }}
               >
                 <div className={`sidebar-theme-chip ${theme === 'light' ? 'active' : ''}`}>
                   <Sun size={13} />
@@ -229,25 +290,24 @@ const AppSidebar = ({
               </div>
             </div>
 
-            <motion.button
-              whileHover={{ scale: 1.015 }}
-              whileTap={{ scale: 0.98 }}
+            <MotionButton
               className="sidebar-logout-card-btn"
               onClick={onLogout}
               id={logoutId}
               type="button"
+              dockEffect={false}
             >
               <LogOut size={16} strokeWidth={1.8} />
               <span>Sign Out</span>
-            </motion.button>
+            </MotionButton>
           </div>
 
-          {/* Collapsed icon stack */}
+          {/* Collapsed icon stack with Dock Effect */}
           <div className={`sidebar-profile-collapsed${isCollapsed ? '' : ' sidebar-profile-collapsed--hidden'}`}>
             <div className="sidebar-avatar" title={`${userName} (${userEmail})`}>
               {userInitial}
             </div>
-            <button
+            <MotionButton
               className="sidebar-collapsed-theme-btn"
               onClick={(e) => {
                 e.stopPropagation();
@@ -256,18 +316,20 @@ const AppSidebar = ({
               id="collapsed-theme-btn"
               title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
               type="button"
+              dockMagnification={1.05}
             >
-              {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
-            </button>
-            <button
-              className="sidebar-collapsed-logout"
+              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+            </MotionButton>
+            <MotionButton
+              className="sidebar-collapsed-logout-btn"
               onClick={onLogout}
-              id={logoutId}
+              id="sidebar-collapsed-logout"
               title="Sign Out"
               type="button"
+              dockMagnification={1.05}
             >
-              <LogOut size={16} strokeWidth={1.8} />
-            </button>
+              <LogOut size={18} strokeWidth={1.85} />
+            </MotionButton>
           </div>
         </div>
       </aside>

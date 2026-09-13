@@ -145,7 +145,7 @@ const AdminHome = () => {
                     <div className="top-item-row-top">
                       <div className="top-item-info">
                         <span className={`rank-medal ${rankClass}`}>
-                          {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`}
+                          #{idx + 1}
                         </span>
                         <div>
                           <div className="top-item-name">{item.name}</div>

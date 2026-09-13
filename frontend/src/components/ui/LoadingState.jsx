@@ -1,60 +1,82 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { SkeletonGrid } from './Skeleton';
-import './TruckLoader.css';
 
-const LoadingState = ({ variant = 'spinner' }) => {
+const DOT_FRAMES = ['.', '..', '...'];
+
+const LoadingState = ({
+  variant = 'spinner',
+  text = 'Loading',
+  minHeight,
+  className = '',
+}) => {
+  const [frameIndex, setFrameIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setFrameIndex((prev) => (prev + 1) % DOT_FRAMES.length);
+    }, 400);
+
+    return () => clearInterval(timer);
+  }, []);
+
   if (variant === 'stats') return <SkeletonGrid count={4} />;
-  
-  const truckLoader = (
-    <div className="truck-loader">
-      <div className="truckWrapper">
-        <div className="truckBody">
-          <svg viewBox="0 0 130 65" width="130" height="65" xmlns="http://www.w3.org/2000/svg">
-            <rect x="0" y="10" width="80" height="45" fill="currentColor" rx="4" />
-            <path d="M85 25 L110 25 L120 40 L120 55 L85 55 Z" fill="currentColor" />
-            <polygon points="88,28 105,28 112,38 88,38" fill="#fff" opacity="0.4" />
-          </svg>
-        </div>
-        <div className="truckTires">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" fill="#282828" />
-            <circle cx="12" cy="12" r="4" fill="#fff" />
-          </svg>
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" fill="#282828" />
-            <circle cx="12" cy="12" r="4" fill="#fff" />
-          </svg>
-        </div>
-        <div className="road"></div>
-        <div className="lampPost">
-           <svg viewBox="0 0 20 90" width="20" height="90" xmlns="http://www.w3.org/2000/svg">
-            <rect x="8" y="0" width="4" height="90" fill="#282828" />
-            <rect x="0" y="0" width="20" height="5" fill="#282828" />
-            <circle cx="18" cy="10" r="4" fill="yellow" />
-          </svg>
-        </div>
-      </div>
-    </div>
-  );
 
-  if (variant === 'page') {
-    return (
-      <motion.div
-        className="loading-spinner"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        style={{ flexDirection: 'column', gap: '1rem', background: 'transparent' }}
-      >
-        {truckLoader}
-        <p className="loading-text" style={{ marginTop: '1rem' }}>Loading...</p>
-      </motion.div>
-    );
-  }
-  
+  const showText = text !== null && text !== false;
+  const baseText =
+    typeof text === 'string' && text.trim()
+      ? text.replace(/\.+$/, '')
+      : 'Loading';
+
   return (
-    <div className="loading-spinner" style={{ background: 'transparent' }}>
-      {truckLoader}
-    </div>
+    <motion.div
+      className={`loading-spinner ${className}`}
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+      style={minHeight ? { minHeight } : undefined}
+      role="status"
+      aria-live="polite"
+    >
+      <div className="loading-content-center">
+        {/* Precision Modern SVG Arc Spinner */}
+        <div className="premium-spinner-wrap" aria-hidden="true">
+          <svg className="premium-spinner-svg" viewBox="0 0 50 50">
+            <circle
+              className="spinner-track"
+              cx="25"
+              cy="25"
+              r="20"
+              fill="none"
+              strokeWidth="3.2"
+            />
+            <circle
+              className="spinner-arc"
+              cx="25"
+              cy="25"
+              r="20"
+              fill="none"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
+
+        {/* Geometrically Centered Label with Anchored Dot Frames */}
+        {showText && (
+          <div className="loading-label-container">
+            <span className="loading-label-text">
+              {baseText}
+              <span className="loading-dots-anchor" aria-hidden="true">
+                <span className="loading-dots-content">
+                  {DOT_FRAMES[frameIndex]}
+                </span>
+              </span>
+            </span>
+          </div>
+        )}
+      </div>
+    </motion.div>
   );
 };
 

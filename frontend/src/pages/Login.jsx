@@ -27,7 +27,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { transition } = useMotionSafe();
   const cardRef = useRef(null);
-  useNeonBorder(cardRef, { color: '#CC9149', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
+  useNeonBorder(cardRef, { color: '#f97316', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -253,8 +253,14 @@ const Login = () => {
                 </button>
               </div>
             </div>
-            <MotionButton type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }} disabled={loading} id="login-submit">
-              {loading ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : 'Sign In'}
+            <MotionButton
+              type="submit"
+              className="btn btn-primary btn-lg auth-submit-btn"
+              style={{ width: '100%' }}
+              disabled={loading}
+              id="login-submit"
+            >
+              {loading ? <span className="btn-spinner" aria-hidden="true" /> : 'Sign In'}
             </MotionButton>
           </form>
 
@@ -333,9 +339,9 @@ const Login = () => {
                   type="submit" 
                   className="btn btn-primary" 
                   disabled={emailLoading}
-                  style={{ flex: 2 }}
+                  style={{ flex: 2, minHeight: '40px' }}
                 >
-                  {emailLoading ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : 'Save & Continue'}
+                  {emailLoading ? <span className="btn-spinner" aria-hidden="true" /> : 'Save & Continue'}
                 </MotionButton>
               </div>
             </form>
@@ -408,9 +414,9 @@ const Login = () => {
                 type="submit" 
                 className="btn btn-primary" 
                 disabled={emailLoading}
-                style={{ flex: 2 }}
+                style={{ flex: 2, minHeight: '40px' }}
               >
-                {emailLoading ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : 'Send Verification Email'}
+                {emailLoading ? <span className="btn-spinner" aria-hidden="true" /> : 'Send Verification Email'}
               </MotionButton>
             </div>
           </form>

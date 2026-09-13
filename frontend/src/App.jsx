@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { CartProvider } from './context/CartContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Landing Page
@@ -35,20 +36,23 @@ import AdminAnnouncements from './pages/admin/Announcements';
 import CounterSale from './pages/admin/CounterSale';
 import AdminFeedbacks from './pages/admin/Feedbacks';
 import AdminSettings from './pages/admin/Settings';
+import ScrollProgressBar from './components/ui/ScrollProgressBar';
 import ClickSpark from './components/ClickSpark';
 
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <ClickSpark
-          sparkColor="#ffffff"
-          sparkSize={10}
-          sparkRadius={15}
-          sparkCount={8}
-          duration={400}
-        >
-          <Router>
+        <CartProvider>
+          <ClickSpark
+            sparkColor="#f97316"
+            sparkSize={10}
+            sparkRadius={18}
+            sparkCount={8}
+            duration={450}
+          >
+            <Router>
+              <ScrollProgressBar />
             <Routes>
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
@@ -102,8 +106,9 @@ function App() {
             {/* Fallback Route */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </Router>
-      </ClickSpark>
+          </Router>
+        </ClickSpark>
+      </CartProvider>
     </AuthProvider>
   </ThemeProvider>
 );

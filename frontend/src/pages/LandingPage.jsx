@@ -16,6 +16,7 @@ import {
   Flame,
   ArrowRight,
   MessageCircle,
+  Star,
 } from 'lucide-react';
 import PotSteam from '../components/PotSteam';
 import ColorBends from '../components/ColorBends';
@@ -399,7 +400,10 @@ export default function LandingPage() {
                 <div className="text-xs text-zinc-400">Menu Varieties</div>
               </div>
               <div className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08]">
-                <div className="text-xl font-bold text-emerald-400">4.9 ★</div>
+                <div className="text-xl font-bold text-emerald-400 flex items-center gap-1">
+                  <span>4.9</span>
+                  <Star size={16} className="fill-emerald-400 text-emerald-400" />
+                </div>
                 <div className="text-xs text-zinc-400">Customer Rating</div>
               </div>
             </div>
@@ -412,7 +416,7 @@ export default function LandingPage() {
             </p>
             <button
               onClick={() => navigate('/register')}
-              className="w-fit px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 rounded-full transition-all cursor-pointer flex items-center gap-2"
+              className="w-fit px-5 py-2.5 text-xs font-bold text-white bg-orange-500 hover:bg-orange-600 rounded-full transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-105 active:scale-95 shadow-md shadow-orange-500/25 cursor-pointer flex items-center gap-2"
             >
               Join the Canteen Community <ArrowRight size={14} />
             </button>

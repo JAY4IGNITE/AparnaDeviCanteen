@@ -52,7 +52,6 @@ function ThemeDockItem({ mouseX, theme, onClick, spring, distance, baseItemSize,
       onClick={onClick}
       className="theme-dock-btn"
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      title={isDark ? 'Light Mode' : 'Dark Mode'}
     >
       <AnimatePresence mode="wait" initial={false}>
         <motion.span
@@ -75,10 +74,11 @@ function ThemeDockItem({ mouseX, theme, onClick, spring, distance, baseItemSize,
       <AnimatePresence>
         {showLabel && (
           <motion.div
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 6 }}
-            transition={{ duration: 0.15 }}
+            initial={{ opacity: 0, y: 5, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 5, x: '-50%' }}
+            style={{ left: '50%' }}
+            transition={{ duration: 0.16, ease: 'easeOut' }}
             className="theme-dock-tooltip"
           >
             {isDark ? 'Light Mode' : 'Dark Mode'}

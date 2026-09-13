@@ -1,8 +1,8 @@
 /* Fixed position wrapper — top right corner, always on top */
 .theme-toggle-dock-wrapper {
   position: fixed;
-  top: 12px;
-  right: 14px;
+  top: 14px;
+  right: 20px;
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -93,27 +93,29 @@
 .theme-dock-tooltip {
   position: absolute;
   top: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
   white-space: nowrap;
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(14, 11, 18, 0.94);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  padding: 0.15rem 0.55rem;
-  font-size: 0.68rem;
-  font-weight: 500;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 0.22rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 600;
   letter-spacing: 0.02em;
   color: #f4f4f5;
   pointer-events: none;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 8px 24px -2px rgba(0, 0, 0, 0.55),
+    0 0 10px rgba(249, 115, 22, 0.14);
   z-index: 10000;
 }
 
 [data-theme='light'] .theme-dock-tooltip {
   background: rgba(255, 255, 255, 0.96);
-  border-color: rgba(0, 0, 0, 0.1);
-  color: #1a1a1a;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #0f172a;
+  box-shadow:
+    0 8px 24px -2px rgba(0, 0, 0, 0.12),
+    0 0 10px rgba(249, 115, 22, 0.1);
 }

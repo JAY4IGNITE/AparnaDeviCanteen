@@ -168,7 +168,7 @@ const Orders = () => {
               ))}
             </div>
 
-            <div className="order-total" style={{ borderBottom: (order.status === 'Pending' || order.status !== 'Cancelled') ? '1px solid var(--border-color)' : 'none', paddingBottom: '1rem' }}>
+            <div className="order-total">
               <span>Total</span>
               <span>₹{order.total_amount}</span>
             </div>

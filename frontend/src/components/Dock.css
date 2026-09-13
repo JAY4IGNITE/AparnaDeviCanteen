@@ -167,7 +167,7 @@
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55) !important;
 }
 
-/* Standalone Separated Get Started Pill: NOT shining - solid matte canteen orange */
+/* Standalone Separated Get Started Pill: solid matte canteen orange */
 .dock-item.dock-getstarted-pill {
   color: #ffffff !important;
   background-color: #f97316;
@@ -195,4 +195,3 @@
     font-size: 0.68rem;
   }
 }
-

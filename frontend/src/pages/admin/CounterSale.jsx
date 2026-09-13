@@ -127,7 +127,7 @@ const CounterSale = () => {
   };
 
   const handleClearStats = async () => {
-    if (!window.confirm('⚠️ Are you sure you want to clear ALL counter sales statistics? This action is permanent and cannot be undone.')) return;
+    if (!window.confirm('Are you sure you want to clear ALL counter sales statistics? This action is permanent and cannot be undone.')) return;
     try {
       const res = await axios.delete('/admin/counter-sales');
       if (res.data.success) {

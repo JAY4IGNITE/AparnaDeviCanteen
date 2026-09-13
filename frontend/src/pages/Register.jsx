@@ -26,7 +26,7 @@ const Register = () => {
   const navigate = useNavigate();
   const { transition } = useMotionSafe();
   const cardRef = useRef(null);
-  useNeonBorder(cardRef, { color: '#CC9149', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
+  useNeonBorder(cardRef, { color: '#f97316', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -234,8 +234,14 @@ const Register = () => {
               </div>
             </div>
 
-            <MotionButton type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }} disabled={loading} id="register-submit">
-              {loading ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : 'Create Account'}
+            <MotionButton
+              type="submit"
+              className="btn btn-primary btn-lg auth-submit-btn"
+              style={{ width: '100%' }}
+              disabled={loading}
+              id="register-submit"
+            >
+              {loading ? <span className="btn-spinner" aria-hidden="true" /> : 'Create Account'}
             </MotionButton>
           </form>
 

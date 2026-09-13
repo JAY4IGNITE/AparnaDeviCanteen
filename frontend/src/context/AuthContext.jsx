@@ -4,6 +4,9 @@ import axios from 'axios';
 const AuthContext = createContext(null);
 
 const resolveApiUrl = () => {
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return 'http://localhost:5000/api';
+  }
   if (import.meta.env.VITE_API_URL) {
     const base = import.meta.env.VITE_API_URL.replace(/\/+$/, '');
     return base.endsWith('/api') ? base : `${base}/api`;

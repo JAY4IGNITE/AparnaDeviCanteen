@@ -1,107 +1,104 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { useAuth } from '../../context/AuthContext';
-import { UtensilsCrossed, ShoppingBag, Megaphone } from 'lucide-react';
-import InteractiveCard from '../../components/ui/InteractiveCard';
-import { useMotionSafe } from '../../lib/motion';
+import { motion } from 'motion/react';
+import DashboardHeader from '../../components/customer/DashboardHeader';
+import DashboardHero from '../../components/customer/DashboardHero';
+import TrendingToday from '../../components/customer/TrendingToday';
+import ActiveOrderCard from '../../components/customer/ActiveOrderCard';
+import OrderAgain from '../../components/customer/OrderAgain';
+import ErrorBoundary from '../../components/ui/ErrorBoundary';
+import { staggerContainer, fadeUp } from '../../lib/motion';
 
-const Home = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const [announcementCount, setAnnouncementCount] = useState(0);
-  const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
-  const { transition } = useMotionSafe();
+const CustomerHome = () => {
+  const [menuItems, setMenuItems] = useState([]);
 
-  useEffect(() => {
-    fetchAnnouncementCount();
-  }, []);
+  const [customerOrders, setCustomerOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
 
-  const fetchAnnouncementCount = async () => {
+  const fetchData = useCallback(async () => {
+
+    // 2. Menu Items
     try {
-      setLoadingAnnouncements(true);
-      const res = await axios.get('/announcements');
+      const res = await axios.get('/menu');
       if (res.data.success) {
-        setAnnouncementCount(res.data.count || 0);
+        setMenuItems(res.data.data || []);
       }
     } catch (err) {
-      console.error('Failed to fetch announcements for home page:', err);
-    } finally {
-      setLoadingAnnouncements(false);
+      console.error('Failed to fetch menu:', err);
     }
-  };
 
-  const cards = [
-    {
-      icon: UtensilsCrossed,
-      title: 'Browse Menu',
-      description: 'Explore our delicious offerings',
-      color: 'orange',
-      path: '/customer/menu',
-    },
-    {
-      icon: ShoppingBag,
-      title: 'My Orders',
-      description: 'Track your order history',
-      color: 'blue',
-      path: '/customer/orders',
-    },
-    {
-      icon: Megaphone,
-      title: 'Announcements',
-      description: loadingAnnouncements
-        ? 'Checking updates...'
-        : announcementCount > 0
-          ? `${announcementCount} active ${announcementCount === 1 ? 'announcement' : 'announcements'}`
-          : 'No new announcements',
-      color: 'green',
-      path: '/customer/announcements',
-      badge: announcementCount > 0 ? announcementCount : null,
-      highlight: announcementCount > 0,
-    },
-  ];
+    // 3. Customer Orders
+    try {
+      setLoadingOrders(true);
+      const res = await axios.get('/orders/me');
+      if (res.data.success) {
+        setCustomerOrders(res.data.data || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch user orders:', err);
+    } finally {
+      setLoadingOrders(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Find the latest active order (status 'Pending' or 'Preparing')
+  const activeOrder = customerOrders.find(
+    (order) => order.status === 'Pending' || order.status === 'Preparing'
+  );
 
   return (
-    <div>
-      <div className="home-hero">
-        <motion.div
-          className="welcome-section"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={transition}
-        >
-          <h1 className="welcome-title">
-            Welcome, <span>{user?.name || 'Guest'}!</span>
-          </h1>
-          <p className="welcome-subtitle">
-            What would you like to eat today? Browse our menu and place your order.
-          </p>
-        </motion.div>
-      </div>
+    <div className="customer-dashboard-root">
+      {/* 1. Header with greeting, notifications, cart & profile */}
+      <ErrorBoundary>
+        <DashboardHeader />
+      </ErrorBoundary>
 
-      <div className="bento-grid">
-        {cards.map((card, index) => (
-          <InteractiveCard
-            key={card.path}
-            index={index}
-            className="bento-card"
-            onClick={() => navigate(card.path)}
-          >
-            {card.badge && <span className="bento-badge">{card.badge}</span>}
-            <div className={`stat-icon ${card.color} bento-card-icon`}>
-              <card.icon size={28} />
-            </div>
-            <h3>{card.title}</h3>
-            <p style={card.highlight ? { color: 'var(--success)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' } : undefined}>
-              {card.highlight && <span className="pulse-dot" />}
-              {card.description}
-            </p>
-          </InteractiveCard>
-        ))}
-      </div>
+      <motion.div
+        className="customer-dashboard-body"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
+        {/* 2. Food-Focused Hero Banner */}
+        <motion.div variants={fadeUp}>
+          <ErrorBoundary>
+            <DashboardHero />
+          </ErrorBoundary>
+        </motion.div>
+
+        {/* 4. Active Order Live Progress (if any) */}
+        {activeOrder && (
+          <motion.div variants={fadeUp}>
+            <ErrorBoundary>
+              <ActiveOrderCard activeOrder={activeOrder} />
+            </ErrorBoundary>
+          </motion.div>
+        )}
+
+        {/* 6. Trending Today (Ranked by Today's India-Time Orders) */}
+        <motion.div variants={fadeUp}>
+          <ErrorBoundary>
+            <TrendingToday />
+          </ErrorBoundary>
+        </motion.div>
+
+        {/* 7. Order Again (Customer's previous favorite dishes) */}
+        <motion.div variants={fadeUp}>
+          <ErrorBoundary>
+            <OrderAgain
+              orders={customerOrders}
+              allMenuItems={menuItems}
+              loading={loadingOrders}
+            />
+          </ErrorBoundary>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
 
-export default Home;
+export default CustomerHome;

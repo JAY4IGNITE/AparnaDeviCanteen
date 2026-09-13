@@ -27,12 +27,12 @@ const CustomerLayout = () => {
   };
 
   const navLinks = [
-    { to: '/customer/home', icon: LayoutGrid, label: 'Dashboard' },
+    { to: '/customer/home', icon: LayoutGrid, label: 'Home' },
     { to: '/customer/menu', icon: UtensilsCrossed, label: 'Menu' },
     { to: '/customer/orders', icon: ShoppingBag, label: 'My Orders' },
-    { to: '/customer/feedback', icon: Star, label: 'Give Feedback' },
-    { to: '/customer/announcements', icon: BellDot, label: 'Announcements' },
-    { section: 'SYSTEM CONTROLS' },
+    { to: '/customer/announcements', icon: BellDot, label: 'Offers & Updates' },
+    { to: '/customer/feedback', icon: Star, label: 'Feedback' },
+    { section: 'ACCOUNT & HELP' },
     { to: '/customer/profile', icon: CircleUserRound, label: 'Profile Settings' },
     { to: '/customer/support', icon: Headset, label: 'Support' },
   ];

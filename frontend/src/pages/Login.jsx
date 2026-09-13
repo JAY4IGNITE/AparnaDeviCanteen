@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { Phone, Mail, Lock, AlertCircle, Eye, EyeOff, X, ExternalLink, LogOut } from 'lucide-react';
+import { Phone, Mail, Lock, AlertCircle, Eye, EyeOff, X, LogOut } from 'lucide-react';
 import MotionButton from '../components/ui/MotionButton';
 import AlertBanner from '../components/ui/AlertBanner';
 import AnimatedModal from '../components/ui/AnimatedModal';
@@ -16,7 +16,6 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showCommunityPopup, setShowCommunityPopup] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showUnverifiedModal, setShowUnverifiedModal] = useState(false);
   const [emailSentSuccess, setEmailSentSuccess] = useState('');
@@ -28,6 +27,20 @@ const Login = () => {
   const { transition } = useMotionSafe();
   const cardRef = useRef(null);
   useNeonBorder(cardRef, { color: '#f97316', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
+
+  // When in sign-in page, moving/navigating back redirects to the landing page
+  useEffect(() => {
+    window.history.pushState(null, '', window.location.href);
+
+    const handlePopState = () => {
+      navigate('/', { replace: true });
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -75,7 +88,7 @@ const Login = () => {
     if (userObj.role === 'admin') {
       navigate('/admin/home');
     } else {
-      setShowCommunityPopup(true);
+      navigate('/customer/home');
     }
   };
 
@@ -131,11 +144,6 @@ const Login = () => {
     setError('Login cancelled. Email is required to continue.');
   };
 
-  const handleContinueToApp = () => {
-    setShowCommunityPopup(false);
-    navigate('/customer/home');
-  };
-
   return (
     <div className="auth-page" style={{ background: 'transparent' }}>
       {/* Theme Toggle Dock — fixed top right */}
@@ -189,15 +197,17 @@ const Login = () => {
       >
         <div className="auth-card" ref={cardRef}>
           <div className="auth-header">
-            <motion.div
-              className="auth-logo"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ ...transition, delay: 0.1 }}
-            >
-              <img src="/canteen-logo.png" alt="AparnaDevi Logo" className="auth-logo-img" />
-            </motion.div>
-            <h1 className="auth-title">Aparna Devi Canteen</h1>
+            <Link to="/" className="auth-header-brand" title="Back to Home" style={{ textDecoration: 'none', color: 'inherit', display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
+              <motion.div
+                className="auth-logo"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ ...transition, delay: 0.1 }}
+              >
+                <img src="/canteen-logo.png" alt="AparnaDevi Logo" className="auth-logo-img" />
+              </motion.div>
+              <h1 className="auth-title">Aparna Devi Canteen</h1>
+            </Link>
             <p className="auth-subtitle">Welcome back</p>
           </div>
 
@@ -269,7 +279,7 @@ const Login = () => {
               <Link to="/forgot-password" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '500' }}>Forgot Password?</Link>
             </div>
             <div>
-              Don't have an account? <Link to="/register">Sign Up</Link>
+              Don't have an account? <Link to="/register" replace>Sign Up</Link>
             </div>
           </div>
         </div>
@@ -420,43 +430,6 @@ const Login = () => {
               </MotionButton>
             </div>
           </form>
-        </div>
-      </AnimatedModal>
-
-      {/* Community Popup Modal */}
-      <AnimatedModal open={showCommunityPopup} onClose={handleContinueToApp} title="Join Our Community">
-        <div className="modal-header" style={{ justifyContent: 'center', borderBottom: 'none', paddingBottom: 0, position: 'relative' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, textAlign: 'center', margin: 0, color: 'var(--primary)' }}>
-            JOIN OUR COMMUNITY
-          </h2>
-          <button className="btn btn-ghost" onClick={handleContinueToApp} style={{ position: 'absolute', right: '1rem', top: '1rem' }} aria-label="Close dialog">
-            <X size={22} />
-          </button>
-        </div>
-        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', padding: '1.5rem 2rem 2rem 2rem' }}>
-          <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
-            Scan the QR code below to join our WhatsApp community for exclusive updates, offers, and daily menus!
-          </p>
-          <div style={{ padding: '0.5rem', background: '#fff', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-            <img src="/whatsapp-qr.jpg.jpeg" alt="WhatsApp Community QR Code" style={{ width: '220px', height: '220px', objectFit: 'contain' }} />
-          </div>
-          <a
-            href="https://chat.whatsapp.com/IHM8VcxiERE9beVp64zFDQ"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-primary btn-lg"
-            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-          >
-            <ExternalLink size={18} /> Join via Link
-          </a>
-          <button
-            type="button"
-            className="btn btn-ghost"
-            onClick={handleContinueToApp}
-            style={{ color: 'var(--text-muted)', marginTop: '-0.5rem' }}
-          >
-            Continue to App
-          </button>
         </div>
       </AnimatedModal>
     </div>

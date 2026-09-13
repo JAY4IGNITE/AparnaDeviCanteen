@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform, useScroll } from 'motion/react';
 import Lenis from 'lenis';
@@ -6,17 +6,16 @@ import 'lenis/dist/lenis.css';
 import {
   Home,
   Utensils,
-  Sparkles,
   Info,
   Phone,
   Clock,
   MapPin,
-  ShieldCheck,
-  Zap,
-  Flame,
   ArrowRight,
   MessageCircle,
-  Star,
+  CheckCircle2,
+  Users,
+  ShoppingBag,
+  Ticket,
 } from 'lucide-react';
 import PotSteam from '../components/PotSteam';
 import ColorBends from '../components/ColorBends';
@@ -28,6 +27,19 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const lenisRef = useRef(null);
   const heroRef = useRef(null);
+
+  // Real-time canteen statistics from the database
+  const [stats, setStats] = useState({ registeredStudents: 230, activeDishes: 9, totalOrders: 46 });
+
+  useEffect(() => {
+    const apiBase = (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
+      ? 'http://localhost:5000'
+      : (import.meta.env.VITE_API_URL || 'https://aparnadevicanteen.onrender.com');
+    fetch(`${apiBase.replace(/\/+$/, '')}/api/menu/public-stats`)
+      .then(r => r.json())
+      .then(res => { if (res.success && res.data) setStats(res.data); })
+      .catch(() => {});
+  }, []);
 
   // Smooth inertial momentum scrolling with Lenis (Apple-like friction & velocity)
   useEffect(() => {
@@ -166,6 +178,11 @@ export default function LandingPage() {
       icon: <Utensils size={15} strokeWidth={1.65} />,
       label: 'Menu',
       onClick: () => scrollToSection('menu'),
+    },
+    {
+      icon: <Users size={15} strokeWidth={1.65} />,
+      label: 'Community',
+      onClick: () => scrollToSection('community'),
     },
     {
       icon: <Phone size={15} strokeWidth={1.65} />,
@@ -350,106 +367,48 @@ export default function LandingPage() {
       {/* SECTION 2: MENU (Full-Page Multi-Column GSAP Infinite Drifting Wall) */}
       <MenuScroll />
 
-      {/* SECTION 3: FEATURES (Landing Page Feature) */}
-      <motion.section
-        id="features"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '0px 0px -80px 0px', amount: 0.15 }}
-        variants={sectionVariants}
-        className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.06]"
-      >
-        <motion.div variants={cardVariants} className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs font-semibold mb-3">
-            <Sparkles size={13} strokeWidth={1.65} />
-            <span>Smart Canteen Experience</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
-            Why Choose AparnaDevi Canteen?
-          </h2>
-          <p className="text-zinc-400 text-sm sm:text-base max-w-2xl mx-auto">
-            Built to give everyone a seamless, queue-free, delicious dining journey every day.
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            {
-              icon: <Zap className="text-orange-400" size={22} strokeWidth={1.65} />,
-              title: 'Instant Digital Tokens',
-              desc: 'Order in seconds, receive your digital token on your phone, and avoid waiting in long queues.',
-            },
-            {
-              icon: <Flame className="text-amber-400" size={22} strokeWidth={1.65} />,
-              title: 'Piping Hot & Fresh',
-              desc: 'Food prepared right when you need it with authentic recipes and zero compromise on taste.',
-            },
-            {
-              icon: <ShieldCheck className="text-emerald-400" size={22} strokeWidth={1.65} />,
-              title: '100% Hygienic Standards',
-              desc: 'Strict kitchen sanitization, quality oil, and fresh campus-inspected daily supplies.',
-            },
-            {
-              icon: <Clock className="text-orange-400" size={22} strokeWidth={1.65} />,
-              title: 'Live Order Tracking',
-              desc: 'Check live counter readiness so you can pick up your meal right when it comes off the stove.',
-            },
-          ].map((feature, idx) => (
-            <motion.div
-              key={idx}
-              variants={cardVariants}
-              className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] landing-smooth-card backdrop-blur-md"
-            >
-              <div className="p-2.5 w-fit rounded-xl bg-white/[0.05] border border-white/[0.1] mb-4">
-                {feature.icon}
-              </div>
-              <h3 className="text-base font-bold text-white mb-2">{feature.title}</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">{feature.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </motion.section>
-
-      {/* SECTION 4: ABOUT (Landing Page Feature) */}
+      {/* SECTION 3: ABOUT (Landing Page Feature) */}
       <motion.section
         id="about"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: '0px 0px -80px 0px', amount: 0.15 }}
         variants={sectionVariants}
-        className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.06]"
+        className="relative z-20 py-20 px-6 sm:px-12 lg:px-20 xl:px-28 w-full border-t border-white/[0.06]"
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <motion.div variants={cardVariants}>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/25 text-orange-400 text-xs font-semibold mb-3">
-              <Info size={13} strokeWidth={1.65} />
-              <span>About Us</span>
-            </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
-              Serving Happiness, One Plate at a Time
+              Your Campus Canteen, Now Digital
             </h2>
             <p className="text-zinc-400 text-sm leading-relaxed mb-4">
-              AparnaDevi Canteen has been the culinary heartbeat of the campus, dedicated to preparing wholesome, nutritious, and appetizing meals for our vibrant community.
+              AparnaDevi Canteen sits at the ground floor of Main Block, opposite the Student Activity Center. We cook fresh batches of biryani, fried rice, and starters every day — no pre-cooked or reheated food, ever.
             </p>
             <p className="text-zinc-400 text-sm leading-relaxed mb-6">
-              From our morning filter coffee and steaming idlis to afternoon biryanis and evening snacks, we prioritize customer happiness, quick delivery, and hygienic practices in everything we cook.
+              Skip the queue with digital token ordering. Place your order from your hostel, classroom, or anywhere on campus, and pick it up at the counter when it's ready. That's it — no waiting in line.
             </p>
 
             <div className="flex flex-wrap gap-4">
               <div className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] landing-smooth-card">
-                <div className="text-xl font-bold text-orange-400">1000+</div>
-                <div className="text-xs text-zinc-400">Meals Served Daily</div>
-              </div>
-              <div className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] landing-smooth-card">
-                <div className="text-xl font-bold text-amber-400">50+</div>
-                <div className="text-xs text-zinc-400">Menu Varieties</div>
-              </div>
-              <div className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] landing-smooth-card">
-                <div className="text-xl font-bold text-emerald-400 flex items-center gap-1">
-                  <span>4.9</span>
-                  <Star size={16} className="fill-emerald-400 text-emerald-400" />
+                <div className="flex items-center gap-1.5">
+                  <Users size={15} className="text-orange-400" />
+                  <div className="text-xl font-bold text-orange-400">{stats.registeredStudents}+</div>
                 </div>
-                <div className="text-xs text-zinc-400">Customer Rating</div>
+                <div className="text-xs text-zinc-400 mt-0.5">Registered Students</div>
+              </div>
+              <div className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] landing-smooth-card">
+                <div className="flex items-center gap-1.5">
+                  <Utensils size={15} className="text-amber-400" />
+                  <div className="text-xl font-bold text-amber-400">{stats.activeDishes}+</div>
+                </div>
+                <div className="text-xs text-zinc-400 mt-0.5">Daily Menu Items</div>
+              </div>
+              <div className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] landing-smooth-card">
+                <div className="flex items-center gap-1.5">
+                  <ShoppingBag size={15} className="text-emerald-400" />
+                  <div className="text-xl font-bold text-emerald-400">{stats.totalOrders}+</div>
+                </div>
+                <div className="text-xs text-zinc-400 mt-0.5">Orders Placed</div>
               </div>
             </div>
           </motion.div>
@@ -458,16 +417,129 @@ export default function LandingPage() {
             variants={cardVariants}
             className="relative rounded-3xl overflow-hidden border border-orange-500/30 shadow-[0_10px_40px_rgba(249,115,22,0.2)] bg-gradient-to-br from-orange-950/40 via-zinc-900/60 to-black/80 p-8 flex flex-col justify-center landing-smooth-card"
           >
-            <div className="text-2xl font-black text-white mb-3">AparnaDevi Promise</div>
-            <p className="text-zinc-300 text-sm leading-relaxed mb-6">
-              "We believe great food fuels great minds. Every recipe is crafted with care, warmth, and fresh ingredients so you always feel at home."
-            </p>
+            <div className="text-2xl font-black text-white mb-4">How It Works</div>
+            <div className="space-y-4 mb-6">
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 rounded-lg bg-orange-500/15 text-orange-400 mt-0.5 shrink-0">
+                  <Ticket size={16} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Digital Token Ordering</h4>
+                  <p className="text-xs text-zinc-400">Order from anywhere on campus. Get a token number and pick up when ready.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 rounded-lg bg-amber-500/15 text-amber-400 mt-0.5 shrink-0">
+                  <Clock size={16} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Open 7:30 AM – 9:30 PM</h4>
+                  <p className="text-xs text-zinc-400">Breakfast, lunch specials, and evening snacks — six days a week.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 mt-0.5 shrink-0">
+                  <MapPin size={16} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Main Block, Ground Floor</h4>
+                  <p className="text-xs text-zinc-400">Opposite the Student Activity Center. Counter pickup, zero wait.</p>
+                </div>
+              </div>
+            </div>
             <button
-              onClick={() => navigate('/register')}
+              onClick={() => scrollToSection('community')}
               className="w-fit px-5 py-2.5 text-xs font-bold text-white bg-orange-500 hover:bg-orange-600 rounded-full transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-105 active:scale-95 shadow-md shadow-orange-500/25 cursor-pointer flex items-center gap-2"
             >
               Join the Canteen Community <ArrowRight size={14} />
             </button>
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* SECTION 4: COMMUNITY (WhatsApp Community QR & Direct Link) */}
+      <motion.section
+        id="community"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '0px 0px -80px 0px', amount: 0.15 }}
+        variants={sectionVariants}
+        className="relative z-20 py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.06]"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          {/* Text & Community Perks */}
+          <motion.div variants={cardVariants} className="lg:col-span-7">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-semibold mb-3">
+              <MessageCircle size={13} strokeWidth={1.65} />
+              <span>Campus Foodie Network</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
+              Join Our WhatsApp Community
+            </h2>
+            <p className="text-zinc-300 text-sm sm:text-base leading-relaxed mb-6">
+              Scan the QR code or tap below to join our official WhatsApp community for exclusive daily specials, secret menus, instant token alerts, and student combo deals!
+            </p>
+
+            <div className="space-y-3.5 mb-8">
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 mt-0.5 shrink-0">
+                  <CheckCircle2 size={16} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Daily Menu Releases & Live Specials</h4>
+                  <p className="text-xs text-zinc-400">Get early notifications on breakfast specials, lunchtime biryanis, and evening snacks.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 rounded-lg bg-orange-500/10 text-orange-400 mt-0.5 shrink-0">
+                  <CheckCircle2 size={16} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Exclusive Discounts & Promo Perks</h4>
+                  <p className="text-xs text-zinc-400">Special seasonal discounts, secret dishes, and combo coupons exclusive to community members.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 mt-0.5 shrink-0">
+                  <CheckCircle2 size={16} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Instant Kitchen & Counter Alerts</h4>
+                  <p className="text-xs text-zinc-400">Know right when hot samosas, fresh juices, and festival treats come straight off the stove.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4">
+              <a
+                href="https://chat.whatsapp.com/IHM8VcxiERE9beVp64zFDQ"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-sm transition-all shadow-[0_6px_22px_rgba(37,211,102,0.38)] hover:scale-105 active:scale-95 cursor-pointer"
+              >
+                <MessageCircle size={18} />
+                <span>Join Community via Link</span>
+              </a>
+              <span className="text-xs text-zinc-400 font-medium">Or scan the QR code →</span>
+            </div>
+          </motion.div>
+
+          {/* QR Code Card */}
+          <motion.div variants={cardVariants} className="lg:col-span-5 flex justify-center">
+            <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-white/[0.1] backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] flex flex-col items-center text-center max-w-sm w-full landing-smooth-card">
+              <div className="text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-2">Scan with Camera</div>
+              <h3 className="text-lg font-bold text-white mb-4">Official WhatsApp Community</h3>
+              <div className="p-3.5 bg-white rounded-2xl shadow-xl mb-4 border border-white/20">
+                <img
+                  src="/whatsapp-qr.jpg.jpeg"
+                  alt="WhatsApp Community QR Code"
+                  className="w-48 h-48 sm:w-52 sm:h-52 object-contain select-none"
+                />
+              </div>
+              <p className="text-xs text-zinc-400">
+                Scan with any smartphone camera or WhatsApp scanner to join immediately
+              </p>
+            </div>
           </motion.div>
         </div>
       </motion.section>

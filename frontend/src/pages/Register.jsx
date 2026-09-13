@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
@@ -27,6 +27,20 @@ const Register = () => {
   const { transition } = useMotionSafe();
   const cardRef = useRef(null);
   useNeonBorder(cardRef, { color: '#f97316', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
+
+  // When in sign-up page, moving/navigating back redirects to the landing page
+  useEffect(() => {
+    window.history.pushState(null, '', window.location.href);
+
+    const handlePopState = () => {
+      navigate('/', { replace: true });
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -122,15 +136,17 @@ const Register = () => {
       >
         <div className="auth-card" ref={cardRef}>
           <div className="auth-header">
-            <motion.div
-              className="auth-logo"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ ...transition, delay: 0.1 }}
-            >
-              <img src="/canteen-logo.png" alt="AparnaDevi Logo" className="auth-logo-img" />
-            </motion.div>
-            <h1 className="auth-title">Create Account</h1>
+            <Link to="/" className="auth-header-brand" title="Back to Home" style={{ textDecoration: 'none', color: 'inherit', display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
+              <motion.div
+                className="auth-logo"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ ...transition, delay: 0.1 }}
+              >
+                <img src="/canteen-logo.png" alt="AparnaDevi Logo" className="auth-logo-img" />
+              </motion.div>
+              <h1 className="auth-title">Create Account</h1>
+            </Link>
             <p className="auth-subtitle">Join AparnaCanteen today</p>
           </div>
 
@@ -246,7 +262,7 @@ const Register = () => {
           </form>
 
           <div className="auth-footer">
-            Already have an account? <Link to="/login">Sign In</Link>
+            Already have an account? <Link to="/login" replace>Sign In</Link>
           </div>
         </div>
       </motion.div>

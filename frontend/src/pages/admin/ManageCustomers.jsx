@@ -128,43 +128,57 @@ const ManageCustomers = () => {
         {message.text}
       </AlertBanner>
 
-      <div className="filter-bar">
-        <div className="form-group" style={{ flex: 1, minWidth: '250px' }}>
-          <label className="form-label" htmlFor="customer-search">Universal Search</label>
-          <div className="search-bar" style={{ margin: 0 }}>
-            <Search size={16} className="search-bar-icon" />
+      <div className="customer-toolbar">
+        <div className="customer-toolbar-left">
+          <div className="customer-search-wrap">
+            <Search size={16} className="customer-search-icon" />
             <input
               type="text"
               id="customer-search"
-              className="form-input"
+              className="customer-search-input"
               placeholder="Search by name, phone, or block..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
+            {searchQuery && (
+              <button
+                type="button"
+                className="customer-search-clear"
+                onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          <div className="customer-filter-wrap">
+            <select
+              className="customer-filter-select"
+              value={blockFilter}
+              onChange={(e) => setBlockFilter(e.target.value)}
+              id="customer-block-filter"
+              aria-label="Filter by Hostel Block"
+            >
+              <option value="">All Hostel Blocks</option>
+              <option value="F Block (Old)">F Block (Old)</option>
+              <option value="Others(A, B, C, D, F)">Others(A, B, C, D, F)</option>
+            </select>
           </div>
         </div>
-        <div className="form-group" style={{ minWidth: '200px' }}>
-          <label className="form-label" htmlFor="customer-block-filter">Filter by Block</label>
-          <select
-            className="form-input"
-            value={blockFilter}
-            onChange={(e) => setBlockFilter(e.target.value)}
-            id="customer-block-filter"
-          >
-            <option value="">All Blocks</option>
-            <option value="F Block (Old)">F Block (Old)</option>
-            <option value="Others(A, B, C, D, F)">Others(A, B, C, D, F)</option>
-          </select>
+
+        <div className="customer-toolbar-right">
+          <span className="customer-results-count">
+            Showing <strong>{filtered.length}</strong> of {customers.length} customers
+          </span>
+          {(blockFilter || searchQuery) && (
+            <MotionButton
+              className="btn btn-ghost btn-sm customer-clear-btn"
+              onClick={() => { setBlockFilter(''); setSearchQuery(''); }}
+            >
+              Clear Filters
+            </MotionButton>
+          )}
         </div>
-        {(blockFilter || searchQuery) && (
-          <MotionButton
-            className="btn btn-ghost btn-sm"
-            onClick={() => { setBlockFilter(''); setSearchQuery(''); }}
-            style={{ marginTop: 'auto' }}
-          >
-            Clear Filters
-          </MotionButton>
-        )}
       </div>
 
       {filtered.length === 0 ? (
@@ -174,78 +188,96 @@ const ManageCustomers = () => {
           description="No customers match your current search or filters."
         />
       ) : (
-        <div className="table-wrapper">
-          <table className="table table-responsive-cards">
+        <div className="customer-table-wrapper">
+          <table className="customer-table table-responsive-cards">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>Hostel Block</th>
-                <th>Status</th>
-                <th>Joined Date</th>
-                <th>Actions</th>
+                <th style={{ minWidth: '180px' }}>Customer Name</th>
+                <th style={{ minWidth: '120px' }}>Phone</th>
+                <th style={{ minWidth: '220px' }}>Email</th>
+                <th style={{ minWidth: '150px' }}>Hostel Block</th>
+                <th style={{ minWidth: '95px' }}>Status</th>
+                <th style={{ minWidth: '115px' }}>Joined Date</th>
+                <th style={{ minWidth: '160px', width: '160px', textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((cust) => (
                 <tr key={cust.id}>
-                  <td data-label="Name" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{cust.name}</td>
-                  <td data-label="Phone">{cust.phone}</td>
+                  <td data-label="Customer Name">
+                    <div className="customer-name-cell">
+                      <div className="customer-avatar-badge" aria-hidden="true">
+                        {cust.name ? cust.name.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                      <span className="customer-name-text">{cust.name}</span>
+                    </div>
+                  </td>
+                  <td data-label="Phone" className="customer-phone-cell">
+                    {cust.phone}
+                  </td>
                   <td data-label="Email">
                     {cust.email ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        {cust.email} 
-                        {cust.email_verified ? <CheckCircle size={14} color="var(--success)" title="Verified" /> : <AlertCircle size={14} color="var(--warning)" title="Unverified" />}
+                      <div className="customer-email-cell" title={cust.email}>
+                        <span className="customer-email-text">{cust.email}</span>
+                        {cust.email_verified ? (
+                          <CheckCircle size={14} className="email-status-icon verified" title="Verified" />
+                        ) : (
+                          <AlertCircle size={14} className="email-status-icon unverified" title="Unverified" />
+                        )}
                       </div>
-                    ) : '—'}
+                    ) : (
+                      <span className="text-muted">—</span>
+                    )}
                   </td>
-                  <td data-label="Block">{cust.hostel_block || '—'}</td>
+                  <td data-label="Hostel Block">
+                    <span className="customer-block-chip">{cust.hostel_block || '—'}</span>
+                  </td>
                   <td data-label="Status">
                     <span className={`badge ${cust.is_blocked ? 'badge-blocked' : 'badge-active'}`}>
+                      <span className="status-dot" />
                       {cust.is_blocked ? 'Blocked' : 'Active'}
                     </span>
                   </td>
-                  <td data-label="Joined" style={{ fontSize: '0.85rem' }}>
-                    {new Date(cust.created_at).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                  <td data-label="Joined Date" className="customer-date-cell">
+                    {new Date(cust.created_at).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric'
+                    })}
                   </td>
-                  <td data-label="Actions">
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <td data-label="Actions" style={{ textAlign: 'right' }}>
+                    <div className="customer-actions-group">
                       <MotionButton
-                        className="btn btn-secondary btn-sm"
+                        className="customer-action-btn edit"
                         onClick={() => handleEditClick(cust)}
-                        style={{ color: 'var(--primary)', borderColor: 'rgba(59, 130, 246, 0.2)' }}
-                        title="Edit Customer"
+                        title="Edit Customer Details"
                         aria-label={`Edit ${cust.name}`}
                       >
-                        <Edit size={14} /> Edit
+                        <Edit size={15} />
                       </MotionButton>
                       <MotionButton
-                        className="btn btn-secondary btn-sm"
+                        className={`customer-action-btn ${cust.is_blocked ? 'unblock' : 'block'}`}
                         onClick={() => toggleBlockStatus(cust)}
-                        style={{ color: cust.is_blocked ? 'var(--success)' : 'var(--warning)', borderColor: cust.is_blocked ? 'rgba(34, 197, 94, 0.2)' : 'rgba(234, 179, 8, 0.2)' }}
-                        title={cust.is_blocked ? 'Unblock' : 'Block'}
+                        title={cust.is_blocked ? 'Unblock Customer Account' : 'Block Customer Account'}
                         aria-label={cust.is_blocked ? `Unblock ${cust.name}` : `Block ${cust.name}`}
                       >
-                        <ShieldAlert size={14} /> {cust.is_blocked ? 'Unblock' : 'Block'}
+                        <ShieldAlert size={15} />
                       </MotionButton>
                       <MotionButton
-                        className="btn btn-secondary btn-sm"
+                        className="customer-action-btn reset"
                         onClick={() => resetPassword(cust)}
-                        style={{ color: '#f97316', borderColor: 'rgba(249, 115, 22, 0.2)' }}
-                        title="Reset Password"
+                        title="Reset Password to Reset@123"
                         aria-label={`Reset password for ${cust.name}`}
                       >
-                        <KeyRound size={14} /> Reset
+                        <KeyRound size={15} />
                       </MotionButton>
                       <MotionButton
-                        className="btn btn-ghost btn-sm"
+                        className="customer-action-btn delete"
                         onClick={() => deleteCustomer(cust.id)}
-                        style={{ color: 'var(--danger)' }}
-                        title="Delete Permanently"
+                        title="Delete Customer Permanently"
                         aria-label={`Delete ${cust.name}`}
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={15} />
                       </MotionButton>
                     </div>
                   </td>

@@ -433,8 +433,8 @@ export default function LandingPage() {
                   <Clock size={16} />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white">Open 7:30 AM – 9:30 PM</h4>
-                  <p className="text-xs text-zinc-400">Breakfast, lunch specials, and evening snacks — six days a week.</p>
+                  <h4 className="text-sm font-bold text-white">Open Sundays Only: 8:00 AM – 8:00 PM</h4>
+                  <p className="text-xs text-zinc-400">Weekly Sunday specials, fresh meals, and snacks — exclusively on Sundays.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -572,8 +572,8 @@ export default function LandingPage() {
               <Clock size={20} strokeWidth={1.65} />
             </div>
             <h4 className="text-sm font-bold text-white mb-1">Operating Hours</h4>
-            <p className="text-xs text-zinc-400">Mon - Sat: 7:30 AM - 9:30 PM</p>
-            <p className="text-xs text-zinc-400">Sunday: 8:00 AM - 8:00 PM</p>
+            <p className="text-xs font-semibold text-orange-400">Sundays: 8:00 AM – 8:00 PM</p>
+            <p className="text-xs text-zinc-400">Mon – Sat: Closed</p>
           </motion.div>
 
           <motion.div variants={cardVariants} className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-center flex flex-col items-center landing-smooth-card">

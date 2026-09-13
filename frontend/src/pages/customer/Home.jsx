@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { motion } from 'motion/react';
+import { Clock } from 'lucide-react';
 import DashboardHeader from '../../components/customer/DashboardHeader';
 import DashboardHero from '../../components/customer/DashboardHero';
 import TrendingToday from '../../components/customer/TrendingToday';
@@ -8,6 +9,7 @@ import ActiveOrderCard from '../../components/customer/ActiveOrderCard';
 import OrderAgain from '../../components/customer/OrderAgain';
 import ErrorBoundary from '../../components/ui/ErrorBoundary';
 import { staggerContainer, fadeUp } from '../../lib/motion';
+import { checkOperatingHours } from '../../lib/operatingHours';
 
 const CustomerHome = () => {
   const [menuItems, setMenuItems] = useState([]);
@@ -46,6 +48,8 @@ const CustomerHome = () => {
     (order) => order.status === 'Pending' || order.status === 'Preparing'
   );
 
+  const operatingStatus = useMemo(() => checkOperatingHours(), []);
+
   return (
     <div className="customer-dashboard-root">
       {/* 1. Header with greeting, notifications, cart & profile */}
@@ -59,6 +63,20 @@ const CustomerHome = () => {
         initial="initial"
         animate="animate"
       >
+        {/* Operating Hours Notice if Closed */}
+        {!operatingStatus.isOpen && (
+          <motion.div
+            variants={fadeUp}
+            className="p-3.5 mb-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-center gap-3 text-amber-300 text-xs sm:text-sm"
+          >
+            <Clock size={18} className="shrink-0 text-amber-400" />
+            <div>
+              <strong className="font-bold mr-1.5">Operating Notice:</strong>
+              <span>{operatingStatus.message}</span>
+            </div>
+          </motion.div>
+        )}
+
         {/* 2. Food-Focused Hero Banner */}
         <motion.div variants={fadeUp}>
           <ErrorBoundary>

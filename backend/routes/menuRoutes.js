@@ -2,6 +2,7 @@ const express = require('express');
 const supabase = require('../db');
 const { protect } = require('../middleware/auth');
 const { getMenuVisibility } = require('../settings');
+const { checkOperatingHours } = require('../utils/operatingHours');
 
 const router = express.Router();
 
@@ -65,6 +66,15 @@ router.get('/public-stats', async (req, res) => {
       }
     });
   }
+});
+
+// GET /api/menu/operating-status — Operating hours status (Public, no auth required)
+router.get('/operating-status', (req, res) => {
+  const status = checkOperatingHours();
+  return res.json({
+    success: true,
+    data: status
+  });
 });
 
 // GET /api/menu/trending-today — Fetch dynamically ranked trending dishes for today (Asia/Kolkata)

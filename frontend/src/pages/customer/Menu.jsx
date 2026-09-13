@@ -2,13 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'motion/react';
-import { ShoppingCart, Plus, Minus, X, CheckCircle, AlertCircle, Package, UtensilsCrossed, ArrowLeft, Banknote, Search } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, X, CheckCircle, AlertCircle, Package, UtensilsCrossed, ArrowLeft, Banknote, Search, Clock } from 'lucide-react';
 import AnimatedModal from '../../components/ui/AnimatedModal';
 import AlertBanner from '../../components/ui/AlertBanner';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
 import MotionButton from '../../components/ui/MotionButton';
 import { useCart } from '../../context/CartContext';
+import { checkOperatingHours } from '../../lib/operatingHours';
 
 const MenuPage = () => {
   const [searchParams] = useSearchParams();
@@ -24,6 +25,7 @@ const MenuPage = () => {
   const [loading, setLoading] = useState(true);
   const [orderLoading, setOrderLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const operatingStatus = useMemo(() => checkOperatingHours(), []);
 
   useEffect(() => {
     fetchMenu();
@@ -51,6 +53,11 @@ const MenuPage = () => {
   };
 
   const handleProceedToPayment = () => {
+    const status = checkOperatingHours();
+    if (!status.isOpen) {
+      setMessage({ type: 'error', text: status.message });
+      return;
+    }
     setCartStep('payment');
   };
 
@@ -64,6 +71,12 @@ const MenuPage = () => {
   };
 
   const placeOrder = async () => {
+    const status = checkOperatingHours();
+    if (!status.isOpen) {
+      setMessage({ type: 'error', text: status.message });
+      return;
+    }
+
     const items = Object.values(cart).map(item => ({
       menuItem: item.id,
       quantity: item.quantity
@@ -159,6 +172,29 @@ const MenuPage = () => {
               </span>
             </div>
           </div>
+
+          {/* Operating Hours Notice if Closed */}
+          {!operatingStatus.isOpen && (
+            <div className="operating-hours-closed-banner" style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              padding: '0.85rem 1.15rem',
+              marginBottom: '1.25rem',
+              borderRadius: '1rem',
+              background: 'rgba(245, 158, 11, 0.12)',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
+              color: '#fbbf24',
+              fontSize: '0.875rem',
+              lineHeight: 1.4
+            }}>
+              <Clock size={20} style={{ flexShrink: 0, color: '#f59e0b' }} />
+              <div>
+                <strong style={{ fontWeight: 700, marginRight: '0.35rem' }}>Ordering Closed:</strong>
+                <span>{operatingStatus.message}</span>
+              </div>
+            </div>
+          )}
 
           {/* Search bar & Veg Only Quick Filter */}
           <div className="menu-toolbar">
@@ -445,9 +481,21 @@ const MenuPage = () => {
                 <MotionButton className="btn btn-secondary" onClick={clearCart} id="clear-cart">
                   Clear Cart
                 </MotionButton>
-                <MotionButton className="btn btn-primary" onClick={handleProceedToPayment} id="proceed-to-payment">
-                  Place Order
-                </MotionButton>
+                {operatingStatus.isOpen ? (
+                  <MotionButton className="btn btn-primary" onClick={handleProceedToPayment} id="proceed-to-payment">
+                    Place Order
+                  </MotionButton>
+                ) : (
+                  <MotionButton
+                    className="btn btn-primary"
+                    disabled
+                    style={{ opacity: 0.6, cursor: 'not-allowed' }}
+                    id="proceed-to-payment"
+                    title={operatingStatus.message}
+                  >
+                    Closed (Sundays Only)
+                  </MotionButton>
+                )}
               </div>
             )}
           </>
@@ -507,8 +555,19 @@ const MenuPage = () => {
               <MotionButton className="btn btn-secondary" onClick={handleBackToCart} id="back-to-cart">
                 <ArrowLeft size={16} /> Back
               </MotionButton>
-              <MotionButton className="btn btn-primary" onClick={placeOrder} disabled={orderLoading} id="confirm-order">
-                {orderLoading ? <div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> : 'Confirm Order'}
+              <MotionButton
+                className="btn btn-primary"
+                onClick={placeOrder}
+                disabled={orderLoading || !operatingStatus.isOpen}
+                id="confirm-order"
+              >
+                {orderLoading ? (
+                  <div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} />
+                ) : !operatingStatus.isOpen ? (
+                  'Closed (Sundays Only)'
+                ) : (
+                  'Confirm Order'
+                )}
               </MotionButton>
             </div>
           </>

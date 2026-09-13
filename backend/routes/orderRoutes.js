@@ -1,12 +1,22 @@
 const express = require('express');
 const supabase = require('../db');
 const { protect } = require('../middleware/auth');
+const { checkOperatingHours } = require('../utils/operatingHours');
 
 const router = express.Router();
 
 // POST /api/orders — Place a new order
 router.post('/', protect, async (req, res) => {
   try {
+    // Enforce canteen operating hours (Sundays 8:00 AM – 8:00 PM IST)
+    const operatingStatus = checkOperatingHours();
+    if (!operatingStatus.isOpen) {
+      return res.status(400).json({
+        success: false,
+        message: operatingStatus.message
+      });
+    }
+
     const { items, payment_method } = req.body;
 
     if (!items || items.length === 0) {

@@ -8,6 +8,7 @@ import AlertBanner from '../components/ui/AlertBanner';
 import { useMotionSafe } from '../lib/motion';
 import useNeonBorder from '../hooks/useNeonBorder';
 import MagicRings from '../components/MagicRings';
+import ThemeToggleDock from '../components/ThemeToggleDock';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -70,6 +71,9 @@ const Register = () => {
 
   return (
     <div className="auth-page" style={{ background: 'transparent' }}>
+      {/* Theme Toggle Dock — fixed top right */}
+      <ThemeToggleDock />
+
       {/* Simplified, Lightweight Themed MagicRings Background - Full Page Coverage */}
       <div
         className="auth-magic-rings"

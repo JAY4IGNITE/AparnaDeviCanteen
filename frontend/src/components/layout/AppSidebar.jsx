@@ -141,22 +141,20 @@ const AppSidebar = ({
                         <div className="sidebar-link-icon-wrap">
                           <Icon size={19} strokeWidth={1.85} />
                         </div>
-                        {!isCollapsed && (
-                          <span className="sidebar-link-label">{item.label}</span>
-                        )}
+                        <span className={`sidebar-link-label${isCollapsed ? ' sidebar-link-label--hidden' : ''}`}>
+                          {item.label}
+                        </span>
                       </div>
 
-                      {!isCollapsed && (
-                        <div className="sidebar-link-trailing">
-                          {item.badge != null && item.badge > 0 && (
-                            <span className="sidebar-badge">{item.badge}</span>
-                          )}
-                          <ChevronRight
-                            size={16}
-                            className={`sidebar-link-chevron ${isActive ? 'active' : ''}`}
-                          />
-                        </div>
-                      )}
+                      <div className={`sidebar-link-trailing${isCollapsed ? ' sidebar-link-trailing--hidden' : ''}`}>
+                        {item.badge != null && item.badge > 0 && (
+                          <span className="sidebar-badge">{item.badge}</span>
+                        )}
+                        <ChevronRight
+                          size={16}
+                          className={`sidebar-link-chevron ${isActive ? 'active' : ''}`}
+                        />
+                      </div>
 
                       {/* Tooltip in Collapsed Mode */}
                       <AnimatePresence>
@@ -198,79 +196,79 @@ const AppSidebar = ({
 
         {/* Sidebar Footer with Elevated Profile Card */}
         <div className="sidebar-footer">
-          {!isCollapsed ? (
-            <div className="sidebar-profile-card">
-              <div className="sidebar-profile-top">
-                <div className="sidebar-avatar">
-                  {userInitial}
-                </div>
-                <div className="sidebar-user-info">
-                  <div className="sidebar-user-name" title={userName}>
-                    {userName}
-                  </div>
-                  <div className="sidebar-user-email" title={userEmail}>
-                    {userEmail}
-                  </div>
-                </div>
-                <div
-                  className="sidebar-theme-toggle"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleTheme();
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-                >
-                  <div className={`sidebar-theme-chip ${theme === 'light' ? 'active' : ''}`}>
-                    <Sun size={13} />
-                  </div>
-                  <div className={`sidebar-theme-chip ${theme === 'dark' ? 'active' : ''}`}>
-                    <Moon size={13} />
-                  </div>
-                </div>
-              </div>
-
-              <motion.button
-                whileHover={{ scale: 1.015 }}
-                whileTap={{ scale: 0.98 }}
-                className="sidebar-logout-card-btn"
-                onClick={onLogout}
-                id={logoutId}
-                type="button"
-              >
-                <LogOut size={16} strokeWidth={1.8} />
-                <span>Sign Out</span>
-              </motion.button>
-            </div>
-          ) : (
-            <div className="sidebar-profile-collapsed">
-              <div className="sidebar-avatar" title={`${userName} (${userEmail})`}>
+          {/* Expanded profile card */}
+          <div className={`sidebar-profile-card${isCollapsed ? ' sidebar-profile-card--hidden' : ''}`}>
+            <div className="sidebar-profile-top">
+              <div className="sidebar-avatar">
                 {userInitial}
               </div>
-              <button
-                className="sidebar-collapsed-theme-btn"
+              <div className="sidebar-user-info">
+                <div className="sidebar-user-name" title={userName}>
+                  {userName}
+                </div>
+                <div className="sidebar-user-email" title={userEmail}>
+                  {userEmail}
+                </div>
+              </div>
+              <div
+                className="sidebar-theme-toggle"
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleTheme();
                 }}
-                id="collapsed-theme-btn"
+                role="button"
+                tabIndex={0}
                 title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-                type="button"
               >
-                {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
-              </button>
-              <button
-                className="sidebar-collapsed-logout"
-                onClick={onLogout}
-                id={logoutId}
-                title="Sign Out"
-                type="button"
-              >
-                <LogOut size={16} strokeWidth={1.8} />
-              </button>
+                <div className={`sidebar-theme-chip ${theme === 'light' ? 'active' : ''}`}>
+                  <Sun size={13} />
+                </div>
+                <div className={`sidebar-theme-chip ${theme === 'dark' ? 'active' : ''}`}>
+                  <Moon size={13} />
+                </div>
+              </div>
             </div>
-          )}
+
+            <motion.button
+              whileHover={{ scale: 1.015 }}
+              whileTap={{ scale: 0.98 }}
+              className="sidebar-logout-card-btn"
+              onClick={onLogout}
+              id={logoutId}
+              type="button"
+            >
+              <LogOut size={16} strokeWidth={1.8} />
+              <span>Sign Out</span>
+            </motion.button>
+          </div>
+
+          {/* Collapsed icon stack */}
+          <div className={`sidebar-profile-collapsed${isCollapsed ? '' : ' sidebar-profile-collapsed--hidden'}`}>
+            <div className="sidebar-avatar" title={`${userName} (${userEmail})`}>
+              {userInitial}
+            </div>
+            <button
+              className="sidebar-collapsed-theme-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleTheme();
+              }}
+              id="collapsed-theme-btn"
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              type="button"
+            >
+              {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
+            </button>
+            <button
+              className="sidebar-collapsed-logout"
+              onClick={onLogout}
+              id={logoutId}
+              title="Sign Out"
+              type="button"
+            >
+              <LogOut size={16} strokeWidth={1.8} />
+            </button>
+          </div>
         </div>
       </aside>
     </>

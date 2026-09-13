@@ -8,6 +8,7 @@ import MotionButton from '../components/ui/MotionButton';
 import { useMotionSafe } from '../lib/motion';
 import useNeonBorder from '../hooks/useNeonBorder';
 import MagicRings from '../components/MagicRings';
+import ThemeToggleDock from '../components/ThemeToggleDock';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -46,6 +47,9 @@ const ForgotPassword = () => {
 
   return (
     <div className="auth-page" style={{ background: 'transparent' }}>
+      {/* Theme Toggle Dock — fixed top right */}
+      <ThemeToggleDock />
+
       {/* Static Themed MagicRings Background */}
       <div
         className="auth-magic-rings"

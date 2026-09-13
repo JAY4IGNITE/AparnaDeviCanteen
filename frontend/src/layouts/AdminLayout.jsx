@@ -4,16 +4,16 @@ import axios from 'axios';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { 
-  LayoutDashboard, 
-  Store, 
-  ChefHat, 
-  ReceiptText, 
-  TrendingUp, 
-  CircleDollarSign, 
-  Users2, 
-  Megaphone, 
-  MessageSquareHeart, 
-  SlidersHorizontal, 
+  Gauge, 
+  Scan, 
+  BookOpen, 
+  ClipboardList, 
+  BarChart3, 
+  Wallet, 
+  UsersRound, 
+  Radio, 
+  MessageCircle, 
+  Settings, 
   Menu, 
   X, 
   Shield, 
@@ -149,17 +149,17 @@ const AdminLayout = () => {
   };
 
   const navLinks = [
-    { to: '/admin/home', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/admin/counter-sale', icon: Store, label: 'Counter Sale' },
-    { to: '/admin/manage-menu', icon: ChefHat, label: 'Manage Menu' },
-    { to: '/admin/orders', icon: ReceiptText, label: 'Orders', badge: pendingCount },
-    { to: '/admin/statistics', icon: TrendingUp, label: 'Statistics' },
-    { to: '/admin/revenue', icon: CircleDollarSign, label: 'Revenue' },
-    { to: '/admin/manage-customers', icon: Users2, label: 'Customers' },
-    { to: '/admin/announcements', icon: Megaphone, label: 'Announcements' },
-    { to: '/admin/feedbacks', icon: MessageSquareHeart, label: 'Feedbacks' },
+    { to: '/admin/home', icon: Gauge, label: 'Dashboard' },
+    { to: '/admin/counter-sale', icon: Scan, label: 'Counter Sale' },
+    { to: '/admin/manage-menu', icon: BookOpen, label: 'Manage Menu' },
+    { to: '/admin/orders', icon: ClipboardList, label: 'Orders', badge: pendingCount },
+    { to: '/admin/statistics', icon: BarChart3, label: 'Statistics' },
+    { to: '/admin/revenue', icon: Wallet, label: 'Revenue' },
+    { to: '/admin/manage-customers', icon: UsersRound, label: 'Customers' },
+    { to: '/admin/announcements', icon: Radio, label: 'Announcements' },
+    { to: '/admin/feedbacks', icon: MessageCircle, label: 'Feedbacks' },
     { section: 'SYSTEM CONTROLS' },
-    { to: '/admin/settings', icon: SlidersHorizontal, label: 'Settings' },
+    { to: '/admin/settings', icon: Settings, label: 'Settings' },
   ];
 
   const adminBadge = (

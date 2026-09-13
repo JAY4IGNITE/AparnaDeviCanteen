@@ -3,13 +3,13 @@ import { Outlet, useNavigate, NavLink } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { 
-  Compass, 
+  LayoutGrid, 
   UtensilsCrossed, 
   ShoppingBag, 
-  MessageSquareHeart, 
-  Bell, 
-  UserCheck, 
-  Headphones, 
+  Star, 
+  BellDot, 
+  CircleUserRound, 
+  Headset, 
   Menu, 
   X 
 } from 'lucide-react';
@@ -27,21 +27,21 @@ const CustomerLayout = () => {
   };
 
   const navLinks = [
-    { to: '/customer/home', icon: Compass, label: 'Dashboard' },
-    { to: '/customer/menu', icon: UtensilsCrossed, label: 'Browse Menu' },
+    { to: '/customer/home', icon: LayoutGrid, label: 'Dashboard' },
+    { to: '/customer/menu', icon: UtensilsCrossed, label: 'Menu' },
     { to: '/customer/orders', icon: ShoppingBag, label: 'My Orders' },
-    { to: '/customer/feedback', icon: MessageSquareHeart, label: 'Give Feedback' },
-    { to: '/customer/announcements', icon: Bell, label: 'Announcements' },
+    { to: '/customer/feedback', icon: Star, label: 'Give Feedback' },
+    { to: '/customer/announcements', icon: BellDot, label: 'Announcements' },
     { section: 'SYSTEM CONTROLS' },
-    { to: '/customer/profile', icon: UserCheck, label: 'Profile Settings' },
-    { to: '/customer/support', icon: Headphones, label: 'Support' },
+    { to: '/customer/profile', icon: CircleUserRound, label: 'Profile Settings' },
+    { to: '/customer/support', icon: Headset, label: 'Support' },
   ];
 
   const bottomNavItems = [
-    { to: '/customer/home', icon: Compass, label: 'Home' },
+    { to: '/customer/home', icon: LayoutGrid, label: 'Home' },
     { to: '/customer/menu', icon: UtensilsCrossed, label: 'Menu' },
     { to: '/customer/orders', icon: ShoppingBag, label: 'Orders' },
-    { to: '/customer/profile', icon: UserCheck, label: 'Profile' },
+    { to: '/customer/profile', icon: CircleUserRound, label: 'Profile' },
   ];
 
   return (

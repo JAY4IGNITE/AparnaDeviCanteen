@@ -9,6 +9,7 @@ import AnimatedModal from '../components/ui/AnimatedModal';
 import { useMotionSafe } from '../lib/motion';
 import useNeonBorder from '../hooks/useNeonBorder';
 import MagicRings from '../components/MagicRings';
+import ThemeToggleDock from '../components/ThemeToggleDock';
 
 const Login = () => {
   const [formData, setFormData] = useState({ identifier: '', password: '' });
@@ -137,6 +138,9 @@ const Login = () => {
 
   return (
     <div className="auth-page" style={{ background: 'transparent' }}>
+      {/* Theme Toggle Dock — fixed top right */}
+      <ThemeToggleDock />
+
       {/* Simplified, Lightweight Themed MagicRings Background */}
       <div
         className="auth-magic-rings"

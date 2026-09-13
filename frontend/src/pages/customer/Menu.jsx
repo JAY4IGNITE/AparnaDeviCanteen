@@ -168,16 +168,6 @@ const MenuPage = () => {
         <EmptyState icon={Package} title="No items available" description="Check back later for new menu items." />
       ) : (
         <>
-          <div className="menu-featured">
-            <div className="menu-featured-copy">
-              <div className="menu-featured-tag">
-                <Sparkles size={13} /> Fresh & Hot Daily
-              </div>
-              <h2>Authentic Home-Style Specials</h2>
-              <p>Prepared fresh daily with instant digital token counter pickups.</p>
-            </div>
-          </div>
-
           {/* Search bar & Veg Only Quick Filter */}
           <div className="menu-toolbar">
             <div className="menu-search-wrap">

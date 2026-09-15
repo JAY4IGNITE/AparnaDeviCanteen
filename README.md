@@ -193,20 +193,39 @@ AparnaDeviCanteen/
 
 ---
 
-## 🚀 Local Development Setup
+## 🚀 Local Development & Running the Project
 
-### 1. Prerequisites
+### ⚡ Quick Commands Cheat Sheet
+
+Run all commands from the root directory (`AparnaDeviCanteen/`):
+
+| Task | Root Command | Alternative (Subdirectory) |
+| :--- | :--- | :--- |
+| **Install All Dependencies** | `npm run install-all` | `cd backend && npm install` <br> `cd frontend && npm install` |
+| **Run Full App (Frontend + Backend)** | `npm start` | Runs backend (port 5000) & frontend (port 5173) concurrently |
+| **Run Backend Only** | `npm run backend` | `cd backend && npm run dev` (starts nodemon on port 5000) |
+| **Run Frontend Only** | `npm run frontend` | `cd frontend && npm run dev` (starts Vite on port 5173) |
+| **Seed Database** | `npm run seed` | `cd backend && node seed.js` |
+| **Build Frontend for Production** | `npm run build --prefix frontend` | `cd frontend && npm run build` |
+| **Run Production Server Locally** | `npm run start-prod` | `cd backend && node server.js` |
+| **Run Linter** | `npm run lint --prefix frontend` | `cd frontend && npm run lint` |
+
+---
+
+### Step-by-Step Setup Guide
+
+#### 1. Prerequisites
 - **Node.js**: `v18.0.0` or higher (Recommended: `v20+` or `v22+`)
 - **npm**: `v9.0.0` or higher
 - **Supabase Account**: Free PostgreSQL database instance from [Supabase](https://supabase.com)
 
-### 2. Clone the Repository
+#### 2. Clone the Repository
 ```bash
 git clone https://github.com/JAY4IGNITE/AparnaDeviCanteen.git
 cd AparnaDeviCanteen
 ```
 
-### 3. Configure Environment Variables
+#### 3. Configure Environment Variables
 Create a `.env` file in the `backend/` directory:
 ```bash
 # backend/.env
@@ -227,13 +246,13 @@ EMAIL_PASS=your-app-specific-password
 FRONTEND_URL=http://localhost:5173
 ```
 
-### 4. Install Dependencies
+#### 4. Install Dependencies
 Run the install command from the root directory to install packages for both `backend` and `frontend`:
 ```bash
 npm run install-all
 ```
 
-### 5. Seed the Database
+#### 5. Seed the Database
 Run the seed script to create initial tables, the default admin account, and starter menu items:
 ```bash
 npm run seed
@@ -243,15 +262,51 @@ npm run seed
 > - **Email:** `admin@foodnest.com`
 > - **Password:** `admin123`
 
-### 6. Start the Development Servers
-Run both the Express backend API (`http://localhost:5000`) and the Vite frontend dev server (`http://localhost:5173`) concurrently:
+#### 6. Start the Project
+
+##### Option A: Single Terminal (Recommended)
+Run both backend and frontend together with one command from the root folder:
 ```bash
 npm start
 ```
 
-Open your browser and navigate to:
-- **Application:** `http://localhost:5173`
-- **Backend API Health Check:** `http://localhost:5000/api/health`
+##### Option B: Separate Terminals
+If you prefer running and monitoring logs in dedicated terminals:
+
+**Terminal 1 — Backend API:**
+```bash
+# From project root:
+npm run backend
+
+# Or inside the backend folder:
+cd backend
+npm run dev
+```
+
+**Terminal 2 — Frontend Application:**
+```bash
+# From project root:
+npm run frontend
+
+# Or inside the frontend folder:
+cd frontend
+npm run dev
+```
+
+##### Option C: Production Build & Local Production Run
+```bash
+# 1. Build the production frontend bundle:
+npm run build --prefix frontend
+
+# 2. Start the production Express server (serves API + compiled frontend):
+npm run start-prod
+```
+
+#### 7. Access the Application
+- 🌐 **Frontend Web App:** [http://localhost:5173](http://localhost:5173)
+- 🔌 **Backend REST API:** [http://localhost:5000](http://localhost:5000)
+- 🩺 **API Health Check:** [http://localhost:5000/api/health](http://localhost:5000/api/health)
+- 👑 **Admin Console:** Navigate to `/login` and sign in with `admin@foodnest.com` / `admin123`
 
 ---
 

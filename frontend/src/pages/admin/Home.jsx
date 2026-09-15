@@ -372,7 +372,7 @@ const AdminHome = () => {
                       </span>
                     </td>
                     <td data-label="Actions">
-                      <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', flexWrap: 'nowrap' }}>
+                      <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                         {order.status === 'Pending' && (
                           <MotionButton
                             type="button"

@@ -195,3 +195,14 @@
     font-size: 0.68rem;
   }
 }
+
+@media (max-width: 360px) {
+  .dock-item.dock-signin-pill,
+  .dock-item.dock-getstarted-pill {
+    padding: 0 0.38rem;
+  }
+  .dock-item.dock-signin-pill .dock-pill-text,
+  .dock-item.dock-getstarted-pill .dock-pill-text {
+    font-size: 0.62rem;
+  }
+}

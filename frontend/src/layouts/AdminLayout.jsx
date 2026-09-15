@@ -221,8 +221,8 @@ const AdminLayout = () => {
               transform: 'translateX(-50%)',
               zIndex: 9999,
               cursor: 'pointer',
-              minWidth: '320px',
-              maxWidth: '90vw',
+              minWidth: 'min(300px, 92vw)',
+              maxWidth: '92vw',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -240,14 +240,14 @@ const AdminLayout = () => {
               navigate('/admin/orders');
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <BellRing size={22} className="bell-ring-anim" />
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flex: 1, minWidth: 0 }}>
+              <BellRing size={20} className="bell-ring-anim" style={{ flexShrink: 0 }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   New Order Received! (#{globalAlert.orderNumber})
                 </div>
-                <div style={{ fontSize: '0.85rem', opacity: 0.95 }}>
-                  {globalAlert.count} new customer order(s) arrived. Click to view.
+                <div style={{ fontSize: '0.78rem', opacity: 0.92, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {globalAlert.count} new order(s) arrived. Click to view.
                 </div>
               </div>
             </div>

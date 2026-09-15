@@ -75,7 +75,7 @@ const Feedbacks = () => {
 
       {/* Filters & Search Row */}
       <div className="date-picker-row" style={{ marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <div className="form-group" style={{ margin: 0, flex: 1, minWidth: '250px' }}>
+        <div className="form-group" style={{ margin: 0, flex: 1, minWidth: 'min(100%, 250px)' }}>
           <label className="form-label" htmlFor="feedback-search">Search Feedbacks</label>
           <div className="search-bar" style={{ margin: 0 }}>
             <Search size={16} className="search-bar-icon" />
@@ -89,7 +89,7 @@ const Feedbacks = () => {
             />
           </div>
         </div>
-        <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+        <div className="form-group" style={{ margin: 0, minWidth: 'min(100%, 200px)' }}>
           <label className="form-label" htmlFor="feedback-block-filter">Filter by Hostel Block</label>
           <select
             className="form-input"

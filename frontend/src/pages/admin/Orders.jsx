@@ -253,7 +253,7 @@ const AdminOrders = () => {
         </div>
         <div className="form-group">
           <label className="form-label">Filter by Order ID</label>
-          <input type="text" className="form-input" placeholder="e.g. 1" value={orderIdFilter} onChange={(e) => setOrderIdFilter(e.target.value)} id="order-id-filter" style={{ width: '120px' }} />
+          <input type="text" className="form-input" placeholder="e.g. 1" value={orderIdFilter} onChange={(e) => setOrderIdFilter(e.target.value)} id="order-id-filter" style={{ minWidth: '100px', width: '100%' }} />
         </div>
         {(startDateFilter || endDateFilter || statusFilter || blockFilter || orderIdFilter || searchQuery) && (
           <MotionButton className="btn btn-ghost btn-sm" onClick={() => { setStartDateFilter(''); setEndDateFilter(''); setStatusFilter(''); setBlockFilter(''); setOrderIdFilter(''); setSearchQuery(''); setSearchParams({}); }}>
@@ -321,7 +321,7 @@ const AdminOrders = () => {
                   </td>
                   <td data-label="Date" style={{ fontSize: '0.85rem' }}>{formatDate(order.created_at)}</td>
                   <td data-label="Action">
-                    <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', flexWrap: 'nowrap', whiteSpace: 'nowrap' }}>
+                    <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                       {order.status === 'Pending' && (
                         <MotionButton
                           className="btn btn-info btn-sm"

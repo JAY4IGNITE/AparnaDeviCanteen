@@ -27,7 +27,7 @@ const PageHeader = ({ title, subtitle, actions, badge, showBack = false, backTo,
       animate={{ opacity: 1 }}
       transition={transition}
     >
-      <div className="page-header-content" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+      <div className="page-header-content" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
         {showBack && (
           <MotionButton
             type="button"
@@ -37,19 +37,20 @@ const PageHeader = ({ title, subtitle, actions, badge, showBack = false, backTo,
             whileTap={{ scale: 0.92 }}
             title="Go back"
             aria-label="Go back to previous page"
+            style={{ marginTop: '0.15rem' }}
           >
             <ArrowLeft size={18} />
           </MotionButton>
         )}
-        <div>
-          <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-            {title}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, flexWrap: 'wrap' }}>
+            <span>{title}</span>
             {badge && <span className="page-header-badge">{badge}</span>}
           </h1>
-          {subtitle && <p style={{ margin: '0.2rem 0 0' }}>{subtitle}</p>}
+          {subtitle && <p style={{ margin: '0.25rem 0 0' }}>{subtitle}</p>}
         </div>
       </div>
-      {actions && <div className="page-header-actions">{actions}</div>}
+      {actions && <div className="page-header-actions" style={{ flexWrap: 'wrap' }}>{actions}</div>}
     </motion.header>
   );
 };

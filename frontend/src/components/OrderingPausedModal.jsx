@@ -146,13 +146,13 @@ const OrderingPausedModal = ({
         </p>
 
         {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
           {onBackHome && (
             <MotionButton
               type="button"
               className="btn btn-secondary"
               onClick={onBackHome}
-              style={{ flex: 1, padding: '0.75rem 1rem', fontSize: '0.875rem' }}
+              style={{ flex: 1, minWidth: '130px', padding: '0.75rem 1rem', fontSize: '0.875rem' }}
             >
               Back to Home
             </MotionButton>
@@ -161,7 +161,7 @@ const OrderingPausedModal = ({
             type="button"
             className="btn btn-primary"
             onClick={onExploreMenu || onClose}
-            style={{ flex: 1, padding: '0.75rem 1rem', fontSize: '0.875rem' }}
+            style={{ flex: 1, minWidth: '130px', padding: '0.75rem 1rem', fontSize: '0.875rem' }}
           >
             <Utensils size={15} style={{ marginRight: '0.4rem', display: 'inline' }} />
             Browse Menu

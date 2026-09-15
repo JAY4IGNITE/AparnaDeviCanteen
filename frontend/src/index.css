@@ -285,6 +285,8 @@
   }
 
   html {
+    max-width: 100%;
+    overflow-x: hidden;
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -296,7 +298,10 @@
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
+    min-height: 100dvh;
+    max-width: 100%;
     overflow-x: hidden;
+    position: relative;
   }
 
   #root {
@@ -1611,23 +1616,31 @@ select.form-input {
 
 /* ======================== AUTH PAGES ======================== */
 body:has(.auth-page) {
-  overflow: hidden !important;
-  height: 100vh !important;
-  height: 100dvh !important;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-y: auto !important;
 }
 
 .auth-page {
-  height: 100vh;
-  height: 100dvh;
-  max-height: 100vh;
-  max-height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--bg-primary);
   position: relative;
-  overflow: hidden !important;
-  padding: 1rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1.5rem 1rem;
+  box-sizing: border-box;
+}
+
+@media (max-height: 720px), (max-width: 640px) {
+  .auth-page {
+    align-items: flex-start;
+    padding-top: 2rem;
+    padding-bottom: 2.5rem;
+  }
 }
 
 .auth-page::before {
@@ -2483,6 +2496,7 @@ body:has(.auth-page) {
 
 .image-input-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
@@ -3224,7 +3238,8 @@ body:has(.auth-page) {
     top: 0;
     left: 0;
     bottom: 0;
-    width: 280px !important;
+    width: min(280px, 85vw) !important;
+    max-width: 85vw !important;
     height: 100vh !important;
     border-radius: 0 24px 24px 0 !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -3404,12 +3419,27 @@ body:has(.auth-page) {
 
   .main-content {
     margin-left: 0;
-    padding: 1rem;
-    padding-top: calc(56px + 1rem);
+    padding: 1rem 0.85rem;
+    padding-top: calc(56px + 0.75rem);
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .main-content::before {
     left: 0;
+  }
+
+  /* Prevent automatic viewport zoom on iOS Safari when tapping form inputs */
+  input,
+  select,
+  textarea,
+  .form-input,
+  .search-bar .form-input,
+  .menu-search-input,
+  .hero-search-input,
+  select.form-input,
+  textarea.form-input {
+    font-size: 16px !important;
   }
 
   h1 { font-size: 1.75rem; }
@@ -3461,29 +3491,31 @@ body:has(.auth-page) {
 
 @media (max-width: 480px) {
   .auth-page {
-    padding: 0.65rem 0.5rem;
-    overflow: hidden !important;
+    padding: 1.25rem 0.75rem 2rem;
+    overflow-y: auto !important;
+    align-items: flex-start;
   }
 
   .auth-card {
-    padding: 1.1rem 1rem 0.95rem;
+    padding: 1.25rem 1rem 1rem;
     border-radius: var(--radius-md);
+    margin: auto 0;
   }
 
   .auth-card .form-group {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.65rem;
   }
 
   .auth-card .form-input {
-    height: 36px;
-    padding: 0.45rem 0.75rem;
-    font-size: 0.82rem;
+    height: 40px;
+    padding: 0.5rem 0.75rem;
+    font-size: 16px; /* Prevents iOS Safari input focus auto-zoom */
   }
 
   .auth-card .btn-lg {
-    height: 38px;
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
+    height: 42px;
+    padding: 0.6rem 1rem;
+    font-size: 0.92rem;
   }
 
   .auth-title {
@@ -3604,8 +3636,137 @@ body:has(.auth-page) {
     width: 100% !important;
   }
 
+  .menu-search-wrap {
+    min-width: 100% !important;
+    width: 100%;
+  }
+
+  .veg-toggle-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .menu-card-footer {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
   .bento-card {
     padding: 1.25rem 1rem;
+  }
+}
+
+/* ======================== SUB-MOBILE BREAKPOINT (<= 380px) ======================== */
+@media (max-width: 380px) {
+  .main-content {
+    padding: 0.75rem 0.5rem;
+    padding-top: calc(56px + 0.5rem);
+  }
+
+  .customer-layout-main {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    padding-bottom: calc(75px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .mobile-bottom-nav {
+    left: 0.4rem;
+    right: 0.4rem;
+    height: 52px;
+    padding: 0 0.2rem;
+  }
+
+  .mobile-bottom-item {
+    font-size: 0.62rem;
+  }
+
+  .mobile-bottom-item span {
+    font-size: 0.58rem;
+  }
+
+  .mobile-bottom-item svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .mobile-app-header {
+    padding: 0 0.5rem;
+  }
+
+  .mobile-app-title {
+    font-size: 0.92rem;
+  }
+
+  .mobile-app-logo {
+    width: 24px;
+    height: 24px;
+  }
+
+  .auth-card {
+    padding: 1.1rem 0.75rem 0.85rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .auth-title {
+    font-size: 1.05rem;
+  }
+
+  .stat-card {
+    padding: 0.85rem 0.65rem;
+  }
+
+  .stat-card-value {
+    font-size: 1.35rem;
+  }
+
+  .stepper-pill {
+    padding: 0.25rem 0.35rem;
+    font-size: 0.6rem;
+    gap: 0.15rem;
+  }
+
+  .stepper-node-wrapper {
+    gap: 0.15rem;
+  }
+
+  .stepper-separator {
+    min-width: 8px;
+  }
+
+  .modal-container {
+    padding: 1rem 0.75rem !important;
+    width: 98vw !important;
+    max-width: 98vw !important;
+  }
+
+  .category-btn {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .category-buttons-container {
+    gap: 0.3rem;
+  }
+
+  .btn {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .btn-lg {
+    padding: 0.6rem 0.85rem;
+    font-size: 0.88rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .card {
+    padding: 1rem 0.75rem;
+  }
+
+  .trending-card {
+    min-width: 100% !important;
   }
 }
 
@@ -4133,7 +4294,7 @@ body:has(.auth-page) {
 
 .support-channels-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 1.25rem;
 }
 
@@ -4276,6 +4437,7 @@ body:has(.auth-page) {
 
 .support-channel-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
 }
 
@@ -5444,6 +5606,19 @@ body:has(.auth-page) {
     padding-top: 0.75rem;
     border-top: 1px solid var(--border-color);
     margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem;
+  }
+
+  .table-responsive-cards td:last-child > div {
+    display: flex;
+    flex-wrap: wrap !important;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    width: 100%;
+    white-space: normal !important;
   }
 
   .filter-bar {
@@ -6250,6 +6425,55 @@ body:has(.auth-page) {
 
 .hero-food-img:hover {
   transform: scale(1.03) rotate(1deg);
+}
+
+@media (max-width: 768px) {
+  .dashboard-hero-card {
+    padding: 1.25rem 1rem;
+    border-radius: 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-title {
+    font-size: 1.55rem;
+  }
+
+  .hero-actions-wrap {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0.65rem;
+  }
+
+  .hero-cta-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-search-form {
+    min-width: 100%;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .hero-visual-col {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .dashboard-hero-card {
+    padding: 1rem 0.75rem;
+  }
+
+  .hero-title {
+    font-size: 1.35rem;
+  }
+
+  .hero-description {
+    font-size: 0.85rem;
+  }
 }
 
 /* ----------------- Section Headers ----------------- */
@@ -8578,6 +8802,9 @@ body:has(.auth-page) {
   .customer-actions-group {
     width: 100%;
     justify-content: flex-end;
+    flex-wrap: wrap !important;
+    white-space: normal !important;
+    gap: 0.35rem;
   }
 }
 

@@ -225,7 +225,7 @@ const Profile = () => {
                 <label className="form-label" style={{ marginBottom: '0.3rem', fontSize: '0.82rem' }}>Full Name</label>
                 <div className="auth-input-wrapper">
                   <User size={16} className="auth-input-icon" />
-                  <input type="text" name="name" className="form-input" value={profileData.name} onChange={handleProfileChange} required style={{ height: '38px', fontSize: '0.9rem' }} />
+                  <input type="text" name="name" className="form-input" value={profileData.name} onChange={handleProfileChange} required style={{ height: '38px' }} />
                 </div>
               </div>
 
@@ -233,7 +233,7 @@ const Profile = () => {
                 <label className="form-label" style={{ marginBottom: '0.3rem', fontSize: '0.82rem' }}>Phone Number</label>
                 <div className="auth-input-wrapper">
                   <Phone size={16} className="auth-input-icon" />
-                  <input type="tel" name="phone" className="form-input" value={profileData.phone} onChange={handleProfileChange} required style={{ height: '38px', fontSize: '0.9rem' }} />
+                  <input type="tel" name="phone" className="form-input" value={profileData.phone} onChange={handleProfileChange} required style={{ height: '38px' }} />
                 </div>
               </div>
             </div>
@@ -242,7 +242,7 @@ const Profile = () => {
               <label className="form-label" style={{ marginBottom: '0.3rem', fontSize: '0.82rem' }}>Hostel Block</label>
               <div className="auth-input-wrapper">
                 <Building size={16} className="auth-input-icon" />
-                <select name="hostelBlock" className="form-input" value={profileData.hostelBlock} onChange={handleProfileChange} required style={{ height: '38px', fontSize: '0.9rem' }}>
+                <select name="hostelBlock" className="form-input" value={profileData.hostelBlock} onChange={handleProfileChange} required style={{ height: '38px' }}>
                   <option value="F Block (Old)">F Block (Old)</option>
                   <option value="Others(A, B, C, D, F)">Others(A, B, C, D, F)</option>
                 </select>
@@ -271,7 +271,7 @@ const Profile = () => {
                   value={passwordData.currentPassword}
                   onChange={handlePasswordChange}
                   required
-                  style={{ height: '38px', fontSize: '0.9rem' }}
+                  style={{ height: '38px' }}
                 />
                 <button type="button" className="auth-toggle-password" onClick={() => togglePasswordVisibility('current')}>
                   {showPassword.current ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -295,7 +295,7 @@ const Profile = () => {
                       value={passwordData[`${field}Password`]}
                       onChange={handlePasswordChange}
                       required
-                      style={{ height: '38px', fontSize: '0.9rem' }}
+                      style={{ height: '38px' }}
                     />
                     <button type="button" className="auth-toggle-password" onClick={() => togglePasswordVisibility(field)}>
                       {showPassword[field] ? <EyeOff size={16} /> : <Eye size={16} />}

@@ -170,7 +170,7 @@ const CounterSale = () => {
       </AlertBanner>
 
       {/* Main Grid: Active Canteen Menu & Real-time Bill Checkout */}
-      <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+      <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 290px), 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
         
         {/* Left Side: Canteen Menu Selection */}
         <div className="card" style={{ padding: '1.5rem' }}>
@@ -178,9 +178,9 @@ const CounterSale = () => {
             Select Canteen Items
           </h2>
 
-          {/* Side-by-side Category Buttons Navigation */}
-          {menu.length > 0 && (
-            <div className="category-buttons-container" style={{ marginBottom: '1.25rem' }} role="tablist" aria-label="Counter sale categories">
+          {/* Quick Category Filter Bar */}
+          {categories.length > 0 && (
+            <div className="category-buttons-container" style={{ marginBottom: '1.25rem', paddingBottom: '0.25rem' }} role="tablist" aria-label="Counter sale categories">
               {categoryNames.map(cat => {
                 const count = cat === 'All'
                   ? menu.length
@@ -217,10 +217,12 @@ const CounterSale = () => {
                     padding: '0.75rem 1rem',
                     border: (quantities[item.id] || 0) > 0 ? '1px solid var(--primary-500)' : '1px solid var(--border-color)',
                     background: (quantities[item.id] || 0) > 0 ? 'rgba(249, 115, 22, 0.05)' : 'var(--bg-input)',
-                    transition: 'all var(--transition-fast)'
+                    transition: 'all var(--transition-fast)',
+                    flexWrap: 'wrap',
+                    gap: '0.5rem'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: '160px' }}>
                     {item.image_url ? (
                       <img
                         src={item.image_url}
@@ -240,7 +242,7 @@ const CounterSale = () => {
                       <UtensilsCrossed size={16} />
                     </div>
                     <div>
-                      <div style={{ fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <div style={{ fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                         {item.item_name}
                         <span style={{ fontSize: '0.75rem', padding: '0.1rem 0.40rem', borderRadius: '4px', background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}>
                           {item.category}
@@ -252,29 +254,32 @@ const CounterSale = () => {
                     </div>
                   </div>
 
-                  {/* Quantity adjustment panel */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <button
-                      type="button"
-                      className="btn btn-secondary btn-sm"
+                  {/* Increment/Decrement Buttons */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <MotionButton 
+                      type="button" 
+                      className="btn btn-secondary btn-sm" 
                       onClick={() => handleDecrement(item.id)}
-                      aria-label={`Remove one ${item.item_name}`}
-                      style={{ padding: '0.35rem', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      disabled={(quantities[item.id] || 0) === 0}
+                      style={{ padding: '0.35rem 0.65rem' }}
+                      id={`counter-dec-${item.id}`}
+                      aria-label={`Decrease ${item.item_name}`}
                     >
                       <Minus size={14} />
-                    </button>
-                    <span style={{ fontWeight: 700, minWidth: '20px', textAlign: 'center', fontSize: '1rem', color: 'var(--text-primary)' }}>
+                    </MotionButton>
+                    <span style={{ fontWeight: 700, minWidth: '24px', textAlign: 'center', fontSize: '1rem', color: (quantities[item.id] || 0) > 0 ? 'var(--primary-400)' : 'inherit' }}>
                       {quantities[item.id] || 0}
                     </span>
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
+                    <MotionButton 
+                      type="button" 
+                      className="btn btn-primary btn-sm" 
                       onClick={() => handleIncrement(item.id)}
-                      aria-label={`Add one more ${item.item_name}`}
-                      style={{ padding: '0.35rem', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      style={{ padding: '0.35rem 0.65rem' }}
+                      id={`counter-inc-${item.id}`}
+                      aria-label={`Increase ${item.item_name}`}
                     >
                       <Plus size={14} />
-                    </button>
+                    </MotionButton>
                   </div>
                 </div>
               ))}
@@ -297,8 +302,8 @@ const CounterSale = () => {
               </div>
             ) : (
               <div>
-                <div className="table-wrapper" style={{ maxHeight: '250px', overflowY: 'auto', marginBottom: '1.5rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)' }}>
-                  <table className="table" style={{ margin: 0 }}>
+                <div className="table-wrapper" style={{ maxHeight: '280px', overflowY: 'auto', marginBottom: '1.5rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)' }}>
+                  <table className="table table-responsive-cards" style={{ margin: 0 }}>
                     <thead>
                       <tr>
                         <th>Item</th>
@@ -309,9 +314,9 @@ const CounterSale = () => {
                     <tbody>
                       {cartItems.map(item => (
                         <tr key={item.id}>
-                          <td style={{ fontWeight: 500 }}>{item.name}</td>
-                          <td style={{ textAlign: 'center', fontWeight: 600 }}>{item.quantity}</td>
-                          <td style={{ textAlign: 'right', fontWeight: 600, color: 'var(--text-primary)' }}>₹{item.totalPrice}</td>
+                          <td data-label="Item" style={{ fontWeight: 500 }}>{item.name}</td>
+                          <td data-label="Units" style={{ textAlign: 'center', fontWeight: 600 }}>{item.quantity}</td>
+                          <td data-label="Price" style={{ textAlign: 'right', fontWeight: 600, color: 'var(--text-primary)' }}>₹{item.totalPrice}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -367,7 +372,7 @@ const CounterSale = () => {
         ) : (
           <div>
             <div className="table-wrapper" style={{ marginBottom: '1.5rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)' }}>
-              <table className="table" style={{ margin: 0 }}>
+              <table className="table table-responsive-cards" style={{ margin: 0 }}>
                 <thead>
                   <tr>
                     <th>Item Name</th>
@@ -378,9 +383,9 @@ const CounterSale = () => {
                 <tbody>
                   {stats.items.map((stat, idx) => (
                     <tr key={idx}>
-                      <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{stat.itemName}</td>
-                      <td style={{ textAlign: 'center', fontWeight: 600 }}>{stat.totalUnits} units</td>
-                      <td style={{ textAlign: 'right', fontWeight: 600, color: 'var(--success)' }}>₹{stat.totalRevenue}</td>
+                      <td data-label="Item Name" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{stat.itemName}</td>
+                      <td data-label="Units Sold" style={{ textAlign: 'center', fontWeight: 600 }}>{stat.totalUnits} units</td>
+                      <td data-label="Total Revenue" style={{ textAlign: 'right', fontWeight: 600, color: 'var(--success)' }}>₹{stat.totalRevenue}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -400,7 +400,7 @@
   padding-top: 1rem;
 }
 
-.app-layout.sidebar-collapsed .main-content {
+body.sidebar-is-collapsed .main-content {
   margin-left: calc(var(--sidebar-collapsed-width) + 1.75rem);
 }
 

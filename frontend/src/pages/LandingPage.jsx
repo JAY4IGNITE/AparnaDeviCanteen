@@ -283,7 +283,7 @@ export default function LandingPage() {
       >
         {/* Dynamic ColorBends WebGL Background */}
         <motion.div
-          style={{ opacity: bgOpacity }}
+          style={{ opacity: isMobile ? 1 : bgOpacity }}
           className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0"
         >
           <ColorBends
@@ -311,8 +311,8 @@ export default function LandingPage() {
         {/* 3D Perspective Character Container Anchored to Bottom to Prevent Any Gap */}
         <motion.div
           style={{
-            opacity: heroOpacity,
-            scale: heroScale,
+            opacity: isMobile ? 1 : heroOpacity,
+            scale: isMobile ? 1 : heroScale,
             transformOrigin: 'center bottom',
           }}
           className="absolute bottom-0 left-0 right-0 z-10 w-full flex items-end justify-center [perspective:1200px] pointer-events-none"
@@ -327,13 +327,13 @@ export default function LandingPage() {
               transformOrigin: 'center bottom',
             }}
             whileTap={{ scale: 0.98 }}
-            className="relative aspect-[2/1] w-full max-w-none max-h-[92vh] sm:max-h-[95vh] flex items-end justify-center px-3 sm:px-0 pb-16 sm:pb-0 translate-y-0 sm:translate-y-5 pointer-events-auto"
+            className="relative h-[60vh] sm:h-auto sm:aspect-[2/1] w-full max-w-none max-h-[92vh] sm:max-h-[95vh] flex items-end justify-center px-4 sm:px-0 pb-8 sm:pb-0 translate-y-0 sm:translate-y-5 pointer-events-auto"
           >
             {/* Main Character & Text Image */}
             <img
               src="/order-your-food.png"
               alt="Order Your Food"
-              className="w-full h-full object-contain object-bottom drop-shadow-[0_25px_60px_rgba(249,115,22,0.5)] select-none pointer-events-none transition-transform duration-200"
+              className="w-full h-full object-contain object-bottom sm:drop-shadow-[0_25px_60px_rgba(249,115,22,0.5)] select-none pointer-events-none transition-transform duration-200"
             />
 
             {/* Realistic Silky Continuous Steam Rising from the Pot */}

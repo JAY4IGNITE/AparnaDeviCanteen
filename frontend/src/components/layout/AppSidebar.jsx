@@ -138,6 +138,17 @@ const AppSidebar = ({
   const [hoveredLink, setHoveredLink] = useState(null);
   const navMouseY = useMotionValue(Infinity);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768 && isCollapsed) {
+        setIsCollapsed(false);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isCollapsed]);
+
   const toggleCollapse = () => {
     setIsCollapsed((prev) => {
       const next = !prev;

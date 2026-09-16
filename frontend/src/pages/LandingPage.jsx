@@ -299,7 +299,7 @@ export default function LandingPage() {
               transformOrigin: 'center bottom',
             }}
             whileTap={{ scale: 0.98 }}
-            className="relative aspect-square sm:aspect-[2/1] w-full max-w-none max-h-[85vh] sm:max-h-[95vh] flex items-end justify-center pb-20 sm:pb-4 pointer-events-auto"
+            className="relative aspect-[2/1] w-full max-w-none max-h-[92vh] sm:max-h-[95vh] flex items-end justify-center px-3 sm:px-0 pb-16 sm:pb-0 translate-y-0 sm:translate-y-5 pointer-events-auto"
           >
             {/* Main Character & Text Image */}
             <img

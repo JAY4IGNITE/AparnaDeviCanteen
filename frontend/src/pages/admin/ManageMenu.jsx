@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Plus, Edit2, Trash2, Eye, EyeOff, X, CheckCircle, AlertCircle, Image as ImageIcon, Upload, Link as LinkIcon, UtensilsCrossed } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, EyeOff, Power, X, CheckCircle, AlertCircle, Image as ImageIcon, Upload, Link as LinkIcon, UtensilsCrossed } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import AnimatedModal from '../../components/ui/AnimatedModal';
 import AlertBanner from '../../components/ui/AlertBanner';
@@ -38,11 +38,14 @@ const ManageMenu = () => {
     try {
       await axios.put('/admin/menu/visibility', { isVisible: nextVal });
       setMenuVisible(nextVal);
-      setMessage({ type: 'success', text: `Menu visibility turned ${nextVal ? 'ON' : 'OFF'}` });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      setMessage({
+        type: 'success',
+        text: `Customer Ordering is now ${nextVal ? 'ACTIVE (Accepting Orders)' : 'PAUSED (Not Taking Orders)'}`
+      });
+      setTimeout(() => setMessage({ type: '', text: '' }), 4000);
     } catch (err) {
-      setMessage({ type: 'error', text: 'Failed to update menu visibility' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      setMessage({ type: 'error', text: 'Failed to update ordering status' });
+      setTimeout(() => setMessage({ type: '', text: '' }), 4000);
     }
   };
 
@@ -199,15 +202,18 @@ const ManageMenu = () => {
       <PageHeader
         title="Manage Menu"
         subtitle="Add, edit, or remove menu items with images"
+        showBack={true}
+        backTo="/admin/home"
         actions={
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <MotionButton
               className={`btn ${menuVisible ? 'btn-success' : 'btn-danger'}`}
               onClick={handleToggleMenuVisibility}
               style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              title="Master toggle for customer order taking"
             >
-              {menuVisible ? <Eye size={18} /> : <EyeOff size={18} />}
-              Menu: {menuVisible ? 'ON' : 'OFF'}
+              <Power size={16} />
+              Orders: {menuVisible ? 'ACTIVE' : 'PAUSED'}
             </MotionButton>
             <MotionButton className="btn btn-primary" onClick={openAddModal} id="add-menu-item">
               <Plus size={18} /> Add Item

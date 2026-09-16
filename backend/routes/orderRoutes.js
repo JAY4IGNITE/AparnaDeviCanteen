@@ -1,12 +1,23 @@
 const express = require('express');
 const supabase = require('../db');
 const { protect } = require('../middleware/auth');
+const { getOrdersActive, getMenuVisibility } = require('../settings');
 
 const router = express.Router();
 
 // POST /api/orders — Place a new order
 router.post('/', protect, async (req, res) => {
   try {
+    // Enforce admin order activation privilege (no fixed operating timings)
+    const isOrdersActive = await (getOrdersActive || getMenuVisibility)();
+    if (!isOrdersActive) {
+      return res.status(400).json({
+        success: false,
+        isNotTakingOrders: true,
+        message: 'Sorry, we are not taking orders currently. Ordering will open when activated by the admin.'
+      });
+    }
+
     const { items, payment_method } = req.body;
 
     if (!items || items.length === 0) {

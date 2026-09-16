@@ -1,44 +1,76 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'motion/react';
-import { ShoppingCart, Plus, Minus, X, CheckCircle, AlertCircle, Package, UtensilsCrossed, ArrowLeft, Banknote, Search } from 'lucide-react';
-import PageHeader from '../../components/ui/PageHeader';
+import { ShoppingCart, Plus, Minus, X, CheckCircle, AlertCircle, Package, UtensilsCrossed, ArrowLeft, Banknote, Search, Clock } from 'lucide-react';
 import AnimatedModal from '../../components/ui/AnimatedModal';
 import AlertBanner from '../../components/ui/AlertBanner';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
 import MotionButton from '../../components/ui/MotionButton';
-import Lazy3D from '../../components/3d/Lazy3D';
-import SceneFallback from '../../components/3d/SceneFallback';
-import { staggerContainer, fadeUp } from '../../lib/motion';
+import PageHeader from '../../components/ui/PageHeader';
+import { useCart } from '../../context/CartContext';
 
 const MenuPage = () => {
+  const [searchParams] = useSearchParams();
+  const { 
+    cart, 
+    addToCart, 
+    removeFromCart, 
+    clearCart, 
+    getCartCount, 
+    getCartTotal,
+    isOrdersActive,
+    setIsPausedModalOpen,
+    statusMessage
+  } = useCart();
+
   const [menuItems, setMenuItems] = useState([]);
-  const [cart, setCart] = useState(() => {
-    try {
-      const savedCart = localStorage.getItem('foodnest_cart');
-      return savedCart ? JSON.parse(savedCart) : {};
-    } catch (e) {
-      return {};
-    }
-  });
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(() => searchParams.get('category') || 'All');
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '');
   const [vegOnly, setVegOnly] = useState(false);
-  const [showCart, setShowCart] = useState(false);
+  const [showCart, setShowCart] = useState(() => searchParams.get('cart') === 'open');
   const [cartStep, setCartStep] = useState('cart'); // 'cart' or 'payment'
   const [paymentMethod, setPaymentMethod] = useState('COD');
   const [loading, setLoading] = useState(true);
   const [orderLoading, setOrderLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [serverOperatingStatus, setServerOperatingStatus] = useState(null);
+
+  const activeStatus = serverOperatingStatus || {
+    isOpen: isOrdersActive,
+    message: statusMessage || 'Sorry, we are not taking orders currently. Ordering will open when activated by the admin.'
+  };
 
   useEffect(() => {
     fetchMenu();
+    fetchOperatingStatus();
   }, []);
 
+  const fetchOperatingStatus = async () => {
+    try {
+      const res = await axios.get('/menu/operating-status');
+      if (res.data?.success && res.data?.data) {
+        setServerOperatingStatus(res.data.data);
+        if (!res.data.data.isOpen) {
+          setIsPausedModalOpen(true);
+        }
+      }
+    } catch (err) {
+      if (!isOrdersActive) {
+        setIsPausedModalOpen(true);
+      }
+    }
+  };
+
+  // Update category and search if URL search params change
   useEffect(() => {
-    localStorage.setItem('foodnest_cart', JSON.stringify(cart));
-  }, [cart]);
+    const cat = searchParams.get('category');
+    if (cat) setSelectedCategory(cat);
+    const q = searchParams.get('q');
+    if (q) setSearchQuery(q);
+    if (searchParams.get('cart') === 'open') setShowCart(true);
+  }, [searchParams]);
 
   const fetchMenu = async () => {
     try {
@@ -52,34 +84,11 @@ const MenuPage = () => {
     }
   };
 
-  const addToCart = (item) => {
-    if (item.is_available === false) return;
-    setCart(prev => ({
-      ...prev,
-      [item.id]: {
-        ...item,
-        quantity: (prev[item.id]?.quantity || 0) + 1
-      }
-    }));
-  };
-
-  const removeFromCart = (itemId) => {
-    setCart(prev => {
-      const updated = { ...prev };
-      if (updated[itemId]?.quantity > 1) {
-        updated[itemId] = { ...updated[itemId], quantity: updated[itemId].quantity - 1 };
-      } else {
-        delete updated[itemId];
-      }
-      return updated;
-    });
-  };
-
-  const getCartCount = () => Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
-
-  const getCartTotal = () => Object.values(cart).reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
   const handleProceedToPayment = () => {
+    if (!activeStatus.isOpen) {
+      setIsPausedModalOpen(true);
+      return;
+    }
     setCartStep('payment');
   };
 
@@ -93,6 +102,11 @@ const MenuPage = () => {
   };
 
   const placeOrder = async () => {
+    if (!activeStatus.isOpen) {
+      setIsPausedModalOpen(true);
+      return;
+    }
+
     const items = Object.values(cart).map(item => ({
       menuItem: item.id,
       quantity: item.quantity
@@ -103,63 +117,107 @@ const MenuPage = () => {
     setOrderLoading(true);
     try {
       await axios.post('/orders', { items, payment_method: paymentMethod });
-      setCart({});
+      clearCart();
       setShowCart(false);
       setCartStep('cart');
-      setMessage({ type: 'success', text: 'Order placed successfully! 🎉' });
+      setMessage({ type: 'success', text: 'Order placed successfully!' });
       setTimeout(() => setMessage({ type: '', text: '' }), 4000);
     } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to place order' });
+      if (err.response?.data?.isNotTakingOrders || !activeStatus.isOpen) {
+        setIsPausedModalOpen(true);
+      } else {
+        setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to place order' });
+      }
     } finally {
       setOrderLoading(false);
     }
   };
 
+  const allCategories = useMemo(() => {
+    return Array.from(new Set(menuItems.map(item => item.category || 'General'))).sort((a, b) => {
+      const isStarterA = a.toLowerCase().includes('starter') || a.toLowerCase().includes('starer');
+      const isStarterB = b.toLowerCase().includes('starter') || b.toLowerCase().includes('starer');
+      if (isStarterA && !isStarterB) return -1;
+      if (!isStarterA && isStarterB) return 1;
+      return a.localeCompare(b);
+    });
+  }, [menuItems]);
+
+  const categoryNames = useMemo(() => ['All', ...allCategories], [allCategories]);
+
+  // Filter items by Search text and Veg Only preference (memoized)
+  const filteredMenuItems = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    return menuItems.filter(item => {
+      const matchesVeg = !vegOnly || item.is_veg !== false;
+      const matchesSearch = !q ||
+        item.item_name.toLowerCase().includes(q) ||
+        (item.category || '').toLowerCase().includes(q);
+      return matchesVeg && matchesSearch;
+    });
+  }, [menuItems, vegOnly, searchQuery]);
+
+  const categories = useMemo(() => {
+    return Object.entries(
+      filteredMenuItems.reduce((acc, item) => {
+        const cat = item.category || 'General';
+        if (!acc[cat]) acc[cat] = [];
+        acc[cat].push(item);
+        return acc;
+      }, {})
+    ).sort(([catA], [catB]) => {
+      const isStarterA = catA.toLowerCase().includes('starter') || catA.toLowerCase().includes('starer');
+      const isStarterB = catB.toLowerCase().includes('starter') || catB.toLowerCase().includes('starer');
+      if (isStarterA && !isStarterB) return -1;
+      if (!isStarterA && isStarterB) return 1;
+      return catA.localeCompare(catB);
+    });
+  }, [filteredMenuItems]);
+
+  const displayedCategories = useMemo(() => {
+    return selectedCategory === 'All'
+      ? categories
+      : categories.filter(([cat]) => cat === selectedCategory);
+  }, [categories, selectedCategory]);
+
   if (loading) {
     return <LoadingState />;
   }
 
-  // Filter items by Search text and Veg Only preference
-  const filteredMenuItems = menuItems.filter(item => {
-    const matchesVeg = !vegOnly || item.is_veg !== false;
-    const q = searchQuery.toLowerCase().trim();
-    const matchesSearch = !q ||
-      item.item_name.toLowerCase().includes(q) ||
-      (item.category || '').toLowerCase().includes(q);
-    return matchesVeg && matchesSearch;
-  });
-
-  const categories = Object.entries(
-    filteredMenuItems.reduce((acc, item) => {
-      const cat = item.category || 'General';
-      if (!acc[cat]) acc[cat] = [];
-      acc[cat].push(item);
-      return acc;
-    }, {})
-  ).sort(([catA], [catB]) => {
-    const isStarterA = catA.toLowerCase().includes('starter') || catA.toLowerCase().includes('starer');
-    const isStarterB = catB.toLowerCase().includes('starter') || catB.toLowerCase().includes('starer');
-    if (isStarterA && !isStarterB) return -1;
-    if (!isStarterA && isStarterB) return 1;
-    return catA.localeCompare(catB);
-  });
-
-  const allCategories = Array.from(new Set(menuItems.map(item => item.category || 'General'))).sort((a, b) => {
-    const isStarterA = a.toLowerCase().includes('starter') || a.toLowerCase().includes('starer');
-    const isStarterB = b.toLowerCase().includes('starter') || b.toLowerCase().includes('starer');
-    if (isStarterA && !isStarterB) return -1;
-    if (!isStarterA && isStarterB) return 1;
-    return a.localeCompare(b);
-  });
-
-  const categoryNames = ['All', ...allCategories];
-  const displayedCategories = selectedCategory === 'All'
-    ? categories
-    : categories.filter(([cat]) => cat === selectedCategory);
 
   return (
     <div>
-      <PageHeader title="Menu" subtitle="Browse items and add to your cart" />
+      {/* Clickable Operating Notice Banner when orders not taking */}
+      {!activeStatus.isOpen && (
+        <div 
+          onClick={() => setIsPausedModalOpen(true)}
+          style={{
+            cursor: 'pointer',
+            padding: '0.8rem 1.15rem',
+            marginBottom: '1rem',
+            borderRadius: '0.875rem',
+            background: 'rgba(245, 158, 11, 0.12)',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.75rem',
+            color: '#fbbf24',
+            transition: 'all 0.2s ease'
+          }}
+          title="Click to read ordering status details"
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+            <Clock size={17} style={{ shrink: 0 }} />
+            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>
+              Orders Currently Paused: {activeStatus.message || 'We are not taking orders currently.'}
+            </span>
+          </div>
+          <span style={{ fontSize: '0.75rem', textDecoration: 'underline', opacity: 0.9, whiteSpace: 'nowrap' }}>
+            View Details
+          </span>
+        </div>
+      )}
 
       <AlertBanner type={message.type} show={!!message.text}>
         {message.type === 'success' ? <CheckCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} /> : <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />}
@@ -167,34 +225,30 @@ const MenuPage = () => {
       </AlertBanner>
 
       {menuItems.length === 0 ? (
-        <EmptyState icon={Package} title="No items available" description="Check back later for new menu items." scene={() => import('../../components/3d/EmptyMenu3D')} />
+        <EmptyState icon={Package} title="No items available" description="Check back later for new menu items." />
       ) : (
         <>
-          <div className="menu-featured">
-            <div className="menu-featured-copy">
-              <h2>Freshly made, served hot</h2>
-              <p>Handpicked favourites from the AparnaCanteen kitchen.</p>
-            </div>
-            <Lazy3D
-              load={() => import('../../components/3d/FoodTray3D')}
-              className="menu-featured-canvas"
-              fallback={<SceneFallback />}
-            />
-          </div>
+          {/* Menu Page Header with Back Navigation */}
+          <PageHeader
+            title="Menu"
+            subtitle="Explore our freshly cooked canteen specialties"
+            badge={`${filteredMenuItems.length} ${filteredMenuItems.length === 1 ? 'dish' : 'dishes'}`}
+            showBack={true}
+            backTo="/customer/home"
+          />
 
           {/* Search bar & Veg Only Quick Filter */}
-          <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-            <div className="search-bar" style={{ flex: 1, minWidth: '220px', margin: 0 }}>
-              <Search size={16} className="search-bar-icon" />
+          <div className="menu-toolbar">
+            <div className="menu-search-wrap">
               <input
                 type="text"
-                className="form-input"
-                placeholder="Search menu (e.g. Biryani, Paneer, Starters...)"
+                className="menu-search-input"
+                placeholder="Search dishes (e.g. Biryani, Paneer, Starters...)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 id="menu-search-input"
-                style={{ paddingRight: searchQuery ? '2.5rem' : '1rem' }}
               />
+              <Search size={18} className="search-bar-icon" />
               {searchQuery && (
                 <button type="button" className="search-bar-clear" onClick={() => setSearchQuery('')} aria-label="Clear search">
                   <X size={16} />
@@ -206,15 +260,17 @@ const MenuPage = () => {
               type="button"
               className={`veg-toggle-btn ${vegOnly ? 'active' : ''}`}
               onClick={() => setVegOnly(!vegOnly)}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.96 }}
               id="veg-only-toggle"
             >
-              <span className="veg-indicator veg" style={{ width: 10, height: 10 }} />
+              <span className="food-indicator veg">
+                <span className="food-indicator-dot" />
+              </span>
               <span>Veg Only</span>
             </MotionButton>
           </div>
 
-          {/* Side-by-side Category Buttons Navigation */}
+          {/* Horizontal Category Filter Navigation */}
           <div className="category-buttons-container" role="tablist" aria-label="Menu categories">
             {categoryNames.map(cat => {
               const count = cat === 'All'
@@ -226,7 +282,7 @@ const MenuPage = () => {
                   type="button"
                   className={`category-btn ${selectedCategory === cat ? 'active' : ''}`}
                   onClick={() => setSelectedCategory(cat)}
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={{ scale: 0.96 }}
                   id={`cat-btn-${cat.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                 >
                   <span>{cat}</span>
@@ -237,38 +293,56 @@ const MenuPage = () => {
           </div>
 
           <div className="menu-categories">
-            {displayedCategories.map(([category, items]) => (
+            {displayedCategories.length === 0 ? (
+              <EmptyState
+                icon={Search}
+                title="No matching dishes found"
+                description={
+                  searchQuery
+                    ? `No dishes found matching "${searchQuery}". Try a different search term or clear filters.`
+                    : vegOnly
+                    ? 'No vegetarian dishes found in this category.'
+                    : 'No dishes currently available in this category.'
+                }
+              />
+            ) : (
+              displayedCategories.map(([category, items]) => (
               <div key={category} className="menu-category-section">
-                <h2 className="category-title">{category}</h2>
-                <motion.div
-                  className="menu-grid"
-                  variants={staggerContainer}
-                  initial="initial"
-                  animate="animate"
-                >
-                  {items.map((item, index) => {
+                <div className="category-header-wrap">
+                  <h2 className="category-title">
+                    {category}
+                    <span className="category-title-badge">
+                      {items.length} {items.length === 1 ? 'dish' : 'dishes'}
+                    </span>
+                  </h2>
+                </div>
+
+                <div className="menu-grid">
+                  {items.map((item) => {
                     const isOutOfStock = !item.is_available;
+                    const isVeg = item.is_veg !== false;
                     return (
-                      <motion.div
+                      <div
                         key={item.id}
                         className={`menu-card ${isOutOfStock ? 'out-of-stock' : ''}`}
-                        variants={fadeUp}
-                        transition={{ delay: index * 0.04 }}
-                        whileHover={isOutOfStock ? {} : { y: -3, transition: { duration: 0.2 } }}
                       >
                         <div className="menu-card-img-wrap">
-                          <div className="menu-card-img-badge">
+                          <div className="menu-card-badge-wrap">
                             <span
-                              className={`veg-indicator ${item.is_veg !== false ? 'veg' : 'non-veg'}`}
-                              title={item.is_veg !== false ? 'Veg' : 'Non-Veg'}
-                            />
-                            <span>{item.is_veg !== false ? 'Veg' : 'Non-Veg'}</span>
+                              className={`food-indicator ${isVeg ? 'veg' : 'non-veg'}`}
+                              title={isVeg ? 'Veg' : 'Non-Veg'}
+                            >
+                              <span className="food-indicator-dot" />
+                            </span>
+                            <span className="food-indicator-text">{isVeg ? 'Veg' : 'Non-Veg'}</span>
                           </div>
+
                           {isOutOfStock && (
                             <div className="out-of-stock-overlay">
                               Out of Stock
                             </div>
                           )}
+
                           {item.image_url ? (
                             <img
                               src={item.image_url}
@@ -276,12 +350,15 @@ const MenuPage = () => {
                               className="menu-card-img"
                               style={isOutOfStock ? { filter: 'grayscale(100%) brightness(0.6)' } : {}}
                               loading="lazy"
+                              decoding="async"
                               onError={(e) => {
-                                e.target.style.display = 'none';
-                                if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+                                e.currentTarget.style.display = 'none';
+                                const placeholder = e.currentTarget.closest('.menu-card-img-wrap')?.querySelector('.menu-card-img-placeholder');
+                                if (placeholder) placeholder.style.display = 'flex';
                               }}
                             />
                           ) : null}
+
                           <div
                             className="menu-card-img-placeholder"
                             style={{
@@ -289,47 +366,79 @@ const MenuPage = () => {
                               ...(isOutOfStock ? { filter: 'grayscale(100%) brightness(0.6)' } : {})
                             }}
                           >
-                            <UtensilsCrossed size={36} />
+                            <div className="placeholder-icon-circle">
+                              <UtensilsCrossed size={26} />
+                            </div>
                           </div>
                         </div>
 
                         <div className="menu-card-body">
-                          <div className="menu-card-header">
-                            <div>
-                              <div className="menu-item-name" style={isOutOfStock ? { color: 'var(--text-muted)' } : {}}>{item.item_name}</div>
-                              <div className="menu-item-category">{item.category || 'General'}</div>
-                            </div>
-                            <div className="menu-item-price" style={isOutOfStock ? { opacity: 0.5, color: 'var(--text-muted)' } : {}}>₹{item.price}</div>
+                          <div className="menu-card-info">
+                            <h3
+                              className="menu-item-name"
+                              style={isOutOfStock ? { color: 'var(--text-muted)' } : {}}
+                              title={item.item_name}
+                            >
+                              {item.item_name}
+                            </h3>
                           </div>
 
-                          <div className="menu-card-actions">
-                            {isOutOfStock ? (
-                              <button className="btn btn-sm btn-out-of-stock" disabled>
-                                Out of Stock
-                              </button>
-                            ) : cart[item.id] ? (
-                              <div className="quantity-control" style={{ width: '100%', justifyContent: 'space-between' }}>
-                                <MotionButton className="quantity-btn" onClick={() => removeFromCart(item.id)} id={`decrease-${item.id}`} aria-label={`Remove one ${item.item_name}`}>
-                                  <Minus size={16} />
+                          <div className="menu-card-footer">
+                            <div
+                              className="menu-item-price"
+                              style={isOutOfStock ? { opacity: 0.5, color: 'var(--text-muted)' } : {}}
+                            >
+                              <span className="price-currency">₹</span>
+                              <span className="price-value">{item.price}</span>
+                            </div>
+
+                            <div className="menu-card-actions">
+                              {isOutOfStock ? (
+                                <span className="btn-out-of-stock-badge">
+                                  Sold Out
+                                </span>
+                              ) : cart[item.id] ? (
+                                <div className="menu-stepper">
+                                  <MotionButton
+                                    className="menu-stepper-btn"
+                                    onClick={() => removeFromCart(item.id)}
+                                    id={`decrease-${item.id}`}
+                                    aria-label={`Remove one ${item.item_name}`}
+                                    whileTap={{ scale: 0.9 }}
+                                  >
+                                    <Minus size={13} />
+                                  </MotionButton>
+                                  <span className="menu-stepper-qty">{cart[item.id].quantity}</span>
+                                  <MotionButton
+                                    className="menu-stepper-btn"
+                                    onClick={() => addToCart(item)}
+                                    id={`increase-${item.id}`}
+                                    aria-label={`Add one more ${item.item_name}`}
+                                    whileTap={{ scale: 0.9 }}
+                                  >
+                                    <Plus size={13} />
+                                  </MotionButton>
+                                </div>
+                              ) : (
+                                <MotionButton
+                                  className="menu-add-btn"
+                                  onClick={() => addToCart(item)}
+                                  id={`add-${item.id}`}
+                                  whileTap={{ scale: 0.95 }}
+                                >
+                                  <Plus size={14} />
+                                  <span>Add</span>
                                 </MotionButton>
-                                <span className="quantity-value">{cart[item.id].quantity}</span>
-                                <MotionButton className="quantity-btn" onClick={() => addToCart(item)} id={`increase-${item.id}`} aria-label={`Add one more ${item.item_name}`}>
-                                  <Plus size={16} />
-                                </MotionButton>
-                              </div>
-                            ) : (
-                              <MotionButton className="btn btn-primary btn-sm" onClick={() => addToCart(item)} id={`add-${item.id}`} style={{ width: '100%', justifyContent: 'center' }}>
-                                <Plus size={16} /> Add to Cart
-                              </MotionButton>
-                            )}
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </motion.div>
+                      </div>
                     );
                   })}
-                </motion.div>
+                </div>
               </div>
-            ))}
+            )))}
           </div>
         </>
       )}
@@ -410,12 +519,24 @@ const MenuPage = () => {
 
             {Object.values(cart).length > 0 && (
               <div className="modal-footer">
-                <MotionButton className="btn btn-secondary" onClick={() => setCart({})} id="clear-cart">
+                <MotionButton className="btn btn-secondary" onClick={clearCart} id="clear-cart">
                   Clear Cart
                 </MotionButton>
-                <MotionButton className="btn btn-primary" onClick={handleProceedToPayment} id="proceed-to-payment">
-                  Place Order
-                </MotionButton>
+                {activeStatus.isOpen ? (
+                  <MotionButton className="btn btn-primary" onClick={handleProceedToPayment} id="proceed-to-payment">
+                    Place Order
+                  </MotionButton>
+                ) : (
+                  <MotionButton
+                    className="btn btn-primary"
+                    onClick={() => setIsPausedModalOpen(true)}
+                    style={{ opacity: 0.85, cursor: 'pointer', background: 'rgba(239, 68, 68, 0.25)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#fca5a5' }}
+                    id="proceed-to-payment"
+                    title="Online ordering is currently paused"
+                  >
+                    Not Taking Orders
+                  </MotionButton>
+                )}
               </div>
             )}
           </>
@@ -475,8 +596,19 @@ const MenuPage = () => {
               <MotionButton className="btn btn-secondary" onClick={handleBackToCart} id="back-to-cart">
                 <ArrowLeft size={16} /> Back
               </MotionButton>
-              <MotionButton className="btn btn-primary" onClick={placeOrder} disabled={orderLoading} id="confirm-order">
-                {orderLoading ? <div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> : 'Confirm Order'}
+              <MotionButton
+                className="btn btn-primary"
+                onClick={placeOrder}
+                disabled={orderLoading || !activeStatus.isOpen}
+                id="confirm-order"
+              >
+                {orderLoading ? (
+                  <div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} />
+                ) : !activeStatus.isOpen ? (
+                  'Orders Paused'
+                ) : (
+                  'Confirm Order'
+                )}
               </MotionButton>
             </div>
           </>

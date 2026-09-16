@@ -3,7 +3,22 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { Home, UtensilsCrossed, ClipboardList, DollarSign, BarChart3, Users, Menu, X, Shield, Megaphone, Store, MessageSquarePlus, BellRing, ChevronRight } from 'lucide-react';
+import { 
+  Gauge, 
+  Scan, 
+  BookOpen, 
+  ClipboardList, 
+  BarChart3, 
+  Wallet, 
+  UsersRound, 
+  Radio, 
+  MessageCircle, 
+  Settings, 
+  Menu, 
+  X, 
+  Shield, 
+  BellRing 
+} from 'lucide-react';
 import AppSidebar from '../components/layout/AppSidebar';
 import PageTransition from '../components/ui/PageTransition';
 
@@ -11,8 +26,10 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [globalAlert, setGlobalAlert] = useState(null);
   const [pendingCount, setPendingCount] = useState(0);
+  const [ordersData, setOrdersData] = useState([]);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
 
   const prevOrdersRef = useRef([]);
   const isFirstLoadRef = useRef(true);
@@ -97,9 +114,11 @@ const AdminLayout = () => {
     try {
       const res = await axios.get('/admin/orders');
       const orders = res.data.data || [];
+      setOrdersData(orders);
 
       const pending = orders.filter(o => o.status === 'Pending' || o.status === 'Preparing').length;
       setPendingCount(pending);
+
 
       if (!isFirstLoadRef.current) {
         const newIncoming = orders.filter(
@@ -134,16 +153,17 @@ const AdminLayout = () => {
   };
 
   const navLinks = [
-    { to: '/admin/home', icon: Home, label: 'Dashboard' },
-    { to: '/admin/counter-sale', icon: Store, label: 'Counter Sale' },
-    { to: '/admin/manage-menu', icon: UtensilsCrossed, label: 'Manage Menu' },
+    { to: '/admin/home', icon: Gauge, label: 'Dashboard' },
+    { to: '/admin/counter-sale', icon: Scan, label: 'Counter Sale' },
+    { to: '/admin/manage-menu', icon: BookOpen, label: 'Manage Menu' },
     { to: '/admin/orders', icon: ClipboardList, label: 'Orders', badge: pendingCount },
     { to: '/admin/statistics', icon: BarChart3, label: 'Statistics' },
-    { to: '/admin/revenue', icon: DollarSign, label: 'Revenue' },
-    { to: '/admin/manage-customers', icon: Users, label: 'Customers' },
-    { to: '/admin/announcements', icon: Megaphone, label: 'Announcements' },
-    { to: '/admin/feedbacks', icon: MessageSquarePlus, label: 'Feedbacks' },
-    { to: '/admin/settings', icon: Shield, label: 'Settings' },
+    { to: '/admin/revenue', icon: Wallet, label: 'Revenue' },
+    { to: '/admin/manage-customers', icon: UsersRound, label: 'Customers' },
+    { to: '/admin/announcements', icon: Radio, label: 'Announcements' },
+    { to: '/admin/feedbacks', icon: MessageCircle, label: 'Feedbacks' },
+    { section: 'SYSTEM CONTROLS' },
+    { to: '/admin/settings', icon: Settings, label: 'Settings' },
   ];
 
   const adminBadge = (
@@ -154,19 +174,32 @@ const AdminLayout = () => {
 
   return (
     <div className="app-layout">
-      <motion.button
-        className="hamburger-btn"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        id="admin-hamburger"
-        aria-label="Toggle navigation menu"
-        aria-expanded={sidebarOpen}
-        whileTap={{ scale: 0.95 }}
-      >
-        {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
-      </motion.button>
+      {/* Mobile Top App Header Bar */}
+      <header className="mobile-app-header">
+        <motion.button
+          className="mobile-menu-trigger"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          id="admin-hamburger"
+          aria-label="Toggle navigation menu"
+          aria-expanded={sidebarOpen}
+          whileTap={{ scale: 0.92 }}
+        >
+          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+        </motion.button>
+        <div className="mobile-app-brand">
+          <img src="/canteen-logo.png" alt="AparnaDevi Logo" className="mobile-app-logo" />
+          <span className="mobile-app-title">Admin Panel</span>
+        </div>
+        <div className="mobile-header-user">
+          <span className="badge badge-completed" style={{ fontSize: '0.65rem', padding: '0.15rem 0.4rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+            <Shield size={10} /> Admin
+          </span>
+        </div>
+      </header>
 
       <AppSidebar
-        brand="AparnaCanteen"
+        brand="Aparna Devi"
+        subtitle="ADMIN CONSOLE"
         badge={adminBadge}
         navLinks={navLinks}
         user={user}
@@ -188,26 +221,33 @@ const AdminLayout = () => {
               transform: 'translateX(-50%)',
               zIndex: 9999,
               cursor: 'pointer',
-              minWidth: '320px',
-              maxWidth: '90vw',
+              minWidth: 'min(300px, 92vw)',
+              maxWidth: '92vw',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
+              padding: '0.75rem 1.25rem',
+              borderRadius: '9999px',
+              background: 'rgba(14, 11, 18, 0.95)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(249, 115, 22, 0.45)',
+              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.75)',
+              color: '#ffffff'
             }}
             onClick={() => {
               setGlobalAlert(null);
               navigate('/admin/orders');
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <BellRing size={22} className="bell-ring-anim" />
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '1rem' }}>
-                  🔔 New Order Received! (#{globalAlert.orderNumber})
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flex: 1, minWidth: 0 }}>
+              <BellRing size={20} className="bell-ring-anim" style={{ flexShrink: 0 }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  New Order Received! (#{globalAlert.orderNumber})
                 </div>
-                <div style={{ fontSize: '0.85rem', opacity: 0.95 }}>
-                  {globalAlert.count} new customer order(s) arrived. Click to view.
+                <div style={{ fontSize: '0.78rem', opacity: 0.92, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {globalAlert.count} new order(s) arrived. Click to view.
                 </div>
               </div>
             </div>
@@ -227,9 +267,10 @@ const AdminLayout = () => {
         )}
         <PageTransition>
           <div className="page-container">
-            <Outlet />
+            <Outlet context={{ ordersData, refreshOrders: checkNewOrders }} />
           </div>
         </PageTransition>
+
       </main>
     </div>
   );

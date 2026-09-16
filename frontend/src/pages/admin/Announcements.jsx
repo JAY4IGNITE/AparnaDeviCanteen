@@ -91,6 +91,8 @@ const AdminAnnouncements = () => {
       <PageHeader
         title="Manage Announcements"
         subtitle="Add and update customer announcements"
+        showBack={true}
+        backTo="/admin/home"
         actions={
           announcements.length > 0 ? (
             <MotionButton
@@ -114,7 +116,7 @@ const AdminAnnouncements = () => {
             aria-label="Announcement message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            style={{ flex: 1, minWidth: '250px' }}
+            style={{ flex: 1, minWidth: 'min(100%, 250px)' }}
             required
           />
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>

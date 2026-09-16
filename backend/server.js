@@ -1,4 +1,5 @@
 const express = require('express');
+const compression = require('compression');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
@@ -13,11 +14,15 @@ const feedbackRoutes = require('./routes/feedbackRoutes');
 
 const app = express();
 
+// Enable Gzip / Brotli compression for all API responses and assets
+app.use(compression());
+
 // Request Logger
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl || req.url}`);
   next();
 });
+
 
 // Middleware
 app.use(cors({
@@ -44,13 +49,24 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'FoodNest API is running (Supabase)' });
 });
 
-// Serve Static Frontend Assets
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+// Serve Static Frontend Assets with 1-year caching for fingerprinted assets
+app.use(express.static(path.join(__dirname, '../frontend/dist'), {
+  maxAge: '1y',
+  immutable: true,
+  setHeaders: (res, filePath) => {
+    // HTML fallback and non-hashed files must not be aggressively cached
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+  }
+}));
 
 // Fallback to React Router index.html for any non-API routes
 app.get('*', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
+
 
 // Global error handler
 app.use((err, req, res, next) => {

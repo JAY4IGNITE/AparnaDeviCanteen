@@ -12,27 +12,34 @@ router.use(protect, adminOnly);
 
 // ============== MENU MANAGEMENT ==============
 
-// GET /api/admin/menu/visibility — Get the current menu visibility setting
-router.get('/menu/visibility', async (req, res) => {
+// GET /api/admin/menu/visibility or /api/admin/orders-status — Get current ordering status
+router.get(['/menu/visibility', '/orders-status'], async (req, res) => {
   try {
-    const { getMenuVisibility } = require('../settings');
-    const isVisible = await getMenuVisibility();
-    res.json({ success: true, isVisible });
+    const { getOrdersActive } = require('../settings');
+    const isOrdersActive = await getOrdersActive();
+    res.json({ success: true, isVisible: isOrdersActive, isOrdersActive });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// PUT /api/admin/menu/visibility — Update the menu visibility setting
-router.put('/menu/visibility', async (req, res) => {
+// PUT /api/admin/menu/visibility or /api/admin/orders-status — Update ordering status
+router.put(['/menu/visibility', '/orders-status'], async (req, res) => {
   try {
-    const { isVisible } = req.body;
-    if (isVisible === undefined) {
-      return res.status(400).json({ success: false, message: 'isVisible is required' });
+    const isOrdersActive = req.body.isOrdersActive !== undefined 
+      ? req.body.isOrdersActive 
+      : req.body.isVisible;
+    if (isOrdersActive === undefined) {
+      return res.status(400).json({ success: false, message: 'isOrdersActive or isVisible is required' });
     }
-    const { setMenuVisibility } = require('../settings');
-    await setMenuVisibility(isVisible);
-    res.json({ success: true, message: `Menu visibility set to ${isVisible ? 'on' : 'off'}` });
+    const { setOrdersActive } = require('../settings');
+    await setOrdersActive(Boolean(isOrdersActive));
+    res.json({
+      success: true,
+      isVisible: Boolean(isOrdersActive),
+      isOrdersActive: Boolean(isOrdersActive),
+      message: `Ordering status set to ${isOrdersActive ? 'ACTIVE (Accepting Orders)' : 'PAUSED (Not Taking Orders)'}`
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

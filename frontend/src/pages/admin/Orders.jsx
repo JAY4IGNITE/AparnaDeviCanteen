@@ -1,26 +1,36 @@
 import { useState, useEffect, useRef } from 'react';
+import { useOutletContext, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
-import { Download, CheckCircle, Clock, Package, Phone, Trash2, Search, X, ChefHat, BellRing, Volume2, MessageCircle } from 'lucide-react';
+import { Download, CheckCircle, Clock, Package, Phone, Trash2, Search, X, ChefHat, MessageCircle, FileText } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
 import MotionButton from '../../components/ui/MotionButton';
 import AnimatedModal from '../../components/ui/AnimatedModal';
-
 const AdminOrders = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [autoSync, setAutoSync] = useState(true);
   const [startDateFilter, setStartDateFilter] = useState('');
   const [endDateFilter, setEndDateFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '');
   const [blockFilter, setBlockFilter] = useState('');
   const [orderIdFilter, setOrderIdFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
+  const [downloadingId, setDownloadingId] = useState(null);
 
   const prevOrdersRef = useRef([]);
   const isFirstLoadRef = useRef(true);
+
+  // Synchronize status filter when URL parameter changes (e.g. clicked from dashboard stat card)
+  useEffect(() => {
+    const urlStatus = searchParams.get('status');
+    if (urlStatus !== null) {
+      setStatusFilter(urlStatus);
+    }
+  }, [searchParams]);
 
   const handleWhatsAppNotify = (order) => {
     const rawPhone = order.customer?.phone;
@@ -38,12 +48,12 @@ const AdminOrders = () => {
     const orderNum = order.order_number || (order.id ? order.id.substring(0, 6).toUpperCase() : 'ORDER');
     const totalAmount = order.total_amount || 0;
     
-    let msgText = `👋 *Order Update – AparnaCanteen*\n\nHello ${customerName}! 😊\n\nUpdate regarding your *Order #${orderNum}*.\n*Total Amount:* ₹${totalAmount}\n\n— *AparnaCanteen*`;
+    let msgText = `*Order Update – AparnaCanteen*\n\nHello ${customerName}!\n\nUpdate regarding your *Order #${orderNum}*.\n*Total Amount:* ₹${totalAmount}\n\n— *AparnaCanteen*`;
 
     if (order.status === 'Preparing') {
-      msgText = `👨‍🍳 *Order Update – AparnaCanteen*\n\nHello ${customerName}! 😊\n\nYour *Order #${orderNum}* is now being *prepared in the kitchen*. 👨‍🍳\n*Total Amount:* ₹${totalAmount}\n\nWe’ll have your order ready and served to you shortly. Thank you for your patience! 🙏\n\n— *AparnaCanteen*`;
+      msgText = `*Order Update – AparnaCanteen*\n\nHello ${customerName}!\n\nYour *Order #${orderNum}* is now being *prepared in the kitchen*.\n*Total Amount:* ₹${totalAmount}\n\nWe will have your order ready and served to you shortly. Thank you for your patience!\n\n— *AparnaCanteen*`;
     } else if (order.status === 'Completed') {
-      msgText = `✅ *Order Completed – AparnaCanteen*\n\nHello ${customerName}! 😊\n\nYour *Order #${orderNum}* has been *successfully completed*. 🎉\n\nThank you for ordering from *AparnaCanteen*! We hope you enjoyed your meal. ❤️\n\nWe look forward to serving you again! 🙏\n\n— *AparnaCanteen*`;
+      msgText = `*Order Completed – AparnaCanteen*\n\nHello ${customerName}!\n\nYour *Order #${orderNum}* has been *successfully completed*.\n\nThank you for ordering from *AparnaCanteen*! We hope you enjoyed your meal.\n\nWe look forward to serving you again!\n\n— *AparnaCanteen*`;
     }
 
     const encodedMsg = encodeURIComponent(msgText);
@@ -51,20 +61,52 @@ const AdminOrders = () => {
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
+  const handleDownloadInvoice = async (order) => {
+    setDownloadingId(order.id);
+    try {
+      const generateInvoice = (await import('../../components/ui/InvoiceGenerator')).default;
+      await generateInvoice(order, order.customer || { name: 'Customer' });
+    } catch (err) {
+      console.error('Failed to generate invoice:', err);
+      alert('Failed to generate invoice: ' + (err.message || 'Please try again.'));
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
+
+
+  const outletCtx = useOutletContext();
+
+  // Sync with AdminLayout's unified polling stream when no custom filters are active
+  useEffect(() => {
+    if (!startDateFilter && !endDateFilter && !statusFilter) {
+      if (outletCtx?.ordersData && outletCtx.ordersData.length > 0) {
+        setOrders(outletCtx.ordersData);
+        setLoading(false);
+      }
+    }
+  }, [outletCtx?.ordersData, startDateFilter, endDateFilter, statusFilter]);
 
   useEffect(() => {
-    fetchOrders();
+    if (startDateFilter || endDateFilter || statusFilter) {
+      fetchOrders();
+    } else if (!outletCtx?.ordersData || outletCtx.ordersData.length === 0) {
+      fetchOrders();
+    }
   }, [startDateFilter, endDateFilter, statusFilter]);
 
-  // Live Auto-Refresh Interval
+  // Only run an independent poll if custom date/status filters are active and autoSync is enabled
   useEffect(() => {
-    if (!autoSync) return;
+    const hasCustomFilter = !!(startDateFilter || endDateFilter || statusFilter);
+    if (!autoSync || !hasCustomFilter) return;
+
     const interval = setInterval(() => {
       fetchOrders(true);
     }, 10000);
     return () => clearInterval(interval);
   }, [autoSync, startDateFilter, endDateFilter, statusFilter]);
+
 
   const fetchOrders = async (isSilent = false) => {
     if (!isSilent) setLoading(true);
@@ -75,14 +117,7 @@ const AdminOrders = () => {
       const res = await axios.get(url);
       const fetchedOrders = res.data.data || [];
 
-      // Check if new orders arrived since last poll
-      if (!isFirstLoadRef.current) {
-        const newIncoming = fetchedOrders.filter(
-          order => !prevOrdersRef.current.some(prev => prev.id === order.id)
-        );
-        // We removed the local alert logic here to rely on the global AdminLayout alert
-      }
-
+      // Global new order sound & alert handled by AdminLayout context
       prevOrdersRef.current = fetchedOrders;
       isFirstLoadRef.current = false;
       setOrders(fetchedOrders);
@@ -166,6 +201,8 @@ const AdminOrders = () => {
       <PageHeader
         title="Orders"
         subtitle="View and manage all customer orders"
+        showBack={true}
+        backTo="/admin/home"
         actions={
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
             <MotionButton
@@ -216,10 +253,10 @@ const AdminOrders = () => {
         </div>
         <div className="form-group">
           <label className="form-label">Filter by Order ID</label>
-          <input type="text" className="form-input" placeholder="e.g. 1" value={orderIdFilter} onChange={(e) => setOrderIdFilter(e.target.value)} id="order-id-filter" style={{ width: '120px' }} />
+          <input type="text" className="form-input" placeholder="e.g. 1" value={orderIdFilter} onChange={(e) => setOrderIdFilter(e.target.value)} id="order-id-filter" style={{ minWidth: '100px', width: '100%' }} />
         </div>
         {(startDateFilter || endDateFilter || statusFilter || blockFilter || orderIdFilter || searchQuery) && (
-          <MotionButton className="btn btn-ghost btn-sm" onClick={() => { setStartDateFilter(''); setEndDateFilter(''); setStatusFilter(''); setBlockFilter(''); setOrderIdFilter(''); setSearchQuery(''); }}>
+          <MotionButton className="btn btn-ghost btn-sm" onClick={() => { setStartDateFilter(''); setEndDateFilter(''); setStatusFilter(''); setBlockFilter(''); setOrderIdFilter(''); setSearchQuery(''); setSearchParams({}); }}>
             Clear Filters
           </MotionButton>
         )}
@@ -244,7 +281,7 @@ const AdminOrders = () => {
       </div>
 
       {sorted.length === 0 ? (
-        <EmptyState icon={Package} title="No orders found" description="Try adjusting your filters or wait for new orders to arrive!" scene={() => import('../../components/3d/EmptyOrders3D')} />
+        <EmptyState icon={Package} title="No orders found" description="Try adjusting your filters or wait for new orders to arrive!" />
       ) : (
         <div className="table-wrapper">
           <table className="table table-responsive-cards">
@@ -284,7 +321,7 @@ const AdminOrders = () => {
                   </td>
                   <td data-label="Date" style={{ fontSize: '0.85rem' }}>{formatDate(order.created_at)}</td>
                   <td data-label="Action">
-                    <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', flexWrap: 'nowrap', whiteSpace: 'nowrap' }}>
+                    <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                       {order.status === 'Pending' && (
                         <MotionButton
                           className="btn btn-info btn-sm"
@@ -351,6 +388,15 @@ const AdminOrders = () => {
                           <Phone size={14} />
                         </a>
                       )}
+                      <MotionButton
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => handleDownloadInvoice(order)}
+                        disabled={downloadingId === order.id}
+                        title="Generate & Download Token Receipt / Invoice PDF"
+                        id={`invoice-btn-${order.id}`}
+                      >
+                        <FileText size={14} />
+                      </MotionButton>
                     </div>
                   </td>
                 </tr>

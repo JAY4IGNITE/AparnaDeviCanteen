@@ -8,7 +8,7 @@ import LoadingState from '../../components/ui/LoadingState';
 import MotionButton from '../../components/ui/MotionButton';
 import { fadeUp } from '../../lib/motion';
 import { useAuth } from '../../context/AuthContext';
-import generateInvoice from '../../components/ui/InvoiceGenerator';
+
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -47,6 +47,7 @@ const Orders = () => {
   const handleDownloadInvoice = async (order) => {
     setDownloadingId(order.id);
     try {
+      const generateInvoice = (await import('../../components/ui/InvoiceGenerator')).default;
       await generateInvoice(order, user);
     } catch (err) {
       console.error('Failed to generate invoice:', err);
@@ -55,6 +56,7 @@ const Orders = () => {
       setDownloadingId(null);
     }
   };
+
 
   const formatDate = (dateStr) => {
     return new Date(dateStr).toLocaleString('en-IN', {
@@ -118,10 +120,15 @@ const Orders = () => {
 
   return (
     <div>
-      <PageHeader title="My Orders" subtitle="Track your past and current orders" />
+      <PageHeader
+        title="My Orders"
+        subtitle="Track your past and current orders"
+        showBack={true}
+        backTo="/customer/home"
+      />
 
       {orders.length === 0 ? (
-        <EmptyState icon={Package} title="No orders yet" description="Place your first order from the menu!" scene={() => import('../../components/3d/EmptyOrders3D')} />
+        <EmptyState icon={Package} title="No orders yet" description="Place your first order from the menu!" />
       ) : (
         orders.map((order, index) => (
           <motion.div
@@ -168,7 +175,7 @@ const Orders = () => {
               ))}
             </div>
 
-            <div className="order-total" style={{ borderBottom: (order.status === 'Pending' || order.status !== 'Cancelled') ? '1px solid var(--border-color)' : 'none', paddingBottom: '1rem' }}>
+            <div className="order-total">
               <span>Total</span>
               <span>₹{order.total_amount}</span>
             </div>

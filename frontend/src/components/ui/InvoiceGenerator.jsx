@@ -54,7 +54,7 @@ const generateInvoice = async (order, user) => {
     await new Promise((resolve, reject) => {
       logoImg.onload = resolve;
       logoImg.onerror = reject;
-      logoImg.src = '/favicon.jpg';
+      logoImg.src = '/canteen-logo.png';
     });
     const logoS = 16;
     const logoY = 3;
@@ -77,8 +77,13 @@ const generateInvoice = async (order, user) => {
     ctx.closePath();
     ctx.clip();
 
-    // Draw the logo image filling the canvas
-    ctx.drawImage(logoImg, 0, 0, canvasSize, canvasSize);
+    // Draw the logo image centered preserving aspect ratio
+    const scale = Math.min((canvasSize * 0.85) / (logoImg.width || 1), (canvasSize * 0.85) / (logoImg.height || 1));
+    const drawW = (logoImg.width || canvasSize) * scale;
+    const drawH = (logoImg.height || canvasSize) * scale;
+    const drawX = (canvasSize - drawW) / 2;
+    const drawY = (canvasSize - drawH) / 2;
+    ctx.drawImage(logoImg, drawX, drawY, drawW, drawH);
 
     // Use the clipped circular image in the PDF
     const circularLogoData = canvas.toDataURL('image/png');

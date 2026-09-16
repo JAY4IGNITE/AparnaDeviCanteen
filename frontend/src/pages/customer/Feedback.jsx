@@ -59,7 +59,12 @@ const Feedback = () => {
 
   return (
     <div>
-      <PageHeader title="Give Feedback" subtitle="Tell us about the food quality, taste, or your dining experience" />
+      <PageHeader
+        title="Give Feedback"
+        subtitle="Tell us about the food quality, taste, or your dining experience"
+        showBack={true}
+        backTo="/customer/home"
+      />
 
       <div className="feedback-grid">
         {/* Submission Form */}

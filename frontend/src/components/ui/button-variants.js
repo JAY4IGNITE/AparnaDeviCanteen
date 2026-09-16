@@ -13,16 +13,16 @@ export const buttonVariants = cva(
   [
     'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap',
     'appearance-none border-0 bg-transparent',
-    'font-semibold transition-all duration-200 cursor-pointer select-none',
+    'font-semibold cursor-pointer select-none transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.96] active:translate-y-0',
     'outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-    'disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed',
+    'disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none',
     "[&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
   ].join(' '),
   {
     variants: {
       variant: {
         default:
-          'bg-gradient-to-br from-brand-500 to-brand-600 text-primary-foreground shadow-[0_4px_14px_-2px_rgba(249,115,22,0.45)] hover:from-brand-400 hover:to-brand-500 hover:shadow-[0_6px_22px_-2px_rgba(249,115,22,0.6)]',
+          'bg-primary-500 text-white shadow-[0_4px_12px_rgba(249,115,22,0.28)] hover:bg-primary-600 hover:shadow-[0_8px_20px_rgba(249,115,22,0.4)]',
         secondary:
           'border border-border bg-secondary text-secondary-foreground hover:bg-accent hover:border-input',
         outline:

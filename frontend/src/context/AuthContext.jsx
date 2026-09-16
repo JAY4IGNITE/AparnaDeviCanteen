@@ -1,11 +1,20 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext(null);
 
-const API_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api` 
-  : (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
+const resolveApiUrl = () => {
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return 'http://localhost:5000/api';
+  }
+  if (import.meta.env.VITE_API_URL) {
+    const base = import.meta.env.VITE_API_URL.replace(/\/+$/, '');
+    return base.endsWith('/api') ? base : `${base}/api`;
+  }
+  return 'https://aparnadevicanteen.onrender.com/api';
+};
+
+const API_URL = resolveApiUrl();
 
 // Configure axios defaults
 axios.defaults.baseURL = API_URL;
@@ -26,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, [token]);
 
-  const login = async (credentials) => {
+  const login = useCallback(async (credentials) => {
     const res = await axios.post('/auth/login', credentials);
     const { token: newToken, user: userData } = res.data;
     setToken(newToken);
@@ -35,42 +44,42 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('foodnest_user', JSON.stringify(userData));
     axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
     return userData;
-  };
+  }, []);
 
-  const register = async (data) => {
+  const register = useCallback(async (data) => {
     const res = await axios.post('/auth/register', data);
     return res.data;
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('foodnest_token');
     localStorage.removeItem('foodnest_user');
     delete axios.defaults.headers.common['Authorization'];
-  };
+  }, []);
 
-  const updateUser = (userData) => {
+  const updateUser = useCallback((userData) => {
     setUser(userData);
     localStorage.setItem('foodnest_user', JSON.stringify(userData));
-  };
+  }, []);
 
-  const updateEmail = async (email) => {
+  const updateEmail = useCallback(async (email) => {
     const res = await axios.put('/auth/update-email', { email });
     const updatedUser = res.data.user;
     updateUser(updatedUser);
     return updatedUser;
-  };
+  }, [updateUser]);
 
-  const resendVerification = async (email) => {
+  const resendVerification = useCallback(async (email) => {
     const res = await axios.post('/auth/resend-verification', { email });
     if (res.data?.user) {
       updateUser(res.data.user);
     }
     return res.data;
-  };
+  }, [updateUser]);
 
-  const verifyEmail = async (token) => {
+  const verifyEmail = useCallback(async (token) => {
     const res = await axios.post('/auth/verify-email', { token });
     if (res.data?.user) {
       updateUser(res.data.user);
@@ -78,27 +87,55 @@ export const AuthProvider = ({ children }) => {
       updateUser({ ...user, email_verified: true });
     }
     return res.data;
-  };
+  }, [updateUser, user]);
 
-  const forgotPassword = async (email) => {
+  const forgotPassword = useCallback(async (email) => {
     const res = await axios.post('/auth/forgot-password', { email });
     return res.data;
-  };
+  }, []);
 
-  const resetPassword = async (token, newPassword, confirmPassword) => {
+  const resetPassword = useCallback(async (token, newPassword, confirmPassword) => {
     const res = await axios.post('/auth/reset-password', { token, newPassword, confirmPassword });
     return res.data;
-  };
+  }, []);
 
   const isAuthenticated = !!token && !!user;
   const isAdmin = user?.role === 'admin';
 
+  const value = useMemo(() => ({
+    user,
+    token,
+    loading,
+    login,
+    register,
+    logout,
+    updateUser,
+    updateEmail,
+    resendVerification,
+    verifyEmail,
+    forgotPassword,
+    resetPassword,
+    isAuthenticated,
+    isAdmin,
+  }), [
+    user,
+    token,
+    loading,
+    login,
+    register,
+    logout,
+    updateUser,
+    updateEmail,
+    resendVerification,
+    verifyEmail,
+    forgotPassword,
+    resetPassword,
+    isAuthenticated,
+    isAdmin,
+  ]);
+
   return (
-    <AuthContext.Provider value={{ 
-      user, token, loading, login, register, logout, updateUser, updateEmail, 
-      resendVerification, verifyEmail, forgotPassword, resetPassword,
-      isAuthenticated, isAdmin 
-    }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

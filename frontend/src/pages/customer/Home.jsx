@@ -1,116 +1,132 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { useAuth } from '../../context/AuthContext';
-import { UtensilsCrossed, ShoppingBag, Megaphone } from 'lucide-react';
-import InteractiveCard from '../../components/ui/InteractiveCard';
-import Lazy3D from '../../components/3d/Lazy3D';
-import SceneFallback from '../../components/3d/SceneFallback';
-import { useMotionSafe } from '../../lib/motion';
+import { motion } from 'motion/react';
+import { Clock } from 'lucide-react';
+import DashboardHeader from '../../components/customer/DashboardHeader';
+import DashboardHero from '../../components/customer/DashboardHero';
+import TrendingToday from '../../components/customer/TrendingToday';
+import ActiveOrderCard from '../../components/customer/ActiveOrderCard';
+import OrderAgain from '../../components/customer/OrderAgain';
+import ErrorBoundary from '../../components/ui/ErrorBoundary';
+import { useCart } from '../../context/CartContext';
+import { staggerContainer, fadeUp } from '../../lib/motion';
 
-const Home = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const [announcementCount, setAnnouncementCount] = useState(0);
-  const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
-  const { transition } = useMotionSafe();
+const CustomerHome = () => {
+  const { setIsPausedModalOpen, isOrdersActive, statusMessage } = useCart();
+  const [menuItems, setMenuItems] = useState([]);
+  const [customerOrders, setCustomerOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [serverOperatingStatus, setServerOperatingStatus] = useState(null);
 
-  useEffect(() => {
-    fetchAnnouncementCount();
-  }, []);
-
-  const fetchAnnouncementCount = async () => {
-    try {
-      setLoadingAnnouncements(true);
-      const res = await axios.get('/announcements');
-      if (res.data.success) {
-        setAnnouncementCount(res.data.count || 0);
-      }
-    } catch (err) {
-      console.error('Failed to fetch announcements for home page:', err);
-    } finally {
-      setLoadingAnnouncements(false);
-    }
+  const activeStatus = serverOperatingStatus || {
+    isOpen: isOrdersActive,
+    message: statusMessage || 'Sorry, we are not taking orders currently. Ordering will open when activated by the admin.'
   };
 
-  const cards = [
-    {
-      icon: UtensilsCrossed,
-      title: 'Browse Menu',
-      description: 'Explore our delicious offerings',
-      color: 'orange',
-      path: '/customer/menu',
-    },
-    {
-      icon: ShoppingBag,
-      title: 'My Orders',
-      description: 'Track your order history',
-      color: 'blue',
-      path: '/customer/orders',
-    },
-    {
-      icon: Megaphone,
-      title: 'Announcements',
-      description: loadingAnnouncements
-        ? 'Checking updates...'
-        : announcementCount > 0
-          ? `${announcementCount} active ${announcementCount === 1 ? 'announcement' : 'announcements'}`
-          : 'No new announcements',
-      color: 'green',
-      path: '/customer/announcements',
-      badge: announcementCount > 0 ? announcementCount : null,
-      highlight: announcementCount > 0,
-    },
-  ];
+  const fetchData = useCallback(async () => {
+    setLoadingOrders(true);
+    try {
+      const [menuRes, ordersRes, statusRes] = await Promise.allSettled([
+        axios.get('/menu'),
+        axios.get('/orders/me'),
+        axios.get('/menu/operating-status')
+      ]);
+
+      if (menuRes.status === 'fulfilled' && menuRes.value.data?.success) {
+        setMenuItems(menuRes.value.data.data || []);
+      }
+      if (ordersRes.status === 'fulfilled' && ordersRes.value.data?.success) {
+        setCustomerOrders(ordersRes.value.data.data || []);
+      }
+      if (statusRes.status === 'fulfilled' && statusRes.value.data?.success) {
+        setServerOperatingStatus(statusRes.value.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to load dashboard data:', err);
+    } finally {
+      setLoadingOrders(false);
+    }
+  }, []);
+
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Find the latest active order (status 'Pending' or 'Preparing')
+  const activeOrder = customerOrders.find(
+    (order) => order.status === 'Pending' || order.status === 'Preparing'
+  );
 
   return (
-    <div>
-      <div className="home-hero">
-        <motion.div
-          className="welcome-section"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={transition}
-        >
-          <h1 className="welcome-title">
-            Welcome, <span>{user?.name || 'Guest'}!</span>
-          </h1>
-          <p className="welcome-subtitle">
-            What would you like to eat today? Browse our menu and place your order.
-          </p>
-        </motion.div>
-        <div className="home-hero-visual" aria-hidden="true">
-          <Lazy3D
-            load={() => import('../../components/3d/FoodNestHero3D')}
-            className="home-hero-canvas"
-            fallback={<SceneFallback icon={UtensilsCrossed} />}
-          />
-        </div>
-      </div>
+    <div className="customer-dashboard-root">
+      {/* 1. Header with greeting, notifications, cart & profile */}
+      <ErrorBoundary>
+        <DashboardHeader />
+      </ErrorBoundary>
 
-      <div className="bento-grid">
-        {cards.map((card, index) => (
-          <InteractiveCard
-            key={card.path}
-            index={index}
-            className="bento-card"
-            onClick={() => navigate(card.path)}
+      <motion.div
+        className="customer-dashboard-body"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
+        {/* Operating Status Notice if Orders are Inactive */}
+        {!activeStatus.isOpen && (
+          <motion.div
+            variants={fadeUp}
+            onClick={() => setIsPausedModalOpen(true)}
+            style={{ cursor: 'pointer' }}
+            className="p-3.5 mb-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between gap-3 text-amber-300 text-xs sm:text-sm hover:bg-amber-500/15 transition-colors"
+            title="Click to view ordering status details"
           >
-            {card.badge && <span className="bento-badge">{card.badge}</span>}
-            <div className={`stat-icon ${card.color} bento-card-icon`}>
-              <card.icon size={28} />
+            <div className="flex items-center gap-2.5">
+              <Clock size={18} className="shrink-0 text-amber-400" />
+              <div>
+                <strong className="font-bold mr-1.5">Ordering Notice:</strong>
+                <span>{activeStatus.message || 'Sorry, we are not taking orders currently.'}</span>
+              </div>
             </div>
-            <h3>{card.title}</h3>
-            <p style={card.highlight ? { color: 'var(--success)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' } : undefined}>
-              {card.highlight && <span className="pulse-dot" />}
-              {card.description}
-            </p>
-          </InteractiveCard>
-        ))}
-      </div>
+            <span className="text-xs underline opacity-90 shrink-0">View Details</span>
+          </motion.div>
+        )}
+
+        {/* 2. Food-Focused Hero Banner */}
+        <motion.div variants={fadeUp}>
+          <ErrorBoundary>
+            <DashboardHero />
+          </ErrorBoundary>
+        </motion.div>
+
+        {/* 4. Active Order Live Progress (if any) */}
+        {activeOrder && (
+          <motion.div variants={fadeUp}>
+            <ErrorBoundary>
+              <ActiveOrderCard activeOrder={activeOrder} />
+            </ErrorBoundary>
+          </motion.div>
+        )}
+
+        {/* 6. Trending Today (Ranked by Today's India-Time Orders) */}
+        <motion.div variants={fadeUp}>
+          <ErrorBoundary>
+            <TrendingToday />
+          </ErrorBoundary>
+        </motion.div>
+
+        {/* 7. Order Again (Customer's previous favorite dishes) */}
+        <motion.div variants={fadeUp}>
+          <ErrorBoundary>
+            <OrderAgain
+              orders={customerOrders}
+              allMenuItems={menuItems}
+              loading={loadingOrders}
+            />
+          </ErrorBoundary>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
 
-export default Home;
+export default CustomerHome;

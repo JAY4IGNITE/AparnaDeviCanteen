@@ -50,7 +50,25 @@ async function setMenuVisibility(visible) {
   }
 }
 
+/**
+ * Gets the current order accepting status (admin privilege).
+ * Returns true if admin activated orders, false if paused / not taking orders.
+ */
+async function getOrdersActive() {
+  return getMenuVisibility();
+}
+
+/**
+ * Sets the order accepting status.
+ * @param {boolean} active 
+ */
+async function setOrdersActive(active) {
+  return setMenuVisibility(active);
+}
+
 module.exports = {
+  getOrdersActive,
+  setOrdersActive,
   getMenuVisibility,
   setMenuVisibility
 };

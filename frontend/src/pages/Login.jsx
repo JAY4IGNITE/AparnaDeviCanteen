@@ -1,32 +1,45 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { LogIn, Phone, Mail, Lock, AlertCircle, Eye, EyeOff, MessageCircle, X, ExternalLink, LogOut } from 'lucide-react';
+import { Phone, Mail, Lock, AlertCircle, Eye, EyeOff, X, LogOut } from 'lucide-react';
 import MotionButton from '../components/ui/MotionButton';
 import AlertBanner from '../components/ui/AlertBanner';
 import AnimatedModal from '../components/ui/AnimatedModal';
 import { useMotionSafe } from '../lib/motion';
 import useNeonBorder from '../hooks/useNeonBorder';
-import './StarsBackground.css';
+import MagicRings from '../components/MagicRings';
+import ThemeToggleDock from '../components/ThemeToggleDock';
 
 const Login = () => {
   const [formData, setFormData] = useState({ identifier: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showCommunityPopup, setShowCommunityPopup] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showUnverifiedModal, setShowUnverifiedModal] = useState(false);
   const [emailSentSuccess, setEmailSentSuccess] = useState('');
   const [emailInput, setEmailInput] = useState('');
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
-  const { login, updateEmail, resendVerification, logout } = useAuth();
+  const { user, login, updateEmail, resendVerification, logout } = useAuth();
   const navigate = useNavigate();
   const { transition } = useMotionSafe();
   const cardRef = useRef(null);
-  useNeonBorder(cardRef, { color: '#CC9149', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
+  useNeonBorder(cardRef, { color: '#f97316', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
+
+  // If already authenticated, redirect to the dashboard without adding extra history entries
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'admin') {
+        navigate('/admin/home', { replace: true });
+      } else {
+        navigate('/customer/home', { replace: true });
+      }
+    }
+  }, [user, navigate]);
+
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -58,7 +71,13 @@ const Login = () => {
         proceedToApp(user);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.message?.includes('Network Error') || err.code === 'ERR_NETWORK') {
+        setError('Unable to connect to the server. Please check your connection or try again shortly.');
+      } else {
+        setError(err.message || 'Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -66,9 +85,9 @@ const Login = () => {
 
   const proceedToApp = (userObj) => {
     if (userObj.role === 'admin') {
-      navigate('/admin/home');
+      navigate('/admin/home', { replace: true });
     } else {
-      setShowCommunityPopup(true);
+      navigate('/customer/home', { replace: true });
     }
   };
 
@@ -124,18 +143,51 @@ const Login = () => {
     setError('Login cancelled. Email is required to continue.');
   };
 
-  const handleContinueToApp = () => {
-    setShowCommunityPopup(false);
-    navigate('/customer/home');
-  };
-
   return (
     <div className="auth-page" style={{ background: 'transparent' }}>
-      <div className="stars-container">
-        <div id="stars"></div>
-        <div id="stars2"></div>
-        <div id="stars3"></div>
+      {/* Theme Toggle Dock — fixed top right */}
+      <ThemeToggleDock />
+
+      {/* Simplified, Lightweight Themed MagicRings Background */}
+      <div
+        className="auth-magic-rings"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          pointerEvents: 'none',
+          zIndex: 0,
+          overflow: 'hidden',
+        }}
+      >
+        <MagicRings
+          color="#ff4500"
+          colorTwo="#f97316"
+          colorThree="#ffb703"
+          ringCount={4}
+          speed={0.6}
+          attenuation={8}
+          lineThickness={1.5}
+          baseRadius={0.36}
+          radiusStep={0.16}
+          scaleRate={0.1}
+          opacity={0.68}
+          blur={0}
+          noiseAmount={0.02}
+          rotation={0}
+          ringGap={1.35}
+          fadeIn={0.7}
+          fadeOut={0.5}
+          followMouse={false}
+          mouseInfluence={0}
+          hoverScale={1.0}
+          parallax={0}
+          clickBurst={false}
+        />
       </div>
+
       <motion.div
         className="auth-container"
         initial={{ opacity: 0, y: 12 }}
@@ -144,15 +196,17 @@ const Login = () => {
       >
         <div className="auth-card" ref={cardRef}>
           <div className="auth-header">
-            <motion.div
-              className="auth-logo"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ ...transition, delay: 0.1 }}
-            >
-              <img src="/favicon.jpg" alt="Logo" className="sidebar-logo-img" />
-            </motion.div>
-            <h1 className="auth-title">Aparna Devi Canteen</h1>
+            <Link to="/" className="auth-header-brand" title="Back to Home" style={{ textDecoration: 'none', color: 'inherit', display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
+              <motion.div
+                className="auth-logo"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ ...transition, delay: 0.1 }}
+              >
+                <img src="/canteen-logo.png" alt="AparnaDevi Logo" className="auth-logo-img" />
+              </motion.div>
+              <h1 className="auth-title">Aparna Devi Canteen</h1>
+            </Link>
             <p className="auth-subtitle">Welcome back</p>
           </div>
 
@@ -208,38 +262,23 @@ const Login = () => {
                 </button>
               </div>
             </div>
-            <MotionButton type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }} disabled={loading} id="login-submit">
-              {loading ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : <><LogIn size={18} /> Sign In</>}
+            <MotionButton
+              type="submit"
+              className="btn btn-primary btn-lg auth-submit-btn"
+              style={{ width: '100%' }}
+              disabled={loading}
+              id="login-submit"
+            >
+              {loading ? <span className="btn-spinner" aria-hidden="true" /> : 'Sign In'}
             </MotionButton>
           </form>
 
           <div className="auth-footer">
-            <div style={{ marginBottom: '1rem' }}>
+            <div style={{ marginBottom: '0.45rem' }}>
               <Link to="/forgot-password" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '500' }}>Forgot Password?</Link>
             </div>
             <div>
-              Don't have an account? <Link to="/register">Sign Up</Link>
-            </div>
-            <div className="auth-contact-section">
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '0.4rem', fontSize: '0.8rem' }}>
-                If any Password related queries contact to this number
-              </p>
-              <div className="auth-contact-actions">
-                <span style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.925rem' }}>9491008797</span>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <a href="tel:9491008797" className="btn btn-secondary btn-sm">
-                    <Phone size={14} /> Call
-                  </a>
-                  <a
-                    href="https://wa.me/919491008797"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-secondary btn-sm btn-whatsapp"
-                  >
-                    <MessageCircle size={14} /> WhatsApp
-                  </a>
-                </div>
-              </div>
+              Don't have an account? <Link to="/register" replace>Sign Up</Link>
             </div>
           </div>
         </div>
@@ -309,9 +348,9 @@ const Login = () => {
                   type="submit" 
                   className="btn btn-primary" 
                   disabled={emailLoading}
-                  style={{ flex: 2 }}
+                  style={{ flex: 2, minHeight: '40px' }}
                 >
-                  {emailLoading ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : 'Save & Continue'}
+                  {emailLoading ? <span className="btn-spinner" aria-hidden="true" /> : 'Save & Continue'}
                 </MotionButton>
               </div>
             </form>
@@ -384,49 +423,12 @@ const Login = () => {
                 type="submit" 
                 className="btn btn-primary" 
                 disabled={emailLoading}
-                style={{ flex: 2 }}
+                style={{ flex: 2, minHeight: '40px' }}
               >
-                {emailLoading ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : 'Send Verification Email'}
+                {emailLoading ? <span className="btn-spinner" aria-hidden="true" /> : 'Send Verification Email'}
               </MotionButton>
             </div>
           </form>
-        </div>
-      </AnimatedModal>
-
-      {/* Community Popup Modal */}
-      <AnimatedModal open={showCommunityPopup} onClose={handleContinueToApp} title="Join Our Community">
-        <div className="modal-header" style={{ justifyContent: 'center', borderBottom: 'none', paddingBottom: 0, position: 'relative' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, textAlign: 'center', margin: 0, color: 'var(--primary)' }}>
-            JOIN OUR COMMUNITY
-          </h2>
-          <button className="btn btn-ghost" onClick={handleContinueToApp} style={{ position: 'absolute', right: '1rem', top: '1rem' }} aria-label="Close dialog">
-            <X size={22} />
-          </button>
-        </div>
-        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', padding: '1.5rem 2rem 2rem 2rem' }}>
-          <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
-            Scan the QR code below to join our WhatsApp community for exclusive updates, offers, and daily menus!
-          </p>
-          <div style={{ padding: '0.5rem', background: '#fff', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-            <img src="/whatsapp-qr.jpg.jpeg" alt="WhatsApp Community QR Code" style={{ width: '220px', height: '220px', objectFit: 'contain' }} />
-          </div>
-          <a
-            href="https://chat.whatsapp.com/IHM8VcxiERE9beVp64zFDQ"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-primary btn-lg"
-            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-          >
-            <ExternalLink size={18} /> Join via Link
-          </a>
-          <button
-            type="button"
-            className="btn btn-ghost"
-            onClick={handleContinueToApp}
-            style={{ color: 'var(--text-muted)', marginTop: '-0.5rem' }}
-          >
-            Continue to App
-          </button>
         </div>
       </AnimatedModal>
     </div>

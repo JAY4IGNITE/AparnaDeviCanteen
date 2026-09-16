@@ -1,15 +1,35 @@
-import { useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Outlet, useNavigate, useLocation, NavLink } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { Home, UtensilsCrossed, ClipboardList, User, HelpCircle, Menu, X, Megaphone, MessageSquarePlus } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import OrderingPausedModal from '../components/OrderingPausedModal';
+import { 
+  LayoutGrid, 
+  UtensilsCrossed, 
+  ShoppingBag, 
+  Star, 
+  BellDot, 
+  CircleUserRound, 
+  Headset, 
+  Menu, 
+  X 
+} from 'lucide-react';
 import AppSidebar from '../components/layout/AppSidebar';
 import PageTransition from '../components/ui/PageTransition';
+import ErrorBoundary from '../components/ui/ErrorBoundary';
 
 const CustomerLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { isPausedModalOpen, setIsPausedModalOpen, statusMessage } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Reset any open modal automatically when navigating between pages
+  useEffect(() => {
+    setIsPausedModalOpen(false);
+  }, [location.pathname, setIsPausedModalOpen]);
 
   const handleLogout = () => {
     logout();
@@ -17,30 +37,51 @@ const CustomerLayout = () => {
   };
 
   const navLinks = [
-    { to: '/customer/home', icon: Home, label: 'Home' },
+    { to: '/customer/home', icon: LayoutGrid, label: 'Home' },
     { to: '/customer/menu', icon: UtensilsCrossed, label: 'Menu' },
-    { to: '/customer/orders', icon: ClipboardList, label: 'My Orders' },
-    { to: '/customer/feedback', icon: MessageSquarePlus, label: 'Give Feedback' },
-    { to: '/customer/announcements', icon: Megaphone, label: 'Announcements' },
-    { to: '/customer/profile', icon: User, label: 'Profile' },
-    { to: '/customer/support', icon: HelpCircle, label: 'Support' },
+    { to: '/customer/orders', icon: ShoppingBag, label: 'My Orders' },
+    { to: '/customer/announcements', icon: BellDot, label: 'Offers & Updates' },
+    { to: '/customer/feedback', icon: Star, label: 'Feedback' },
+    { section: 'ACCOUNT & HELP' },
+    { to: '/customer/profile', icon: CircleUserRound, label: 'Profile Settings' },
+    { to: '/customer/support', icon: Headset, label: 'Support' },
+  ];
+
+  const bottomNavItems = [
+    { to: '/customer/home', icon: LayoutGrid, label: 'Home' },
+    { to: '/customer/menu', icon: UtensilsCrossed, label: 'Menu' },
+    { to: '/customer/orders', icon: ShoppingBag, label: 'Orders' },
+    { to: '/customer/profile', icon: CircleUserRound, label: 'Profile' },
   ];
 
   return (
     <div className="app-layout">
-      <motion.button
-        className="hamburger-btn"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        id="hamburger-toggle"
-        aria-label="Toggle navigation menu"
-        aria-expanded={sidebarOpen}
-        whileTap={{ scale: 0.95 }}
-      >
-        {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
-      </motion.button>
+      {/* Mobile Top App Header Bar */}
+      <header className="mobile-app-header">
+        <motion.button
+          className="mobile-menu-trigger"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          id="hamburger-toggle"
+          aria-label="Toggle navigation menu"
+          aria-expanded={sidebarOpen}
+          whileTap={{ scale: 0.92 }}
+        >
+          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+        </motion.button>
+        <div className="mobile-app-brand">
+          <img src="/canteen-logo.png" alt="AparnaDevi Logo" className="mobile-app-logo" />
+          <span className="mobile-app-title">AparnaCanteen</span>
+        </div>
+        <div className="mobile-header-user">
+          <span className="mobile-header-user-badge">
+            {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+          </span>
+        </div>
+      </header>
 
       <AppSidebar
-        brand="AparnaCanteen"
+        brand="Aparna Devi"
+        subtitle="CANTEEN PORTAL"
         navLinks={navLinks}
         user={user}
         userRole={user?.role}
@@ -50,13 +91,48 @@ const CustomerLayout = () => {
         logoutId="logout-btn"
       />
 
-      <main className="main-content">
+      <main className="main-content customer-layout-main">
         <PageTransition>
           <div className="page-container">
-            <Outlet />
+            <ErrorBoundary>
+              <Outlet />
+            </ErrorBoundary>
           </div>
         </PageTransition>
       </main>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="mobile-bottom-nav" aria-label="Mobile Bottom Navigation">
+        {bottomNavItems.map(({ to, icon: Icon, label }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) => `mobile-bottom-item ${isActive ? 'active' : ''}`}
+          >
+            <Icon size={20} strokeWidth={2} />
+            <span>{label}</span>
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* Global Customer Ordering Inactive Pop-up Modal */}
+      <OrderingPausedModal
+        open={isPausedModalOpen}
+        onClose={() => setIsPausedModalOpen(false)}
+        customMessage={statusMessage}
+        onExploreMenu={() => {
+          setIsPausedModalOpen(false);
+          if (location.pathname !== '/customer/menu') {
+            navigate('/customer/menu');
+          }
+        }}
+        onBackHome={() => {
+          setIsPausedModalOpen(false);
+          if (location.pathname !== '/customer/home') {
+            navigate('/customer/home', { replace: true });
+          }
+        }}
+      />
     </div>
   );
 };

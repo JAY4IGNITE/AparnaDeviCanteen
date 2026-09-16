@@ -299,7 +299,7 @@ export default function LandingPage() {
               transformOrigin: 'center bottom',
             }}
             whileTap={{ scale: 0.98 }}
-            className="relative aspect-[2/1] w-full max-w-none max-h-[92vh] sm:max-h-[95vh] flex items-end justify-center translate-y-3 sm:translate-y-5 pointer-events-auto"
+            className="relative aspect-square sm:aspect-[2/1] w-full max-w-none max-h-[85vh] sm:max-h-[95vh] flex items-end justify-center pb-20 sm:pb-4 pointer-events-auto"
           >
             {/* Main Character & Text Image */}
             <img
@@ -320,7 +320,7 @@ export default function LandingPage() {
             e.stopPropagation();
             scrollToSection('menu');
           }}
-          className="absolute bottom-16 left-2 sm:bottom-3 sm:left-3.5 z-20 pointer-events-auto select-none cursor-pointer group max-w-[108px] min-[380px]:max-w-[130px] sm:max-w-[280px]"
+          className="absolute bottom-24 left-2 sm:bottom-6 sm:left-4 z-20 pointer-events-auto select-none cursor-pointer group max-w-[108px] min-[380px]:max-w-[130px] sm:max-w-[280px]"
         >
           <p className="hero-statement-text text-[7px] min-[380px]:text-[8.5px] sm:text-[11px] md:text-xs text-zinc-300/90 group-hover:text-orange-400 transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
             AUTHENTIC HOME-STYLE RECIPES,
@@ -338,7 +338,7 @@ export default function LandingPage() {
             e.stopPropagation();
             scrollToSection('contact');
           }}
-          className="absolute bottom-16 right-2 sm:bottom-3 sm:right-3.5 z-20 pointer-events-auto select-none cursor-pointer group max-w-[108px] min-[380px]:max-w-[130px] sm:max-w-[280px] text-right"
+          className="absolute bottom-24 right-2 sm:bottom-6 sm:right-4 z-20 pointer-events-auto select-none cursor-pointer group max-w-[108px] min-[380px]:max-w-[130px] sm:max-w-[280px] text-right"
         >
           <p className="hero-statement-text text-[7px] min-[380px]:text-[8.5px] sm:text-[11px] md:text-xs text-zinc-300/90 group-hover:text-amber-400 transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
             SERVING DELICIOUS SPECIALS,

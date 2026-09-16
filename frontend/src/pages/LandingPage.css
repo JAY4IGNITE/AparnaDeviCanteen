@@ -46,7 +46,7 @@
 @media (max-width: 640px) {
   .top-dock-container {
     top: auto;
-    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
     z-index: 50;
   }
 

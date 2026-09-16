@@ -286,23 +286,25 @@ export default function LandingPage() {
           style={{ opacity: isMobile ? 1 : bgOpacity }}
           className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0"
         >
-          <ColorBends
-            rotation={90}
-            speed={0.2}
-            colors={['#ff4500', '#ffb703', '#f97316']}
-            transparent
-            autoRotate={0}
-            scale={1}
-            frequency={1}
-            warpStrength={1}
-            mouseInfluence={1}
-            parallax={0.5}
-            noise={0.15}
-            iterations={1}
-            intensity={1.5}
-            bandWidth={6}
-            className="w-full h-full"
-          />
+          {!isMobile && (
+            <ColorBends
+              rotation={90}
+              speed={0.2}
+              colors={['#ff4500', '#ffb703', '#f97316']}
+              transparent
+              autoRotate={0}
+              scale={1}
+              frequency={1}
+              warpStrength={1}
+              mouseInfluence={1}
+              parallax={0.5}
+              noise={0.15}
+              iterations={1}
+              intensity={1.5}
+              bandWidth={6}
+              className="w-full h-full"
+            />
+          )}
         </motion.div>
 
         {/* Ambient background soft glow */}
@@ -337,7 +339,7 @@ export default function LandingPage() {
             />
 
             {/* Realistic Silky Continuous Steam Rising from the Pot */}
-            <PotSteam />
+            {!isMobile && <PotSteam />}
           </motion.div>
         </motion.div>
 

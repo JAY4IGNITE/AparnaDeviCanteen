@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue } from 'motion/react';
 import { NavLink } from 'react-router-dom';
-import { LogOut, PanelLeftClose, PanelLeftOpen, ChevronRight, Sun, Moon } from 'lucide-react';
+import { LogOut, PanelLeftClose, PanelLeftOpen, ChevronRight, Sun, Moon, X } from 'lucide-react';
 import { useMotionSafe } from '../../lib/motion';
 import { useTheme } from '../../context/ThemeContext';
 import { useVerticalDockItem } from '../../lib/dock';
@@ -138,9 +138,13 @@ const AppSidebar = ({
   const [hoveredLink, setHoveredLink] = useState(null);
   const navMouseY = useMotionValue(Infinity);
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768 && isCollapsed) {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile && isCollapsed) {
         setIsCollapsed(false);
       }
     };
@@ -220,16 +224,22 @@ const AppSidebar = ({
             </div>
           </div>
 
-          {/* Desktop Collapse / Expand Button */}
+          {/* Desktop Collapse / Mobile Close Button */}
           <MotionButton
             type="button"
-            className="sidebar-collapse-btn hidden md:flex"
-            onClick={toggleCollapse}
-            aria-label={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-            title={isCollapsed ? 'Expand Sidebar' : 'Compact Sidebar'}
+            className="sidebar-collapse-btn"
+            onClick={() => {
+              if (isMobile) {
+                setSidebarOpen(false);
+              } else {
+                toggleCollapse();
+              }
+            }}
+            aria-label={isMobile ? 'Close Sidebar' : (isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar')}
+            title={isMobile ? 'Close Sidebar' : (isCollapsed ? 'Expand Sidebar' : 'Compact Sidebar')}
             dockMagnification={1.05}
           >
-            {isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={16} />}
+            {isMobile ? <X size={20} /> : (isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={16} />)}
           </MotionButton>
         </div>
 

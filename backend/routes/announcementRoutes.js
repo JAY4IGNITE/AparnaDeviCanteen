@@ -2,10 +2,21 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../db');
 
+let announcementsCache = {
+  data: null,
+  timestamp: 0
+};
+
 // GET /api/announcements
 // Get all active announcements
 router.get('/', async (req, res, next) => {
   try {
+    const now = Date.now();
+    if (announcementsCache.data && (now - announcementsCache.timestamp < 30000)) {
+      res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
+      return res.json(announcementsCache.data);
+    }
+
     const { data, error } = await supabase
       .from('announcements')
       .select('*')
@@ -17,7 +28,11 @@ router.get('/', async (req, res, next) => {
       return res.status(500).json({ success: false, message: 'Failed to fetch announcements.' });
     }
 
-    res.json({ success: true, count: data.length, data });
+    const responsePayload = { success: true, count: data.length, data };
+    announcementsCache = { data: responsePayload, timestamp: Date.now() };
+
+    res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
+    res.json(responsePayload);
   } catch (err) {
     next(err);
   }

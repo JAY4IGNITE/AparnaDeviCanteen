@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform, useScroll } from 'motion/react';
 import Lenis from 'lenis';
@@ -25,10 +25,19 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const lenisRef = useRef(null);
   const heroRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
 
   // Smooth inertial momentum scrolling with Lenis (Apple-like friction & velocity)
   useEffect(() => {
+    if (isMobile) return;
     const lenis = new Lenis({
       duration: 1.35,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -116,6 +125,7 @@ export default function LandingPage() {
   };
 
   useEffect(() => {
+    if (isMobile) return;
     const handleMouseMove = (e) => {
       const { innerWidth, innerHeight } = window;
       const x = e.clientX / innerWidth - 0.5;
@@ -228,22 +238,41 @@ export default function LandingPage() {
 
       {/* Top Utmost Right: Separated Sign In & Get Started buttons, each with Dock Effect */}
       <div className="fixed top-2.5 right-2 sm:top-3 sm:right-4 z-40 pointer-events-auto select-none flex items-center gap-2 sm:gap-2.5">
-        <Dock
-          items={signInDockItem}
-          panelHeight={32}
-          baseItemSize={28}
-          magnification={36}
-          distance={60}
-          className="auth-dock-single"
-        />
-        <Dock
-          items={getStartedDockItem}
-          panelHeight={32}
-          baseItemSize={28}
-          magnification={36}
-          distance={60}
-          className="auth-dock-single"
-        />
+        {isMobile ? (
+          <>
+            <button
+              onClick={() => navigate('/login')}
+              className="px-3.5 py-1.5 text-xs font-semibold bg-white/5 border border-white/10 rounded-full text-white active:bg-white/10 transition-colors"
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => navigate('/register')}
+              className="px-3.5 py-1.5 text-xs font-semibold bg-orange-500 rounded-full text-white active:bg-orange-600 shadow-md transition-colors"
+            >
+              Get Started
+            </button>
+          </>
+        ) : (
+          <>
+            <Dock
+              items={signInDockItem}
+              panelHeight={32}
+              baseItemSize={28}
+              magnification={36}
+              distance={60}
+              className="auth-dock-single"
+            />
+            <Dock
+              items={getStartedDockItem}
+              panelHeight={32}
+              baseItemSize={28}
+              magnification={36}
+              distance={60}
+              className="auth-dock-single"
+            />
+          </>
+        )}
       </div>
 
       {/* SECTION 1: HERO (Starting Page) */}
@@ -290,10 +319,10 @@ export default function LandingPage() {
         >
           <motion.div
             style={{
-              rotateX,
-              rotateY,
-              x: transX,
-              y: heroYCombined,
+              rotateX: isMobile ? 0 : rotateX,
+              rotateY: isMobile ? 0 : rotateY,
+              x: isMobile ? 0 : transX,
+              y: isMobile ? 0 : heroYCombined,
               transformStyle: 'preserve-3d',
               transformOrigin: 'center bottom',
             }}
@@ -319,7 +348,7 @@ export default function LandingPage() {
             e.stopPropagation();
             scrollToSection('menu');
           }}
-          className="absolute bottom-24 left-2 sm:bottom-6 sm:left-4 z-20 pointer-events-auto select-none cursor-pointer group max-w-[108px] min-[380px]:max-w-[130px] sm:max-w-[280px]"
+          className="absolute bottom-24 left-2 sm:bottom-6 sm:left-4 z-20 pointer-events-auto select-none cursor-pointer group max-w-[108px] min-[380px]:max-w-[130px] sm:max-w-[280px] hidden sm:block"
         >
           <p className="hero-statement-text text-[7px] min-[380px]:text-[8.5px] sm:text-[11px] md:text-xs text-zinc-300/90 group-hover:text-orange-400 transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
             AUTHENTIC HOME-STYLE RECIPES,
@@ -337,7 +366,7 @@ export default function LandingPage() {
             e.stopPropagation();
             scrollToSection('contact');
           }}
-          className="absolute bottom-24 right-2 sm:bottom-6 sm:right-4 z-20 pointer-events-auto select-none cursor-pointer group max-w-[108px] min-[380px]:max-w-[130px] sm:max-w-[280px] text-right"
+          className="absolute bottom-24 right-2 sm:bottom-6 sm:right-4 z-20 pointer-events-auto select-none cursor-pointer group max-w-[108px] min-[380px]:max-w-[130px] sm:max-w-[280px] text-right hidden sm:block"
         >
           <p className="hero-statement-text text-[7px] min-[380px]:text-[8.5px] sm:text-[11px] md:text-xs text-zinc-300/90 group-hover:text-amber-400 transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
             SERVING DELICIOUS SPECIALS,

@@ -6,7 +6,6 @@ import { Mail, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
 import AlertBanner from '../components/ui/AlertBanner';
 import MotionButton from '../components/ui/MotionButton';
 import { useMotionSafe } from '../lib/motion';
-import useNeonBorder from '../hooks/useNeonBorder';
 import MagicRings from '../components/MagicRings';
 import ThemeToggleDock from '../components/ThemeToggleDock';
 
@@ -18,7 +17,6 @@ const ForgotPassword = () => {
   const { forgotPassword } = useAuth();
   const { transition } = useMotionSafe();
   const cardRef = useRef(null);
-  useNeonBorder(cardRef, { color: '#f97316', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -6,7 +6,6 @@ import { Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import AlertBanner from '../components/ui/AlertBanner';
 import MotionButton from '../components/ui/MotionButton';
 import { useMotionSafe } from '../lib/motion';
-import useNeonBorder from '../hooks/useNeonBorder';
 import MagicRings from '../components/MagicRings';
 
 const ResetPassword = () => {
@@ -15,7 +14,6 @@ const ResetPassword = () => {
   const { resetPassword } = useAuth();
   const { transition } = useMotionSafe();
   const cardRef = useRef(null);
-  useNeonBorder(cardRef, { color: '#f97316', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
   
   const [formData, setFormData] = useState({ newPassword: '', confirmPassword: '' });
   const [showPassword, setShowPassword] = useState(false);

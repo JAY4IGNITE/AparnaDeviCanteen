@@ -26,7 +26,6 @@ const Login = () => {
   const navigate = useNavigate();
   const { transition } = useMotionSafe();
   const cardRef = useRef(null);
-  useNeonBorder(cardRef, { color: '#f97316', thickness: 3, borderSize: 50, glow: 80, speed: 14 });
 
   // If already authenticated, redirect to the dashboard without adding extra history entries
   useEffect(() => {

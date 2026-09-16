@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'motion/react';
-import { DollarSign, Calendar, ShoppingBag, TrendingUp, Sparkles } from 'lucide-react';
+import { DollarSign, Calendar, ShoppingBag, TrendingUp } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import StatCard from '../../components/ui/StatCard';
 import EmptyState from '../../components/ui/EmptyState';
@@ -21,6 +21,7 @@ const Revenue = () => {
   useEffect(() => {
     // Automatically load today's revenue on mount
     fetchRevenue(todayStr, todayStr);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchRevenue = async (start = startDate, end = endDate) => {

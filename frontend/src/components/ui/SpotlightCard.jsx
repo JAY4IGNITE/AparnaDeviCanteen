@@ -2,8 +2,6 @@
 const SpotlightCard = ({
   children,
   className = '',
-  spotlightColor,
-  spotlightSize,
   ...props
 }) => {
   return (

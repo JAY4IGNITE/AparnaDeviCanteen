@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'motion/react';
-import { Calendar, BarChart3, ArrowUpDown, Search, Package } from 'lucide-react';
+import { Calendar, BarChart3, ArrowUpDown, Search } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
@@ -25,6 +25,7 @@ const Statistics = () => {
   useEffect(() => {
     // Automatically load today's statistics on mount
     fetchStats(todayStr, todayStr, '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchStats = async (start = startDate, end = endDate, blk = block) => {

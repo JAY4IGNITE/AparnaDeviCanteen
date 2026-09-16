@@ -10,7 +10,7 @@ export const ThemeProvider = ({ children }) => {
   const [theme, setThemeState] = useState(() => {
     try {
       return localStorage.getItem('canteen_theme') || 'light';
-    } catch (e) {
+    } catch {
       return 'light';
     }
   });
@@ -46,4 +46,5 @@ export const ThemeProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTheme = () => useContext(ThemeContext);

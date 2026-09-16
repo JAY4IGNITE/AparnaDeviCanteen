@@ -44,7 +44,7 @@ const ManageMenu = () => {
       });
       setTimeout(() => setMessage({ type: '', text: '' }), 4000);
     } catch (err) {
-      setMessage({ type: 'error', text: 'Failed to update ordering status' });
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to update ordering status' });
       setTimeout(() => setMessage({ type: '', text: '' }), 4000);
     }
   };
@@ -54,7 +54,7 @@ const ManageMenu = () => {
       const res = await axios.get('/admin/menu');
       setMenuItems(res.data.data);
     } catch (err) {
-      setMessage({ type: 'error', text: 'Failed to load menu' });
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to load menu' });
     } finally {
       setLoading(false);
     }
@@ -180,7 +180,7 @@ const ManageMenu = () => {
       fetchMenu();
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (err) {
-      setMessage({ type: 'error', text: 'Delete failed' });
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Delete failed' });
     }
   };
 
@@ -189,7 +189,7 @@ const ManageMenu = () => {
       await axios.put(`/admin/menu/${item.id}`, { ...item, isAvailable: !item.is_available });
       fetchMenu();
     } catch (err) {
-      setMessage({ type: 'error', text: 'Update failed' });
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Update failed' });
     }
   };
 

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { Phone, Mail, Lock, AlertCircle, Eye, EyeOff, X, LogOut } from 'lucide-react';
+import { Phone, Mail, Lock, AlertCircle, Eye, EyeOff, LogOut } from 'lucide-react';
 import MotionButton from '../components/ui/MotionButton';
 import AlertBanner from '../components/ui/AlertBanner';
 import AnimatedModal from '../components/ui/AnimatedModal';

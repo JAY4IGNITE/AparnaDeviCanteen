@@ -49,7 +49,7 @@ async function optimizeImages() {
   // 2. Favicon (64x64)
   const faviconPath = path.join(publicDir, 'favicon.png');
   if (fs.existsSync(faviconPath)) {
-    const stat = fs.statSync(faviconPath);
+
     await sharp(faviconPath)
       .resize(64, 64, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
       .png({ compressionLevel: 9 })

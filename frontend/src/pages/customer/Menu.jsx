@@ -45,6 +45,7 @@ const MenuPage = () => {
   useEffect(() => {
     fetchMenu();
     fetchOperatingStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchOperatingStatus = async () => {
@@ -56,7 +57,7 @@ const MenuPage = () => {
           setIsPausedModalOpen(true);
         }
       }
-    } catch (err) {
+    } catch {
       if (!isOrdersActive) {
         setIsPausedModalOpen(true);
       }

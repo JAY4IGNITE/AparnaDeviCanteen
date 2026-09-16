@@ -47,7 +47,7 @@ const AdminLayout = () => {
         audioCtxRef.current.resume().catch(() => {});
       }
       return audioCtxRef.current;
-    } catch (e) {
+    } catch {
       return null;
     }
   };
@@ -136,7 +136,7 @@ const AdminLayout = () => {
 
       prevOrdersRef.current = orders;
       isFirstLoadRef.current = false;
-    } catch (err) {
+    } catch {
       // silent fail on network glitch
     }
   };

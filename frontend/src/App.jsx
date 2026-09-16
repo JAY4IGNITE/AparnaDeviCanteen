@@ -5,7 +5,6 @@ import { ThemeProvider } from './context/ThemeContext';
 import { CartProvider } from './context/CartContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingState from './components/ui/LoadingState';
-import ScrollProgressBar from './components/ui/ScrollProgressBar';
 import ScrollToTop from './components/ui/ScrollToTop';
 import ClickSpark from './components/ClickSpark';
 
@@ -56,7 +55,6 @@ function App() {
             duration={450}
           >
             <Router>
-              <ScrollProgressBar />
               <ScrollToTop />
               <Suspense fallback={<LoadingState />}>
                 <Routes>

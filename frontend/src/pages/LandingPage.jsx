@@ -8,7 +8,6 @@ import {
   Utensils,
   Phone,
   Clock,
-  MessageCircle,
   CheckCircle2,
   Users,
   Bell,

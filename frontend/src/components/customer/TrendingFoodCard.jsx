@@ -77,9 +77,7 @@ const TrendingFoodCard = ({ item, isTopOne = false }) => {
             <UtensilsCrossed size={36} className="trending-card-placeholder-icon" />
           </div>
 
-          {item.category && (
-            <span className="trending-category-tag">{item.category}</span>
-          )}
+
         </div>
 
         {/* Dish Info & Ordering */}

@@ -1,10 +1,19 @@
 const supabase = require('./db');
 
+let visibilityCache = {
+  val: true,
+  timestamp: 0,
+};
+
 /**
  * Gets the current menu visibility status.
  * Defaults to true if not set or on error.
  */
 async function getMenuVisibility() {
+  const now = Date.now();
+  if (now - visibilityCache.timestamp < 15000) {
+    return visibilityCache.val;
+  }
   try {
     const { data, error } = await supabase
       .from('order_counters')
@@ -21,7 +30,9 @@ async function getMenuVisibility() {
       return true;
     }
 
-    return data ? data.last_value !== 0 : true;
+    const result = data ? data.last_value !== 0 : true;
+    visibilityCache = { val: result, timestamp: Date.now() };
+    return result;
   } catch (err) {
     console.error('Exception fetching menu visibility:', err);
     return true;
@@ -43,6 +54,7 @@ async function setMenuVisibility(visible) {
       console.error('Error updating menu visibility setting:', error.message);
       throw new Error(error.message);
     }
+    visibilityCache = { val: visible, timestamp: Date.now() };
     return data;
   } catch (err) {
     console.error('Exception setting menu visibility:', err);

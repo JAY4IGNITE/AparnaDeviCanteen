@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'motion/react';
-import { Save, Loader2, Mail, Settings as SettingsIcon, Check } from 'lucide-react';
+import { Save, Loader2, Mail, Check } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import MotionButton from '../../components/ui/MotionButton';
 import LoadingState from '../../components/ui/LoadingState';

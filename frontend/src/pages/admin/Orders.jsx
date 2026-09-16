@@ -94,6 +94,7 @@ const AdminOrders = () => {
     } else if (!outletCtx?.ordersData || outletCtx.ordersData.length === 0) {
       fetchOrders();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startDateFilter, endDateFilter, statusFilter]);
 
   // Only run an independent poll if custom date/status filters are active and autoSync is enabled
@@ -105,6 +106,7 @@ const AdminOrders = () => {
       fetchOrders(true);
     }, 10000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoSync, startDateFilter, endDateFilter, statusFilter]);
 
 

@@ -33,9 +33,20 @@ let menuItemsCache = {
   timestamp: 0,
 };
 
+let publicStatsCache = {
+  data: null,
+  timestamp: 0,
+};
+
 // GET /api/menu/public-stats — Real statistics for landing page (Public, no auth required)
 router.get('/public-stats', async (req, res) => {
   try {
+    const now = Date.now();
+    if (publicStatsCache.data && (now - publicStatsCache.timestamp < 30000)) {
+      res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
+      return res.json(publicStatsCache.data);
+    }
+
     const [usersRes, menuRes, ordersRes] = await Promise.all([
       supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'customer'),
       supabase.from('menu_items').select('id', { count: 'exact', head: true }).eq('is_available', true),
@@ -46,15 +57,19 @@ router.get('/public-stats', async (req, res) => {
     const activeDishes = menuRes.count ?? 9;
     const totalOrders = ordersRes.count ?? 46;
 
-    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=120');
-    return res.json({
+    const responsePayload = {
       success: true,
       data: {
         registeredStudents,
         activeDishes,
         totalOrders
       }
-    });
+    };
+    
+    publicStatsCache = { data: responsePayload, timestamp: Date.now() };
+
+    res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
+    return res.json(responsePayload);
   } catch (error) {
     console.error('Error fetching public stats:', error);
     return res.json({

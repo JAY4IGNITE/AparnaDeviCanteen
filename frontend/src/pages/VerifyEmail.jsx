@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { CheckCircle, XCircle, Loader } from 'lucide-react';
-import AnimatedModal from '../components/ui/AnimatedModal';
 
 const VerifyEmail = () => {
   const { token } = useParams();
   const { verifyEmail } = useAuth();
-  const navigate = useNavigate();
   const [status, setStatus] = useState('loading'); // loading, success, error
   const [message, setMessage] = useState('');
 

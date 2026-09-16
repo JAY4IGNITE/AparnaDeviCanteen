@@ -79,7 +79,7 @@ const AdminHome = () => {
         if (isMountedRef.current) setMessage({ type: '', text: '' });
       }, 4500);
     } catch (err) {
-      setMessage({ type: 'error', text: 'Failed to update ordering status' });
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to update ordering status' });
       setTimeout(() => {
         if (isMountedRef.current) setMessage({ type: '', text: '' });
       }, 4000);

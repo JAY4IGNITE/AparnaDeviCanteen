@@ -46,7 +46,7 @@ const ManageCustomers = () => {
       fetchCustomers();
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (err) {
-      setMessage({ type: 'error', text: 'Failed to update customer status' });
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to update customer status' });
     }
   };
 
@@ -58,7 +58,7 @@ const ManageCustomers = () => {
       fetchCustomers();
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (err) {
-      setMessage({ type: 'error', text: 'Failed to delete customer' });
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to delete customer' });
     }
   };
 

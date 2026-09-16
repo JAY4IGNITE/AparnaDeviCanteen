@@ -184,7 +184,7 @@ const AdminLayout = () => {
           aria-expanded={sidebarOpen}
           whileTap={{ scale: 0.92 }}
         >
-          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+          {sidebarOpen ? <X size={20} /> : <Menu size={24} />}
         </motion.button>
         <div className="mobile-app-brand">
           <img src="/canteen-logo.png" alt="AparnaDevi Logo" className="mobile-app-logo" />

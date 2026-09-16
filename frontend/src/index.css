@@ -3313,8 +3313,8 @@ body:has(.auth-page) {
   }
 
   .mobile-app-logo {
-    width: 28px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     object-fit: contain;
     filter: drop-shadow(0 1px 6px rgba(249, 115, 22, 0.4));
@@ -3322,7 +3322,7 @@ body:has(.auth-page) {
 
   .mobile-app-title {
     font-family: var(--font-display);
-    font-size: 1.05rem;
+    font-size: 1.25rem;
     font-weight: 700;
     background: var(--gradient-primary);
     -webkit-background-clip: text;
@@ -3700,8 +3700,8 @@ body:has(.auth-page) {
   }
 
   .mobile-app-logo {
-    width: 24px;
-    height: 24px;
+    width: 36px;
+    height: 36px;
   }
 
   .auth-card {
@@ -5489,15 +5489,6 @@ body:has(.auth-page) {
   overflow: hidden;
 }
 
-.auth-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--gradient-primary);
-}
 
 .auth-input-wrapper {
   position: relative;

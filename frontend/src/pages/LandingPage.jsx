@@ -549,6 +549,7 @@ export default function LandingPage() {
                   src="/whatsapp-logo.png"
                   alt="WhatsApp"
                   className="h-6 sm:h-7 object-contain"
+                  loading="lazy"
                 />
                 <span className="text-[11px] font-medium text-zinc-400 tracking-wider uppercase">
                   Scan to Join
@@ -561,6 +562,7 @@ export default function LandingPage() {
                   src="/whatsapp-qr.jpg.jpeg"
                   alt="WhatsApp Community QR Code"
                   className="w-48 h-48 sm:w-52 sm:h-52 object-contain select-none block"
+                  loading="lazy"
                 />
               </div>
 
@@ -585,6 +587,7 @@ export default function LandingPage() {
                   src="/whatsapp-icon.png"
                   alt=""
                   className="w-4 h-4 object-contain brightness-0"
+                  loading="lazy"
                 />
                 <span>Open in WhatsApp</span>
                 <ArrowUpRight size={14} className="opacity-75" />
@@ -686,7 +689,7 @@ export default function LandingPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-zinc-950 text-xs font-semibold tracking-wide transition-colors cursor-pointer shadow-sm"
               >
-                <img src="/whatsapp-icon.png" alt="" className="w-3.5 h-3.5 object-contain brightness-0" />
+                <img src="/whatsapp-icon.png" alt="" className="w-3.5 h-3.5 object-contain brightness-0" loading="lazy" />
                 <span>WhatsApp</span>
               </a>
             </div>
@@ -700,6 +703,7 @@ export default function LandingPage() {
               src="/aparnadevi-logo.png"
               alt="AparnaDevi Canteen"
               className="h-6 w-auto object-contain cursor-pointer opacity-90 hover:opacity-100 transition-opacity"
+              loading="lazy"
               onClick={() => scrollToSection('home')}
             />
             <span className="text-zinc-700 hidden sm:inline">|</span>

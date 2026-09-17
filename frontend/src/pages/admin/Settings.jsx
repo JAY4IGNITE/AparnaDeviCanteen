@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'motion/react';
 import { Save, Loader2, Mail, Check } from 'lucide-react';
+import toast from 'react-hot-toast';
 import PageHeader from '../../components/ui/PageHeader';
 import MotionButton from '../../components/ui/MotionButton';
 import LoadingState from '../../components/ui/LoadingState';
@@ -73,7 +74,7 @@ We hope you enjoyed your meal and look forward to serving you again!
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
       console.error('Failed to save settings:', err);
-      alert('Failed to save settings. Please try again.');
+      toast.error('Failed to save settings. Please try again.');
     } finally {
       setSaving(false);
     }

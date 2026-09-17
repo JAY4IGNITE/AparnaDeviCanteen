@@ -1,6 +1,8 @@
-import { lazy } from 'react';
+import { lazy, useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
+import { useAuth } from './context/AuthContext';
+import LoadingState from './components/ui/LoadingState';
 
 // Landing Page (Lazy Loaded)
 const LandingPage = lazy(() => import('./pages/LandingPage'));
@@ -36,12 +38,40 @@ const AdminFeedbacks = lazy(() => import('./pages/admin/Feedbacks'));
 const AdminSettings = lazy(() => import('./pages/admin/Settings'));
 
 export default function AppRoutes() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const { isAuthenticated, user, loading } = useAuth();
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  if (loading) {
+    return <LoadingState message="Verifying credentials..." />;
+  }
+
+  const getDashboardPath = () => user?.role === 'admin' ? '/admin/home' : '/customer/home';
+
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route 
+        path="/" 
+        element={
+          isMobile 
+            ? <Navigate to={isAuthenticated ? getDashboardPath() : "/login"} replace /> 
+            : <LandingPage />
+        } 
+      />
+      <Route 
+        path="/login" 
+        element={isAuthenticated ? <Navigate to={getDashboardPath()} replace /> : <Login />} 
+      />
+      <Route 
+        path="/register" 
+        element={isAuthenticated ? <Navigate to={getDashboardPath()} replace /> : <Register />} 
+      />
       <Route path="/verify-email/:token" element={<VerifyEmail />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />

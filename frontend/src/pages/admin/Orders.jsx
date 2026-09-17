@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { Download, CheckCircle, Clock, Package, Phone, Trash2, Search, X, ChefHat, MessageCircle, FileText } from 'lucide-react';
+import toast from 'react-hot-toast';
 import PageHeader from '../../components/ui/PageHeader';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
@@ -35,7 +36,7 @@ const AdminOrders = () => {
   const handleWhatsAppNotify = (order) => {
     const rawPhone = order.customer?.phone;
     if (!rawPhone) {
-      alert('No phone number available for this customer');
+      toast.error('No phone number available for this customer');
       return;
     }
 
@@ -68,7 +69,7 @@ const AdminOrders = () => {
       await generateInvoice(order, order.customer || { name: 'Customer' });
     } catch (err) {
       console.error('Failed to generate invoice:', err);
-      alert('Failed to generate invoice: ' + (err.message || 'Please try again.'));
+      toast.error('Failed to generate invoice: ' + (err.message || 'Please try again.'));
     } finally {
       setDownloadingId(null);
     }

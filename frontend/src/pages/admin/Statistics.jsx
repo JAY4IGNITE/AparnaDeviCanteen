@@ -262,7 +262,6 @@ const Statistics = () => {
               </tr>
             </thead>
             <tbody>
-<<<<<<< HEAD
               {sorted.map((item, index) => {
                 const itemName = item?._id || item?.item_name || `Item-${index}`;
                 return (
@@ -279,11 +278,6 @@ const Statistics = () => {
                   </tr>
                 );
               })}
-=======
-              {sorted.map((item) => (
-                <StatTableRow key={item._id} item={item} />
-              ))}
->>>>>>> 98c236e902fa271d1e39cc3200f4b721ef832b95
               {sorted.length === 0 && (
                 <tr>
                   <td colSpan="3" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>

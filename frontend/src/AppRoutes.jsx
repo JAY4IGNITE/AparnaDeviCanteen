@@ -56,22 +56,9 @@ export default function AppRoutes() {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route 
-        path="/" 
-        element={
-          isMobile 
-            ? <Navigate to={isAuthenticated ? getDashboardPath() : "/login"} replace /> 
-            : <LandingPage />
-        } 
-      />
-      <Route 
-        path="/login" 
-        element={isAuthenticated ? <Navigate to={getDashboardPath()} replace /> : <Login />} 
-      />
-      <Route 
-        path="/register" 
-        element={isAuthenticated ? <Navigate to={getDashboardPath()} replace /> : <Register />} 
-      />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/verify-email/:token" element={<VerifyEmail />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />

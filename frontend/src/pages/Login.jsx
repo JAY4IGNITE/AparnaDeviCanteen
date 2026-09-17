@@ -34,15 +34,7 @@ const Login = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  useEffect(() => {
-    if (user) {
-      if (user.role === 'admin') {
-        navigate('/admin/home', { replace: true });
-      } else {
-        navigate('/customer/home', { replace: true });
-      }
-    }
-  }, [user, navigate]);
+
 
 
 
@@ -218,6 +210,32 @@ const Login = () => {
             </Link>
             <p className="auth-subtitle">Welcome back</p>
           </div>
+
+          {user && (
+            <div style={{ marginBottom: '1rem', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', textAlign: 'center' }}>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: '#d4d4d8' }}>
+                Currently logged in as <strong>{user.name || user.phone}</strong> ({user.role})
+              </p>
+              <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => navigate(user.role === 'admin' ? '/admin/home' : '/customer/home')}
+                  className="btn btn-primary"
+                  style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', minHeight: 'auto' }}
+                >
+                  Go to Dashboard
+                </button>
+                <button
+                  type="button"
+                  onClick={() => logout()}
+                  className="btn btn-secondary"
+                  style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', minHeight: 'auto' }}
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          )}
 
           <AlertBanner type="error" show={!!error}>
             <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />

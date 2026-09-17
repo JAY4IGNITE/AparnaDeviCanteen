@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'motion/react';
 import { Calendar, BarChart3, ArrowUpDown, Search } from 'lucide-react';
@@ -256,17 +256,7 @@ const Statistics = () => {
             </thead>
             <tbody>
               {sorted.map((item) => (
-                <tr key={item._id}>
-                  <td data-label="Menu Item" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {item._id}
-                  </td>
-                  <td data-label="Quantity" style={{ fontWeight: 600 }}>
-                    {item.totalQuantity} units
-                  </td>
-                  <td data-label="Revenue" style={{ color: 'var(--success)', fontWeight: 600 }}>
-                    ₹{item.totalRevenue}
-                  </td>
-                </tr>
+                <StatTableRow key={item._id} item={item} />
               ))}
               {sorted.length === 0 && (
                 <tr>
@@ -292,4 +282,20 @@ const Statistics = () => {
   );
 };
 
-export default Statistics;
+const StatTableRow = React.memo(({ item }) => {
+  return (
+    <tr>
+      <td data-label="Menu Item" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+        {item._id}
+      </td>
+      <td data-label="Quantity" style={{ fontWeight: 600 }}>
+        {item.totalQuantity} units
+      </td>
+      <td data-label="Revenue" style={{ color: 'var(--success)', fontWeight: 600 }}>
+        ₹{item.totalRevenue}
+      </td>
+    </tr>
+  );
+});
+
+export default AdminStatistics;

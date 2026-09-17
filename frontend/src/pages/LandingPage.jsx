@@ -391,7 +391,7 @@ export default function LandingPage() {
           >
             {/* Main Character & Text Image */}
             <img
-              src="/order-your-food.png"
+              src="/order-your-food.webp"
               alt="Order Your Food"
               className="w-full h-full object-contain object-bottom sm:drop-shadow-[0_25px_60px_rgba(249,115,22,0.5)] select-none pointer-events-none transition-transform duration-200"
             />
@@ -559,7 +559,7 @@ export default function LandingPage() {
               {/* QR Code Container */}
               <div className="p-3 bg-white rounded-xl shadow-md border border-zinc-200/50 mb-4">
                 <img
-                  src="/whatsapp-qr.jpg.jpeg"
+                  src="/community-invite.jpg"
                   alt="WhatsApp Community QR Code"
                   className="w-48 h-48 sm:w-52 sm:h-52 object-contain select-none block"
                   loading="lazy"
@@ -700,7 +700,7 @@ export default function LandingPage() {
         <footer className="w-full border-t border-white/[0.08] mt-auto pt-5 pb-3 px-4 sm:px-8 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-400">
           <div className="flex items-center gap-3">
             <img
-              src="/aparnadevi-logo.png"
+              src="/aparnadevi-logo.webp"
               alt="AparnaDevi Canteen"
               className="h-6 w-auto object-contain cursor-pointer opacity-90 hover:opacity-100 transition-opacity"
               loading="lazy"

@@ -649,8 +649,7 @@ export default function LandingPage() {
               >
                 DIRECT HELPLINE
               </h3>
-              <p className="text-sm font-semibold text-white mb-0.5">+91 94910 08797</p>
-              <p className="text-xs text-zinc-400">canteen@aparnadevi.edu</p>
+              <p className="text-sm font-semibold text-white mb-0.5">+91 960369488</p>
             </motion.div>
           </div>
 
@@ -664,25 +663,25 @@ export default function LandingPage() {
                 PASSWORD & ACCOUNT QUERIES
               </h3>
               <p className="text-xs text-zinc-400 mb-1">
-                For login, password resets, or canteen inquiries, connect directly:
+                For login, password resets, connect directly:
               </p>
               <div
                 className="text-2xl sm:text-3xl text-orange-400 tracking-wider"
                 style={{ fontFamily: "'Bebas Neue', cursive, sans-serif" }}
               >
-                9491008797
+                9989092333
               </div>
             </div>
             <div className="flex items-center gap-3 shrink-0">
               <a
-                href="tel:9491008797"
+                href="tel:9989092333"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] text-white text-xs font-semibold tracking-wide transition-colors cursor-pointer"
               >
                 <Phone size={14} className="text-orange-400" />
                 <span>Call</span>
               </a>
               <a
-                href="https://wa.me/919491008797"
+                href="https://wa.me/919989092333"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-zinc-950 text-xs font-semibold tracking-wide transition-colors cursor-pointer shadow-sm"

@@ -258,78 +258,80 @@ export default function LandingPage() {
         />
       </div>
 
-      {/* Top Utmost Right: Sign In & Get Started (and Dashboard / Sign Out if authenticated) */}
+      {/* Top Utmost Right: Sign In & Get Started (when unauthenticated) OR Dashboard & Sign Out (when authenticated) */}
       <div className="fixed top-2.5 right-2 sm:top-3 sm:right-4 z-40 pointer-events-auto select-none flex items-center gap-2 sm:gap-2.5">
         {isMobile ? (
-          <>
-            <button
-              onClick={() => navigate('/login')}
-              className="px-3.5 py-1.5 text-xs font-semibold bg-white/5 border border-white/10 rounded-full text-white active:bg-white/10 transition-colors"
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => navigate('/register')}
-              className="px-3.5 py-1.5 text-xs font-semibold bg-orange-500 rounded-full text-white active:bg-orange-600 shadow-md transition-colors"
-            >
-              Get Started
-            </button>
-            {isAuthenticated && (
-              <>
-                <button
-                  onClick={() => navigate(user?.role === 'admin' ? '/admin/home' : '/customer/home')}
-                  className="px-3.5 py-1.5 text-xs font-semibold bg-emerald-600 rounded-full text-white active:bg-emerald-700 shadow-md transition-colors"
-                >
-                  Dashboard
-                </button>
-                <button
-                  onClick={() => logout()}
-                  className="px-3.5 py-1.5 text-xs font-semibold bg-red-500/20 border border-red-500/30 rounded-full text-red-300 active:bg-red-500/30 transition-colors"
-                >
-                  Sign Out
-                </button>
-              </>
-            )}
-          </>
+          !isAuthenticated ? (
+            <>
+              <button
+                onClick={() => navigate('/login')}
+                className="px-3.5 py-1.5 text-xs font-semibold bg-white/5 border border-white/10 rounded-full text-white active:bg-white/10 transition-colors"
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => navigate('/register')}
+                className="px-3.5 py-1.5 text-xs font-semibold bg-orange-500 rounded-full text-white active:bg-orange-600 shadow-md transition-colors"
+              >
+                Get Started
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => navigate(user?.role === 'admin' ? '/admin/home' : '/customer/home')}
+                className="px-3.5 py-1.5 text-xs font-semibold bg-emerald-600 rounded-full text-white active:bg-emerald-700 shadow-md transition-colors"
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={() => logout()}
+                className="px-3.5 py-1.5 text-xs font-semibold bg-red-500/20 border border-red-500/30 rounded-full text-red-300 active:bg-red-500/30 transition-colors"
+              >
+                Sign Out
+              </button>
+            </>
+          )
         ) : (
-          <>
-            <Dock
-              items={signInDockItem}
-              panelHeight={32}
-              baseItemSize={28}
-              magnification={36}
-              distance={60}
-              className="auth-dock-single"
-            />
-            <Dock
-              items={getStartedDockItem}
-              panelHeight={32}
-              baseItemSize={28}
-              magnification={36}
-              distance={60}
-              className="auth-dock-single"
-            />
-            {isAuthenticated && (
-              <>
-                <Dock
-                  items={dashboardDockItem}
-                  panelHeight={32}
-                  baseItemSize={28}
-                  magnification={36}
-                  distance={60}
-                  className="auth-dock-single"
-                />
-                <Dock
-                  items={signOutDockItem}
-                  panelHeight={32}
-                  baseItemSize={28}
-                  magnification={36}
-                  distance={60}
-                  className="auth-dock-single"
-                />
-              </>
-            )}
-          </>
+          !isAuthenticated ? (
+            <>
+              <Dock
+                items={signInDockItem}
+                panelHeight={32}
+                baseItemSize={28}
+                magnification={36}
+                distance={60}
+                className="auth-dock-single"
+              />
+              <Dock
+                items={getStartedDockItem}
+                panelHeight={32}
+                baseItemSize={28}
+                magnification={36}
+                distance={60}
+                className="auth-dock-single"
+              />
+            </>
+          ) : (
+            <>
+              <Dock
+                items={dashboardDockItem}
+                panelHeight={32}
+                baseItemSize={28}
+                magnification={36}
+                distance={60}
+                className="auth-dock-single"
+              />
+              <Dock
+                items={signOutDockItem}
+                panelHeight={32}
+                baseItemSize={28}
+                magnification={36}
+                distance={60}
+                className="auth-dock-single"
+              />
+            </>
+          )
         )}
       </div>
 

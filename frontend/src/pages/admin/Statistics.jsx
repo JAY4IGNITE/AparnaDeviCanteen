@@ -318,4 +318,4 @@ const StatTableRow = React.memo(({ item }) => {
   );
 });
 
-export default AdminStatistics;
+export default Statistics;

@@ -48,31 +48,31 @@ const TrendingFoodCard = ({ item, isTopOne = false }) => {
         {/* Food Image Container */}
         <div className="trending-card-img-wrap">
           {item.image_url ? (
-            <picture>
-              <source
-                srcSet={item.image_url.endsWith('.png') ? item.image_url.replace(/\.png$/, '.webp') : item.image_url}
-                type="image/webp"
-              />
-              <img
-                src={item.image_url}
-                alt={item.item_name}
-                className="trending-food-image"
-                loading="lazy"
-                decoding="async"
-                width="320"
-                height="190"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  const placeholder = e.currentTarget.closest('.trending-card-img-wrap')?.querySelector('.trending-card-img-placeholder');
-                  if (placeholder) placeholder.style.display = 'flex';
-                }}
-              />
-            </picture>
+            <img
+              src={item.image_url}
+              alt={item.item_name}
+              className="trending-food-image"
+              loading="lazy"
+              decoding="async"
+              width="320"
+              height="190"
+              style={{ opacity: 0, transition: 'opacity 0.3s ease-in-out' }}
+              onLoad={(e) => {
+                e.currentTarget.style.opacity = '1';
+                const placeholder = e.currentTarget.closest('.trending-card-img-wrap')?.querySelector('.trending-card-img-placeholder');
+                if (placeholder) placeholder.style.display = 'none';
+              }}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                const placeholder = e.currentTarget.closest('.trending-card-img-wrap')?.querySelector('.trending-card-img-placeholder');
+                if (placeholder) placeholder.style.display = 'flex';
+              }}
+            />
           ) : null}
 
           <div
             className="trending-card-img-placeholder"
-            style={{ display: item.image_url ? 'none' : 'flex' }}
+            style={{ display: 'flex' }}
           >
             <UtensilsCrossed size={36} className="trending-card-placeholder-icon" />
           </div>

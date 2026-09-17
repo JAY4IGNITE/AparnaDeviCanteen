@@ -349,9 +349,17 @@ const MenuPage = () => {
                               src={item.image_url}
                               alt={item.item_name}
                               className="menu-card-img"
-                              style={isOutOfStock ? { filter: 'grayscale(100%) brightness(0.6)' } : {}}
+                              style={{ 
+                                ...(isOutOfStock ? { filter: 'grayscale(100%) brightness(0.6)' } : {}),
+                                opacity: 0, transition: 'opacity 0.3s ease-in-out'
+                              }}
                               loading="lazy"
                               decoding="async"
+                              onLoad={(e) => {
+                                e.currentTarget.style.opacity = '1';
+                                const placeholder = e.currentTarget.closest('.menu-card-img-wrap')?.querySelector('.menu-card-img-placeholder');
+                                if (placeholder) placeholder.style.display = 'none';
+                              }}
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
                                 const placeholder = e.currentTarget.closest('.menu-card-img-wrap')?.querySelector('.menu-card-img-placeholder');
@@ -363,7 +371,7 @@ const MenuPage = () => {
                           <div
                             className="menu-card-img-placeholder"
                             style={{
-                              display: item.image_url ? 'none' : 'flex',
+                              display: 'flex',
                               ...(isOutOfStock ? { filter: 'grayscale(100%) brightness(0.6)' } : {})
                             }}
                           >
@@ -481,7 +489,11 @@ const MenuPage = () => {
                           src={item.image_url}
                           alt={item.item_name}
                           className="menu-table-thumb"
-                          style={{ width: 42, height: 42 }}
+                          style={{ width: 42, height: 42, opacity: 0, transition: 'opacity 0.3s ease-in-out' }}
+                          onLoad={(e) => {
+                            e.currentTarget.style.opacity = '1';
+                            if (e.target.nextSibling) e.target.nextSibling.style.display = 'none';
+                          }}
                           onError={(e) => {
                             e.target.style.display = 'none';
                             if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
@@ -490,7 +502,7 @@ const MenuPage = () => {
                       ) : null}
                       <div
                         className="menu-table-thumb-placeholder"
-                        style={{ display: item.image_url ? 'none' : 'flex', width: 42, height: 42 }}
+                        style={{ display: 'flex', width: 42, height: 42 }}
                       >
                         <UtensilsCrossed size={18} />
                       </div>

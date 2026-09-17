@@ -32,14 +32,22 @@ router.post('/', protect, async (req, res) => {
     let totalAmount = 0;
     const orderItems = [];
 
-    for (const item of items) {
-      const { data: menuItem, error } = await supabase
-        .from('menu_items')
-        .select('*')
-        .eq('id', item.menuItem)
-        .maybeSingle();
+    const itemIds = items.map(i => i.menuItem);
+    const { data: menuItems, error: menuError } = await supabase
+      .from('menu_items')
+      .select('*')
+      .in('id', itemIds);
 
-      if (error || !menuItem) {
+    if (menuError) {
+      return res.status(500).json({ success: false, message: 'Failed to validate menu items.' });
+    }
+
+    const menuItemsMap = new Map((menuItems || []).map(m => [m.id, m]));
+
+    for (const item of items) {
+      const menuItem = menuItemsMap.get(item.menuItem);
+
+      if (!menuItem) {
         return res.status(404).json({ success: false, message: `Menu item not found: ${item.menuItem}` });
       }
       if (!menuItem.is_available) {

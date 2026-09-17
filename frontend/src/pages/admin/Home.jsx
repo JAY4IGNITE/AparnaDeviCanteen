@@ -179,15 +179,15 @@ const AdminHome = () => {
       await axios.put(`/admin/orders/${orderId}`, { status: newStatus });
       fetchAllStats(true);
     } catch (err) {
-      console.error('Failed to update status:', err);
-      alert('Failed to update status: ' + (err.response?.data?.message || err.message));
+      console.error('Update failed:', err);
+      toast.error('Failed to update status: ' + (err.response?.data?.message || err.message));
     }
   };
 
   const handleWhatsAppNotify = (order) => {
     const rawPhone = order.customer?.phone;
     if (!rawPhone) {
-      alert('No phone number available for this customer');
+      toast.error('No phone number available for this customer');
       return;
     }
 

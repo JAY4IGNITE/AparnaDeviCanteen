@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'motion/react';
+import toast from 'react-hot-toast';
 import { Package, XCircle, FileDown, Clock, ChefHat, CheckCircle2, ChevronRight } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import EmptyState from '../../components/ui/EmptyState';
@@ -40,7 +41,7 @@ const Orders = () => {
       }
     } catch (err) {
       console.error('Failed to cancel order:', err);
-      alert(err.response?.data?.message || 'Failed to cancel order. Please try again.');
+      toast.error(err.response?.data?.message || 'Failed to cancel order. Please try again.');
     }
   };
 
@@ -51,7 +52,7 @@ const Orders = () => {
       await generateInvoice(order, user);
     } catch (err) {
       console.error('Failed to generate invoice:', err);
-      alert('Failed to generate invoice. Please try again.');
+      toast.error('Failed to generate invoice. Please try again.');
     } finally {
       setDownloadingId(null);
     }

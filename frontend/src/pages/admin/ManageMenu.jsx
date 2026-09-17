@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Plus, Edit2, Trash2, Eye, EyeOff, Power, X, CheckCircle, AlertCircle, Image as ImageIcon, Upload, Link as LinkIcon, UtensilsCrossed } from 'lucide-react';
+import toast from 'react-hot-toast';
 import PageHeader from '../../components/ui/PageHeader';
 import AnimatedModal from '../../components/ui/AnimatedModal';
 import AlertBanner from '../../components/ui/AlertBanner';
@@ -108,7 +109,7 @@ const ManageMenu = () => {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Please select a valid image file (JPG, PNG, WebP, etc.)');
+      toast.error('Please select a valid image file (JPG, PNG, WebP, etc.)');
       return;
     }
 
@@ -413,7 +414,7 @@ const ManageMenu = () => {
                     className="image-preview-img"
                     onError={(e) => {
                       e.target.src = '';
-                      alert('Failed to load image preview. Please check the URL.');
+                      toast.error('Failed to load image preview. Please check the URL.');
                     }}
                   />
                   <button

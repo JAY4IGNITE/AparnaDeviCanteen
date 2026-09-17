@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { CheckCircle, XCircle, Loader } from 'lucide-react';
@@ -8,6 +8,7 @@ const VerifyEmail = () => {
   const { verifyEmail } = useAuth();
   const [status, setStatus] = useState('loading'); // loading, success, error
   const [message, setMessage] = useState('');
+  const isVerifyingRef = useRef(false);
 
   useEffect(() => {
     const performVerification = async () => {
@@ -20,7 +21,8 @@ const VerifyEmail = () => {
         setMessage(err.response?.data?.message || 'Verification failed. The link may be invalid or expired.');
       }
     };
-    if (token) {
+    if (token && !isVerifyingRef.current) {
+      isVerifyingRef.current = true;
       performVerification();
     }
   }, [token, verifyEmail]);

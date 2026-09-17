@@ -86,9 +86,9 @@ export const AuthProvider = ({ children }) => {
 
   const updateEmail = useCallback(async (email) => {
     const res = await axios.put('/auth/update-email', { email });
-    const updatedUser = res.data.user;
-    updateUser(updatedUser);
-    return updatedUser;
+    const updatedUserResult = res.data.user;
+    updateUser(updatedUserResult);
+    return updatedUserResult;
   }, [updateUser]);
 
   const resendVerification = useCallback(async (email) => {

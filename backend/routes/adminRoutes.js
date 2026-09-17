@@ -386,8 +386,6 @@ router.get('/orders/export', async (req, res) => {
   }
 });
 
-// ============== REVENUE ==============
-
 // GET /api/admin/revenue?date=YYYY-MM-DD OR ?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
 router.get('/revenue', async (req, res) => {
   try {
@@ -419,14 +417,15 @@ router.get('/revenue', async (req, res) => {
       return res.status(500).json({ success: false, message: error.message });
     }
 
-    const totalRevenue = orders.reduce((sum, o) => sum + Number(o.total_amount), 0);
-    const orderCount = orders.length;
+    const safeOrders = orders || [];
+    const totalRevenue = safeOrders.reduce((sum, o) => sum + Number(o?.total_amount || 0), 0);
+    const orderCount = safeOrders.length;
 
     res.json({
       success: true,
       data: { 
-        startDate: startDate || date, 
-        endDate: endDate || date, 
+        startDate: startDate || date || '', 
+        endDate: endDate || date || '', 
         totalRevenue, 
         orderCount 
       }
@@ -471,18 +470,20 @@ router.get('/statistics', async (req, res) => {
       return res.status(500).json({ success: false, message: error.message });
     }
 
+    const safeOrders = orders || [];
     // Filter by block if provided
-    const filteredOrders = block ? orders.filter(o => o.users?.hostel_block === block) : orders;
+    const filteredOrders = block ? safeOrders.filter(o => o?.users?.hostel_block === block) : safeOrders;
 
     // Aggregate item statistics in JS
     const statsMap = {};
     for (const order of filteredOrders) {
-      for (const item of (order.order_items || [])) {
+      for (const item of (order?.order_items || [])) {
+        if (!item || !item.item_name) continue;
         if (!statsMap[item.item_name]) {
           statsMap[item.item_name] = { _id: item.item_name, totalQuantity: 0, totalRevenue: 0 };
         }
-        statsMap[item.item_name].totalQuantity += item.quantity;
-        statsMap[item.item_name].totalRevenue  += Number(item.price) * item.quantity;
+        statsMap[item.item_name].totalQuantity += Number(item.quantity || 0);
+        statsMap[item.item_name].totalRevenue  += Number(item.price || 0) * Number(item.quantity || 0);
       }
     }
 

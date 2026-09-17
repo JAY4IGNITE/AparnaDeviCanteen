@@ -35,10 +35,12 @@ const Statistics = () => {
       let url = `/admin/statistics?startDate=${start}&endDate=${end}`;
       if (blk) url += `&block=${blk}`;
       const res = await axios.get(url);
-      setItems(res.data.data || []);
+      setItems(Array.isArray(res.data?.data) ? res.data.data : []);
       setFetched(true);
     } catch (err) {
       console.error('Failed to fetch statistics:', err);
+      setItems([]);
+      setFetched(true);
     } finally {
       setLoading(false);
     }
@@ -94,32 +96,37 @@ const Statistics = () => {
   };
 
   // Filter and Sort
-  const filtered = items.filter(item => {
+  const safeItems = Array.isArray(items) ? items : [];
+
+  const filtered = safeItems.filter(item => {
     if (!searchQuery) return true;
-    return (item._id || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const itemName = item?._id || item?.item_name || '';
+    return itemName.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
   const sorted = [...filtered].sort((a, b) => {
     let comp = 0;
+    const nameA = a?._id || a?.item_name || '';
+    const nameB = b?._id || b?.item_name || '';
     if (sortField === 'name') {
-      comp = (a._id || '').localeCompare(b._id || '');
+      comp = nameA.localeCompare(nameB);
     } else if (sortField === 'totalQuantity') {
-      comp = Number(a.totalQuantity || 0) - Number(b.totalQuantity || 0);
+      comp = Number(a?.totalQuantity || 0) - Number(b?.totalQuantity || 0);
     } else if (sortField === 'totalRevenue') {
-      comp = Number(a.totalRevenue || 0) - Number(b.totalRevenue || 0);
+      comp = Number(a?.totalRevenue || 0) - Number(b?.totalRevenue || 0);
     }
     return sortAsc ? comp : -comp;
   });
 
-  const grandTotalUnits = items.reduce((sum, i) => sum + (Number(i.totalQuantity) || 0), 0);
-  const grandTotalRevenue = items.reduce((sum, i) => sum + (Number(i.totalRevenue) || 0), 0);
+  const grandTotalUnits = safeItems.reduce((sum, i) => sum + (Number(i?.totalQuantity) || 0), 0);
+  const grandTotalRevenue = safeItems.reduce((sum, i) => sum + (Number(i?.totalRevenue) || 0), 0);
 
   return (
     <div>
       <PageHeader 
         title="Item Sales Statistics" 
         subtitle="Analyze quantity ordered and revenue generated for each menu item" 
-        badge={`${items.length} Items Ordered`}
+        badge={`${safeItems.length} Items Ordered`}
         showBack={true}
         backTo="/admin/home"
       />
@@ -188,7 +195,7 @@ const Statistics = () => {
       </form>
 
       {/* Instant Search Bar */}
-      {items.length > 0 && (
+      {safeItems.length > 0 && (
         <div className="search-bar" style={{ marginBottom: '1.25rem' }}>
           <Search size={16} className="search-bar-icon" />
           <input
@@ -255,19 +262,22 @@ const Statistics = () => {
               </tr>
             </thead>
             <tbody>
-              {sorted.map((item) => (
-                <tr key={item._id}>
-                  <td data-label="Menu Item" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {item._id}
-                  </td>
-                  <td data-label="Quantity" style={{ fontWeight: 600 }}>
-                    {item.totalQuantity} units
-                  </td>
-                  <td data-label="Revenue" style={{ color: 'var(--success)', fontWeight: 600 }}>
-                    ₹{item.totalRevenue}
-                  </td>
-                </tr>
-              ))}
+              {sorted.map((item, index) => {
+                const itemName = item?._id || item?.item_name || `Item-${index}`;
+                return (
+                  <tr key={itemName + '-' + index}>
+                    <td data-label="Menu Item" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                      {itemName}
+                    </td>
+                    <td data-label="Quantity" style={{ fontWeight: 600 }}>
+                      {item?.totalQuantity || 0} units
+                    </td>
+                    <td data-label="Revenue" style={{ color: 'var(--success)', fontWeight: 600 }}>
+                      ₹{item?.totalRevenue || 0}
+                    </td>
+                  </tr>
+                );
+              })}
               {sorted.length === 0 && (
                 <tr>
                   <td colSpan="3" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
@@ -276,10 +286,10 @@ const Statistics = () => {
                 </tr>
               )}
             </tbody>
-            {items.length > 0 && (
+            {safeItems.length > 0 && (
               <tfoot>
                 <tr style={{ fontWeight: 700, borderTop: '2px solid var(--border-color)', background: 'var(--bg-elevated)' }}>
-                  <td style={{ color: 'var(--text-primary)' }}>Grand Total ({items.length} Unique Items)</td>
+                  <td style={{ color: 'var(--text-primary)' }}>Grand Total ({safeItems.length} Unique Items)</td>
                   <td style={{ color: 'var(--primary-400)' }}>{grandTotalUnits} units</td>
                   <td style={{ color: 'var(--success)' }}>₹{grandTotalRevenue}</td>
                 </tr>

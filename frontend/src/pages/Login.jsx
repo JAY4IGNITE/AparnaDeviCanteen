@@ -35,6 +35,16 @@ const Login = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'admin') {
+        navigate('/admin/home', { replace: true });
+      } else {
+        navigate('/customer/home', { replace: true });
+      }
+    }
+  }, [user, navigate]);
+
 
 
 
@@ -209,41 +219,6 @@ const Login = () => {
             </Link>
             <p className="auth-subtitle">Welcome back</p>
           </div>
-
-          {user && (
-            <div style={{
-              marginBottom: '1rem',
-              padding: '0.75rem 1rem',
-              background: 'rgba(249, 115, 22, 0.12)',
-              border: '1px solid rgba(249, 115, 22, 0.3)',
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '0.5rem',
-              color: 'var(--text-primary, #fff)',
-              fontSize: '0.825rem'
-            }}>
-              <span>Logged in as <strong>{user.name || user.phone || user.email}</strong> ({user.role})</span>
-              <button
-                type="button"
-                onClick={() => navigate(user.role === 'admin' ? '/admin/home' : '/customer/home')}
-                style={{
-                  background: '#f97316',
-                  color: '#fff',
-                  border: 'none',
-                  padding: '0.35rem 0.75rem',
-                  borderRadius: '6px',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                Go to Dashboard
-              </button>
-            </div>
-          )}
 
           <AlertBanner type="error" show={!!error}>
             <AlertCircle size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />

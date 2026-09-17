@@ -19,10 +19,12 @@ import PotSteam from '../components/PotSteam';
 import ColorBends from '../components/ColorBends';
 import Dock from '../components/Dock';
 import MenuScroll from '../components/MenuScroll';
+import { useAuth } from '../context/AuthContext';
 import './LandingPage.css';
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
   const lenisRef = useRef(null);
   const heroRef = useRef(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -209,7 +211,27 @@ export default function LandingPage() {
     },
   ];
 
+  const dashboardDockItem = [
+    {
+      isPill: true,
+      text: 'Dashboard',
+      baseWidth: 84,
+      magnificationWidth: 100,
+      onClick: () => navigate(user?.role === 'admin' ? '/admin/home' : '/customer/home'),
+      className: 'dock-getstarted-pill',
+    },
+  ];
 
+  const signOutDockItem = [
+    {
+      isPill: true,
+      text: 'Sign Out',
+      baseWidth: 72,
+      magnificationWidth: 86,
+      onClick: () => logout(),
+      className: 'dock-signin-pill',
+    },
+  ];
 
   return (
     <div className="landing-container min-h-screen w-full bg-[#0a0a0f] text-zinc-100 relative select-none overflow-x-hidden">
@@ -236,9 +258,45 @@ export default function LandingPage() {
         />
       </div>
 
-      {/* Top Utmost Right: Separated Sign In & Get Started buttons, each with Dock Effect */}
+      {/* Top Utmost Right: Separated Sign In & Get Started / Dashboard & Sign Out buttons */}
       <div className="fixed top-2.5 right-2 sm:top-3 sm:right-4 z-40 pointer-events-auto select-none flex items-center gap-2 sm:gap-2.5">
-        {isMobile ? (
+        {isAuthenticated ? (
+          isMobile ? (
+            <>
+              <button
+                onClick={() => navigate(user?.role === 'admin' ? '/admin/home' : '/customer/home')}
+                className="px-3.5 py-1.5 text-xs font-semibold bg-orange-500 rounded-full text-white active:bg-orange-600 shadow-md transition-colors"
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={() => logout()}
+                className="px-3.5 py-1.5 text-xs font-semibold bg-white/5 border border-white/10 rounded-full text-white active:bg-white/10 transition-colors"
+              >
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <>
+              <Dock
+                items={dashboardDockItem}
+                panelHeight={32}
+                baseItemSize={28}
+                magnification={36}
+                distance={60}
+                className="auth-dock-single"
+              />
+              <Dock
+                items={signOutDockItem}
+                panelHeight={32}
+                baseItemSize={28}
+                magnification={36}
+                distance={60}
+                className="auth-dock-single"
+              />
+            </>
+          )
+        ) : isMobile ? (
           <>
             <button
               onClick={() => navigate('/login')}

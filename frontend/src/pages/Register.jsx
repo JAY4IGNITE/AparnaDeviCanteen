@@ -34,16 +34,7 @@ const Register = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // If already authenticated, redirect to the dashboard
-  useEffect(() => {
-    if (user) {
-      if (user.role === 'admin') {
-        navigate('/admin/home', { replace: true });
-      } else {
-        navigate('/customer/home', { replace: true });
-      }
-    }
-  }, [user, navigate]);
+
 
 
 

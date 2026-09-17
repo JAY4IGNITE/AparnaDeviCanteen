@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext({
-  theme: 'light',
+  theme: 'dark',
   toggleTheme: () => {},
   setTheme: () => {}
 });
@@ -9,15 +9,18 @@ const ThemeContext = createContext({
 export const ThemeProvider = ({ children }) => {
   const [theme, setThemeState] = useState(() => {
     try {
-      return localStorage.getItem('canteen_theme') || 'light';
+      const userPref = localStorage.getItem('canteen_theme_pref');
+      if (userPref === 'light' || userPref === 'dark') {
+        return userPref;
+      }
+      return 'dark';
     } catch {
-      return 'light';
+      return 'dark';
     }
   });
 
   useEffect(() => {
     try {
-      localStorage.setItem('canteen_theme', theme);
       document.documentElement.setAttribute('data-theme', theme);
       if (theme === 'dark') {
         document.documentElement.classList.add('dark');
@@ -32,11 +35,27 @@ export const ThemeProvider = ({ children }) => {
   }, [theme]);
 
   const toggleTheme = () => {
-    setThemeState(prev => (prev === 'light' ? 'dark' : 'light'));
+    setThemeState(prev => {
+      const nextTheme = prev === 'light' ? 'dark' : 'light';
+      try {
+        localStorage.setItem('canteen_theme_pref', nextTheme);
+        localStorage.setItem('canteen_theme', nextTheme);
+      } catch (e) {
+        console.error(e);
+      }
+      return nextTheme;
+    });
   };
 
   const setTheme = (val) => {
-    setThemeState(val === 'dark' ? 'dark' : 'light');
+    const nextTheme = val === 'dark' ? 'dark' : 'light';
+    try {
+      localStorage.setItem('canteen_theme_pref', nextTheme);
+      localStorage.setItem('canteen_theme', nextTheme);
+    } catch (e) {
+      console.error(e);
+    }
+    setThemeState(nextTheme);
   };
 
   return (
@@ -48,3 +67,4 @@ export const ThemeProvider = ({ children }) => {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useTheme = () => useContext(ThemeContext);
+

@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { Download, CheckCircle, Clock, Package, Phone, Trash2, Search, X, ChefHat, MessageCircle, FileText } from 'lucide-react';
+import toast from 'react-hot-toast';
 import PageHeader from '../../components/ui/PageHeader';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingState from '../../components/ui/LoadingState';
@@ -35,7 +36,7 @@ const AdminOrders = () => {
   const handleWhatsAppNotify = (order) => {
     const rawPhone = order.customer?.phone;
     if (!rawPhone) {
-      alert('No phone number available for this customer');
+      toast.error('No phone number available for this customer');
       return;
     }
 
@@ -68,7 +69,7 @@ const AdminOrders = () => {
       await generateInvoice(order, order.customer || { name: 'Customer' });
     } catch (err) {
       console.error('Failed to generate invoice:', err);
-      alert('Failed to generate invoice: ' + (err.message || 'Please try again.'));
+      toast.error('Failed to generate invoice: ' + (err.message || 'Please try again.'));
     } finally {
       setDownloadingId(null);
     }
@@ -177,22 +178,24 @@ const AdminOrders = () => {
     });
   };
 
-  const q = searchQuery.toLowerCase();
-  const filtered = orders.filter(order => {
-    const matchesBlock = !blockFilter || order.customer?.hostel_block === blockFilter;
-    const matchesOrderId = !orderIdFilter || String(order.order_number) === orderIdFilter.trim();
-    const matchesSearch = !q ||
-      (order.customer?.name || '').toLowerCase().includes(q) ||
-      String(order.order_number).includes(q) ||
-      (order.id || '').toLowerCase().includes(q) ||
-      (order.customer?.phone || '').includes(q) ||
-      (order.customer?.hostel_block || '').toLowerCase().includes(q) ||
-      (order.status || '').toLowerCase().includes(q) ||
-      String(order.total_amount).includes(q) ||
-      (order.order_items || []).some(i => i.item_name.toLowerCase().includes(q));
-    return matchesBlock && matchesOrderId && matchesSearch;
-  });
-  const sorted = [...filtered].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  const sorted = React.useMemo(() => {
+    const q = searchQuery.toLowerCase();
+    const filtered = orders.filter(order => {
+      const matchesBlock = !blockFilter || order.customer?.hostel_block === blockFilter;
+      const matchesOrderId = !orderIdFilter || String(order.order_number) === orderIdFilter.trim();
+      const matchesSearch = !q ||
+        (order.customer?.name || '').toLowerCase().includes(q) ||
+        String(order.order_number).includes(q) ||
+        (order.id || '').toLowerCase().includes(q) ||
+        (order.customer?.phone || '').includes(q) ||
+        (order.customer?.hostel_block || '').toLowerCase().includes(q) ||
+        (order.status || '').toLowerCase().includes(q) ||
+        String(order.total_amount).includes(q) ||
+        (order.order_items || []).some(i => i.item_name.toLowerCase().includes(q));
+      return matchesBlock && matchesOrderId && matchesSearch;
+    });
+    return [...filtered].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  }, [orders, searchQuery, blockFilter, orderIdFilter]);
 
   if (loading) {
     return <LoadingState />;
@@ -302,106 +305,15 @@ const AdminOrders = () => {
             </thead>
             <tbody>
               {sorted.map((order) => (
-                <tr key={order.id}>
-                  <td data-label="Order ID" style={{ fontWeight: 700, color: 'var(--primary-400)', fontFamily: 'monospace' }} title={`Full ID: ${order.id}`}>
-                    #{order.order_number}
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 400, marginTop: '0.15rem' }}>
-                      {order.id.substring(0, 8)}
-                    </div>
-                  </td>
-                  <td data-label="Customer" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {order.customer?.name || 'N/A'}
-                  </td>
-                  <td data-label="Phone">{order.customer?.phone || 'N/A'}</td>
-                  <td data-label="Block">{order.customer?.hostel_block || '—'}</td>
-                  <td data-label="Items" style={{ maxWidth: '200px' }}>
-                    {(order.order_items || []).map(i => `${i.item_name}×${i.quantity}`).join(', ')}
-                  </td>
-                  <td data-label="Total" style={{ color: 'var(--primary-400)', fontWeight: 600 }}>₹{order.total_amount}</td>
-                  <td data-label="Status">
-                    <span className={`badge badge-${order.status.toLowerCase()}`}>{order.status}</span>
-                  </td>
-                  <td data-label="Date" style={{ fontSize: '0.85rem' }}>{formatDate(order.created_at)}</td>
-                  <td data-label="Action">
-                    <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                      {order.status === 'Pending' && (
-                        <MotionButton
-                          className="btn btn-info btn-sm"
-                          onClick={() => updateStatus(order.id, 'Preparing')}
-                          title="Start Preparing"
-                          id={`preparing-order-${order.id}`}
-                        >
-                          <ChefHat size={14} />
-                        </MotionButton>
-                      )}
-                      {(order.status === 'Pending' || order.status === 'Preparing') && (
-                        <MotionButton
-                          className="btn btn-success btn-sm"
-                          onClick={() => updateStatus(order.id, 'Completed')}
-                          title="Mark as Completed"
-                          id={`complete-order-${order.id}`}
-                        >
-                          <CheckCircle size={14} />
-                        </MotionButton>
-                      )}
-                      {order.status === 'Preparing' && (
-                        <MotionButton
-                          className="btn btn-ghost btn-sm"
-                          onClick={() => updateStatus(order.id, 'Pending')}
-                          title="Revert to Pending"
-                          id={`revert-pending-order-${order.id}`}
-                        >
-                          <Clock size={14} />
-                        </MotionButton>
-                      )}
-                      {order.status === 'Completed' && (
-                        <MotionButton
-                          className="btn btn-ghost btn-sm"
-                          onClick={() => updateStatus(order.id, 'Preparing')}
-                          title="Revert to Preparing"
-                          id={`revert-preparing-order-${order.id}`}
-                        >
-                          <Clock size={14} />
-                        </MotionButton>
-                      )}
-                      {order.status !== 'Cancelled' && (
-                        <MotionButton
-                          className="btn btn-danger btn-sm"
-                          onClick={() => { if (window.confirm('Are you sure you want to cancel this order?')) updateStatus(order.id, 'Cancelled'); }}
-                          title="Cancel Order"
-                          id={`delete-order-${order.id}`}
-                        >
-                          <Trash2 size={14} />
-                        </MotionButton>
-                      )}
-                      {order.customer?.phone && (
-                        <MotionButton
-                          className="btn btn-whatsapp btn-sm"
-                          onClick={() => handleWhatsAppNotify(order)}
-                          title="Send WhatsApp Notification to Customer"
-                          id={`whatsapp-notify-btn-${order.id}`}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
-                        >
-                          <MessageCircle size={14} /> WhatsApp
-                        </MotionButton>
-                      )}
-                      {order.customer?.phone && (
-                        <a href={`tel:${order.customer.phone}`} className="btn btn-secondary btn-sm" title={`Call ${order.customer?.name}`} style={{ color: 'var(--success)' }}>
-                          <Phone size={14} />
-                        </a>
-                      )}
-                      <MotionButton
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => handleDownloadInvoice(order)}
-                        disabled={downloadingId === order.id}
-                        title="Generate & Download Token Receipt / Invoice PDF"
-                        id={`invoice-btn-${order.id}`}
-                      >
-                        <FileText size={14} />
-                      </MotionButton>
-                    </div>
-                  </td>
-                </tr>
+                <OrderTableRow 
+                  key={order.id} 
+                  order={order}
+                  updateStatus={updateStatus}
+                  handleWhatsAppNotify={handleWhatsAppNotify}
+                  handleDownloadInvoice={handleDownloadInvoice}
+                  downloadingId={downloadingId}
+                  formatDate={formatDate}
+                />
               ))}
             </tbody>
           </table>
@@ -435,5 +347,110 @@ const AdminOrders = () => {
     </div>
   );
 };
+
+const OrderTableRow = React.memo(({ order, updateStatus, handleWhatsAppNotify, handleDownloadInvoice, downloadingId, formatDate }) => {
+  return (
+    <tr>
+      <td data-label="Order ID" style={{ fontWeight: 700, color: 'var(--primary-400)', fontFamily: 'monospace' }} title={`Full ID: ${order.id}`}>
+        #{order.order_number}
+        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 400, marginTop: '0.15rem' }}>
+          {order.id.substring(0, 8)}
+        </div>
+      </td>
+      <td data-label="Customer" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+        {order.customer?.name || 'N/A'}
+      </td>
+      <td data-label="Phone">{order.customer?.phone || 'N/A'}</td>
+      <td data-label="Block">{order.customer?.hostel_block || '—'}</td>
+      <td data-label="Items" style={{ maxWidth: '200px' }}>
+        {(order.order_items || []).map(i => `${i.item_name}×${i.quantity}`).join(', ')}
+      </td>
+      <td data-label="Total" style={{ color: 'var(--primary-400)', fontWeight: 600 }}>₹{order.total_amount}</td>
+      <td data-label="Status">
+        <span className={`badge badge-${order.status.toLowerCase()}`}>{order.status}</span>
+      </td>
+      <td data-label="Date" style={{ fontSize: '0.85rem' }}>{formatDate(order.created_at)}</td>
+      <td data-label="Action">
+        <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          {order.status === 'Pending' && (
+            <MotionButton
+              className="btn btn-info btn-sm"
+              onClick={() => updateStatus(order.id, 'Preparing')}
+              title="Start Preparing"
+              id={`preparing-order-${order.id}`}
+            >
+              <ChefHat size={14} />
+            </MotionButton>
+          )}
+          {(order.status === 'Pending' || order.status === 'Preparing') && (
+            <MotionButton
+              className="btn btn-success btn-sm"
+              onClick={() => updateStatus(order.id, 'Completed')}
+              title="Mark as Completed"
+              id={`complete-order-${order.id}`}
+            >
+              <CheckCircle size={14} />
+            </MotionButton>
+          )}
+          {order.status === 'Preparing' && (
+            <MotionButton
+              className="btn btn-ghost btn-sm"
+              onClick={() => updateStatus(order.id, 'Pending')}
+              title="Revert to Pending"
+              id={`revert-pending-order-${order.id}`}
+            >
+              <Clock size={14} />
+            </MotionButton>
+          )}
+          {order.status === 'Completed' && (
+            <MotionButton
+              className="btn btn-ghost btn-sm"
+              onClick={() => updateStatus(order.id, 'Preparing')}
+              title="Revert to Preparing"
+              id={`revert-preparing-order-${order.id}`}
+            >
+              <Clock size={14} />
+            </MotionButton>
+          )}
+          {order.status !== 'Cancelled' && (
+            <MotionButton
+              className="btn btn-danger btn-sm"
+              onClick={() => { if (window.confirm('Are you sure you want to cancel this order?')) updateStatus(order.id, 'Cancelled'); }}
+              title="Cancel Order"
+              id={`delete-order-${order.id}`}
+            >
+              <Trash2 size={14} />
+            </MotionButton>
+          )}
+          {order.customer?.phone && (
+            <MotionButton
+              className="btn btn-whatsapp btn-sm"
+              onClick={() => handleWhatsAppNotify(order)}
+              title="Send WhatsApp Notification to Customer"
+              id={`whatsapp-notify-btn-${order.id}`}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+            >
+              <MessageCircle size={14} /> WhatsApp
+            </MotionButton>
+          )}
+          {order.customer?.phone && (
+            <a href={`tel:${order.customer.phone}`} className="btn btn-secondary btn-sm" title={`Call ${order.customer?.name}`} style={{ color: 'var(--success)' }}>
+              <Phone size={14} />
+            </a>
+          )}
+          <MotionButton
+            className="btn btn-secondary btn-sm"
+            onClick={() => handleDownloadInvoice(order)}
+            disabled={downloadingId === order.id}
+            title="Generate & Download Token Receipt / Invoice PDF"
+            id={`invoice-btn-${order.id}`}
+          >
+            <FileText size={14} />
+          </MotionButton>
+        </div>
+      </td>
+    </tr>
+  );
+});
 
 export default AdminOrders;

@@ -125,31 +125,31 @@ const OrderAgain = ({ orders = [], allMenuItems = [], loading = false }) => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', width: '100%' }}>
                 <div className="order-again-img-wrap">
                   {item.image_url ? (
-                    <picture>
-                      <source
-                        srcSet={item.image_url.endsWith('.png') ? item.image_url.replace(/\.png$/, '-thumb.webp') : item.image_url}
-                        type="image/webp"
-                      />
-                      <img
-                        src={item.image_url}
-                        alt={item.item_name}
-                        className="order-again-img"
-                        loading="lazy"
-                        decoding="async"
-                        width="54"
-                        height="54"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          const placeholder = e.currentTarget.closest('.order-again-img-wrap')?.querySelector('.order-again-placeholder');
-                          if (placeholder) placeholder.style.display = 'flex';
-                        }}
-                      />
-                    </picture>
+                    <img
+                      src={item.image_url}
+                      alt={item.item_name}
+                      className="order-again-img"
+                      loading="lazy"
+                      decoding="async"
+                      width="54"
+                      height="54"
+                      style={{ opacity: 0, transition: 'opacity 0.3s ease-in-out' }}
+                      onLoad={(e) => {
+                        e.currentTarget.style.opacity = '1';
+                        const placeholder = e.currentTarget.closest('.order-again-img-wrap')?.querySelector('.order-again-placeholder');
+                        if (placeholder) placeholder.style.display = 'none';
+                      }}
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const placeholder = e.currentTarget.closest('.order-again-img-wrap')?.querySelector('.order-again-placeholder');
+                        if (placeholder) placeholder.style.display = 'flex';
+                      }}
+                    />
                   ) : null}
 
                   <div
                     className="order-again-placeholder"
-                    style={{ display: item.image_url ? 'none' : 'flex' }}
+                    style={{ display: 'flex' }}
                   >
                     <UtensilsCrossed size={20} />
                   </div>

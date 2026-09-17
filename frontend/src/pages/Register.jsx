@@ -70,6 +70,11 @@ const Register = () => {
       return;
     }
 
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      return;
+    }
+
     setLoading(true);
 
     try {

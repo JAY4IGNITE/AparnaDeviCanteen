@@ -136,6 +136,12 @@ export default function MagicRings({
   };
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    
+    if (mediaQuery.matches) {
+      return;
+    }
+
     const mount = mountRef.current;
     if (!mount) return;
 

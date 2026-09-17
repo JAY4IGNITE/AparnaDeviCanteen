@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Megaphone, Plus, Trash2, Edit2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import PageHeader from '../../components/ui/PageHeader';
 import AlertBanner from '../../components/ui/AlertBanner';
 import EmptyState from '../../components/ui/EmptyState';
@@ -52,11 +53,12 @@ const AdminAnnouncements = () => {
         setIsActive(true);
         setEditingId(null);
         fetchAnnouncements();
+        toast.success(res.data.message || 'Announcement saved successfully');
       } else {
-        alert(res.data.message);
+        toast.error(res.data.message || 'Error saving announcement');
       }
     } catch (err) {
-      alert(err.response?.data?.message || err.message || 'Error saving announcement');
+      toast.error(err.response?.data?.message || err.message || 'Error saving announcement');
     }
   };
 
@@ -70,9 +72,14 @@ const AdminAnnouncements = () => {
     if (!window.confirm('Are you sure you want to delete this announcement?')) return;
     try {
       const res = await axios.delete(`/admin/announcements/${id}`);
-      if (res.data.success) fetchAnnouncements();
+      if (res.data.success) {
+        fetchAnnouncements();
+        toast.success(res.data.message || 'Announcement deleted successfully');
+      } else {
+        toast.error(res.data.message || 'Error deleting announcement');
+      }
     } catch (err) {
-      alert(err.response?.data?.message || err.message || 'Error deleting announcement');
+      toast.error(err.response?.data?.message || err.message || 'Error deleting announcement');
     }
   };
 
@@ -80,9 +87,14 @@ const AdminAnnouncements = () => {
     if (!window.confirm('Are you sure you want to clear all announcements? This cannot be undone.')) return;
     try {
       const res = await axios.delete('/admin/announcements');
-      if (res.data.success) fetchAnnouncements();
+      if (res.data.success) {
+        fetchAnnouncements();
+        toast.success(res.data.message || 'All announcements cleared successfully');
+      } else {
+        toast.error(res.data.message || 'Error clearing announcements');
+      }
     } catch (err) {
-      alert(err.response?.data?.message || err.message || 'Error clearing announcements');
+      toast.error(err.response?.data?.message || err.message || 'Error clearing announcements');
     }
   };
 

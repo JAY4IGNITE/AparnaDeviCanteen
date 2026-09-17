@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'motion/react';
 import { Calendar, BarChart3, ArrowUpDown, Search } from 'lucide-react';
@@ -262,6 +262,7 @@ const Statistics = () => {
               </tr>
             </thead>
             <tbody>
+<<<<<<< HEAD
               {sorted.map((item, index) => {
                 const itemName = item?._id || item?.item_name || `Item-${index}`;
                 return (
@@ -278,6 +279,11 @@ const Statistics = () => {
                   </tr>
                 );
               })}
+=======
+              {sorted.map((item) => (
+                <StatTableRow key={item._id} item={item} />
+              ))}
+>>>>>>> 98c236e902fa271d1e39cc3200f4b721ef832b95
               {sorted.length === 0 && (
                 <tr>
                   <td colSpan="3" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
@@ -302,4 +308,20 @@ const Statistics = () => {
   );
 };
 
-export default Statistics;
+const StatTableRow = React.memo(({ item }) => {
+  return (
+    <tr>
+      <td data-label="Menu Item" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+        {item._id}
+      </td>
+      <td data-label="Quantity" style={{ fontWeight: 600 }}>
+        {item.totalQuantity} units
+      </td>
+      <td data-label="Revenue" style={{ color: 'var(--success)', fontWeight: 600 }}>
+        ₹{item.totalRevenue}
+      </td>
+    </tr>
+  );
+});
+
+export default AdminStatistics;

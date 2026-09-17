@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const AuthContext = createContext(null);
 
@@ -58,6 +59,25 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('foodnest_user');
     delete axios.defaults.headers.common['Authorization'];
   }, []);
+
+  // Global Axios Interceptor for 401 Unauthorized (Expired Tokens)
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          // If we're already on login/register, don't spam
+          if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
+            toast.error('Session expired. Please log in again.', { id: 'session-expired' });
+            logout();
+            window.location.href = '/login';
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+    return () => axios.interceptors.response.eject(interceptor);
+  }, [logout]);
 
   const updateUser = useCallback((userData) => {
     setUser(userData);

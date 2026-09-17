@@ -137,7 +137,16 @@ export default function ColorBends({
   const pointerSmoothRef = useRef(8);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    
+    // Fallback if reduced motion is preferred
+    if (mediaQuery.matches) {
+      return;
+    }
+
     const container = containerRef.current;
+    if (!container) return;
+    
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 

@@ -100,6 +100,11 @@ export default function PotSteam() {
   const canvasRef = useRef(null);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) {
+      return;
+    }
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -167,10 +172,13 @@ export default function PotSteam() {
     const timeLoc = gl.getUniformLocation(program, 'uTime');
     const resLoc = gl.getUniformLocation(program, 'uResolution');
 
-    let animId;
+    let animId = 0;
     const startTime = performance.now();
+    let isVisible = false;
 
     const render = () => {
+      if (!isVisible) return;
+
       const elapsed = (performance.now() - startTime) * 0.001;
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.clearColor(0, 0, 0, 0);
@@ -184,10 +192,35 @@ export default function PotSteam() {
       animId = requestAnimationFrame(render);
     };
 
-    animId = requestAnimationFrame(render);
+    const startAnimation = () => {
+      if (animId === 0) {
+        animId = requestAnimationFrame(render);
+      }
+    };
+
+    const stopAnimation = () => {
+      if (animId !== 0) {
+        cancelAnimationFrame(animId);
+        animId = 0;
+      }
+    };
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible) {
+          startAnimation();
+        } else {
+          stopAnimation();
+        }
+      },
+      { threshold: 0 }
+    );
+    io.observe(canvas);
 
     return () => {
-      cancelAnimationFrame(animId);
+      io.disconnect();
+      stopAnimation();
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);
       gl.deleteShader(vert);

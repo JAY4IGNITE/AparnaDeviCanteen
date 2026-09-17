@@ -7,7 +7,6 @@ import MotionButton from '../components/ui/MotionButton';
 import AlertBanner from '../components/ui/AlertBanner';
 import AnimatedModal from '../components/ui/AnimatedModal';
 import { useMotionSafe } from '../lib/motion';
-import useNeonBorder from '../hooks/useNeonBorder';
 import MagicRings from '../components/MagicRings';
 import ThemeToggleDock from '../components/ThemeToggleDock';
 

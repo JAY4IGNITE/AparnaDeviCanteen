@@ -64,7 +64,7 @@ export default function LandingPage() {
       lenis.destroy();
       lenisRef.current = null;
     };
-  }, []);
+  }, [isMobile]);
 
   // Normalized cursor coordinates [-0.5, 0.5] for hero 3D parallax
   const mouseX = useMotionValue(0);
@@ -138,7 +138,7 @@ export default function LandingPage() {
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [mouseX, mouseY]);
+  }, [mouseX, mouseY, isMobile]);
 
   const scrollToSection = (id) => {
     const element = document.getElementById(id);

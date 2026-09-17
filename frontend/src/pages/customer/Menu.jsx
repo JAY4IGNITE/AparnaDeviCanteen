@@ -45,6 +45,12 @@ const MenuPage = () => {
   useEffect(() => {
     fetchMenu();
     fetchOperatingStatus();
+    // Poll menu and operating status every 10 seconds to keep live availability in sync with admin toggles
+    const interval = setInterval(() => {
+      fetchMenu();
+      fetchOperatingStatus();
+    }, 10000);
+    return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -396,7 +402,7 @@ const MenuPage = () => {
                             <div className="menu-card-actions">
                               {isOutOfStock ? (
                                 <span className="btn-out-of-stock-badge">
-                                  Sold Out
+                                  Out of Stock
                                 </span>
                               ) : cart[item.id] ? (
                                 <div className="menu-stepper">
@@ -474,41 +480,52 @@ const MenuPage = () => {
                 <EmptyState icon={ShoppingCart} description="Your cart is empty" />
               ) : (
                 <>
-                  {Object.values(cart).map(item => (
-                    <div className="cart-item" key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      {item.image_url ? (
-                        <img
-                          src={item.image_url}
-                          alt={item.item_name}
-                          className="menu-table-thumb"
-                          style={{ width: 42, height: 42 }}
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
-                          }}
-                        />
-                      ) : null}
-                      <div
-                        className="menu-table-thumb-placeholder"
-                        style={{ display: item.image_url ? 'none' : 'flex', width: 42, height: 42 }}
-                      >
-                        <UtensilsCrossed size={18} />
+                  {Object.values(cart).map(item => {
+                    const matchedMenu = menuItems.find(m => m.id === item.id);
+                    const isItemOutOfStock = matchedMenu ? matchedMenu.is_available === false : item.is_available === false;
+                    return (
+                      <div className="cart-item" key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', opacity: isItemOutOfStock ? 0.75 : 1 }}>
+                        {item.image_url ? (
+                          <img
+                            src={item.image_url}
+                            alt={item.item_name}
+                            className="menu-table-thumb"
+                            style={{ width: 42, height: 42, filter: isItemOutOfStock ? 'grayscale(100%)' : 'none' }}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className="menu-table-thumb-placeholder"
+                          style={{ display: item.image_url ? 'none' : 'flex', width: 42, height: 42 }}
+                        >
+                          <UtensilsCrossed size={18} />
+                        </div>
+                        <div className="cart-item-info" style={{ flex: 1 }}>
+                          <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                            {item.item_name}
+                            {isItemOutOfStock && (
+                              <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.4rem', borderRadius: '0.375rem', background: 'rgba(239,68,68,0.2)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.4)', fontWeight: 600 }}>
+                                Out of Stock
+                              </span>
+                            )}
+                          </h4>
+                          <p>₹{item.price} × {item.quantity}</p>
+                        </div>
+                        <div className="quantity-control">
+                          <MotionButton className="quantity-btn" onClick={() => removeFromCart(item.id)} aria-label={`Remove one ${item.item_name}`}>
+                            <Minus size={14} />
+                          </MotionButton>
+                          <span className="quantity-value">{item.quantity}</span>
+                          <MotionButton className="quantity-btn" onClick={() => !isItemOutOfStock && addToCart(item)} disabled={isItemOutOfStock} aria-label={`Add one more ${item.item_name}`}>
+                            <Plus size={14} />
+                          </MotionButton>
+                        </div>
                       </div>
-                      <div className="cart-item-info" style={{ flex: 1 }}>
-                        <h4>{item.item_name}</h4>
-                        <p>₹{item.price} × {item.quantity}</p>
-                      </div>
-                      <div className="quantity-control">
-                        <MotionButton className="quantity-btn" onClick={() => removeFromCart(item.id)} aria-label={`Remove one ${item.item_name}`}>
-                          <Minus size={14} />
-                        </MotionButton>
-                        <span className="quantity-value">{item.quantity}</span>
-                        <MotionButton className="quantity-btn" onClick={() => addToCart(item)} aria-label={`Add one more ${item.item_name}`}>
-                          <Plus size={14} />
-                        </MotionButton>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
 
                   <div className="cart-total">
                     <span className="cart-total-label">Total</span>

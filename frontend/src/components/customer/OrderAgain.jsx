@@ -171,10 +171,13 @@ const OrderAgain = ({ orders = [], allMenuItems = [], loading = false }) => {
                   onClick={() => handleAddAgain(item)}
                   disabled={!item.is_available}
                   whileTap={{ scale: 0.92 }}
+                  style={!item.is_available ? { opacity: 0.6, cursor: 'not-allowed', background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)' } : {}}
                   aria-label={`Add ${item.item_name} again`}
                   id={`order-again-btn-${(item.id || item.item_name).toString().slice(0, 8)}`}
                 >
-                  {isAdded ? (
+                  {!item.is_available ? (
+                    <span>Out of Stock</span>
+                  ) : isAdded ? (
                     <>
                       <Check size={14} />
                       <span>Added</span>

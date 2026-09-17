@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const supabase = require('../db');
 const { protect, adminOnly } = require('../middleware/auth');
 const { sendEmail } = require('../services/emailService');
+const { clearMenuCache } = require('./menuRoutes');
 
 const router = express.Router();
 
@@ -34,6 +35,7 @@ router.put(['/menu/visibility', '/orders-status'], async (req, res) => {
     }
     const { setOrdersActive } = require('../settings');
     await setOrdersActive(Boolean(isOrdersActive));
+    if (typeof clearMenuCache === 'function') clearMenuCache();
     res.json({
       success: true,
       isVisible: Boolean(isOrdersActive),
@@ -48,17 +50,19 @@ router.put(['/menu/visibility', '/orders-status'], async (req, res) => {
 // POST /api/admin/menu — Add a new menu item
 router.post('/menu', async (req, res) => {
   try {
-    const { itemName, price, category, isAvailable, isVeg, imageUrl, image_url } = req.body;
+    const { itemName, price, category, isAvailable, is_available, isVeg, imageUrl, image_url } = req.body;
 
     if (!itemName || price === undefined) {
       return res.status(400).json({ success: false, message: 'Item name and price are required' });
     }
 
+    const availVal = isAvailable !== undefined ? isAvailable : (is_available !== undefined ? is_available : true);
+
     const payload = {
       item_name: itemName,
       price,
       category: category || 'General',
-      is_available: isAvailable !== undefined ? isAvailable : true,
+      is_available: Boolean(availVal),
       is_veg: isVeg !== undefined ? isVeg : true
     };
 
@@ -75,6 +79,8 @@ router.post('/menu', async (req, res) => {
     if (error) {
       return res.status(500).json({ success: false, message: error.message });
     }
+
+    if (typeof clearMenuCache === 'function') clearMenuCache();
 
     res.status(201).json({ success: true, data: menuItem });
 
@@ -105,13 +111,16 @@ router.get('/menu', async (req, res) => {
 // PUT /api/admin/menu/:id — Edit a menu item
 router.put('/menu/:id', async (req, res) => {
   try {
-    const { itemName, price, category, isAvailable, isVeg, imageUrl, image_url } = req.body;
+    const { itemName, price, category, isAvailable, is_available, isVeg, imageUrl, image_url } = req.body;
 
     const payload = {};
     if (itemName !== undefined) payload.item_name = itemName;
     if (price !== undefined) payload.price = price;
     if (category !== undefined) payload.category = category;
-    if (isAvailable !== undefined) payload.is_available = isAvailable;
+    
+    const availVal = isAvailable !== undefined ? isAvailable : is_available;
+    if (availVal !== undefined) payload.is_available = Boolean(availVal);
+    
     if (isVeg !== undefined) payload.is_veg = isVeg;
     if (imageUrl !== undefined) payload.image_url = imageUrl;
     else if (image_url !== undefined) payload.image_url = image_url;
@@ -130,6 +139,8 @@ router.put('/menu/:id', async (req, res) => {
     if (!menuItem) {
       return res.status(404).json({ success: false, message: 'Menu item not found' });
     }
+
+    if (typeof clearMenuCache === 'function') clearMenuCache();
 
     res.json({ success: true, data: menuItem });
 
@@ -151,6 +162,8 @@ router.delete('/menu/:id', async (req, res) => {
     if (error || !menuItem) {
       return res.status(404).json({ success: false, message: 'Menu item not found' });
     }
+
+    if (typeof clearMenuCache === 'function') clearMenuCache();
 
     res.json({ success: true, message: 'Menu item deleted' });
 

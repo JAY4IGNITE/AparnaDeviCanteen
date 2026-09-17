@@ -277,15 +277,5 @@ router.get('/', protect, async (req, res) => {
   }
 });
 
-const clearMenuCache = () => {
-  menuItemsCache = { data: null, timestamp: 0 };
-  trendingCache = { data: null, timestamp: 0, dateStr: null };
-  publicStatsCache = { data: null, timestamp: 0 };
-};
-
-router.clearMenuCache = clearMenuCache;
-
 module.exports = router;
-module.exports.clearMenuCache = clearMenuCache;
-
 

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext({
-  theme: 'dark',
+  theme: 'light',
   toggleTheme: () => {},
   setTheme: () => {}
 });
@@ -9,9 +9,9 @@ const ThemeContext = createContext({
 export const ThemeProvider = ({ children }) => {
   const [theme, setThemeState] = useState(() => {
     try {
-      return localStorage.getItem('canteen_theme') || 'dark';
+      return localStorage.getItem('canteen_theme') || 'light';
     } catch {
-      return 'dark';
+      return 'light';
     }
   });
 
@@ -36,7 +36,7 @@ export const ThemeProvider = ({ children }) => {
   };
 
   const setTheme = (val) => {
-    setThemeState(val === 'light' ? 'light' : 'dark');
+    setThemeState(val === 'dark' ? 'dark' : 'light');
   };
 
   return (

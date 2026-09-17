@@ -47,11 +47,6 @@ const TrendingFoodCard = ({ item, isTopOne = false }) => {
 
         {/* Food Image Container */}
         <div className="trending-card-img-wrap">
-          {isOutOfStock && (
-            <div className="out-of-stock-overlay">
-              Out of Stock
-            </div>
-          )}
           {item.image_url ? (
             <picture>
               <source
@@ -62,7 +57,6 @@ const TrendingFoodCard = ({ item, isTopOne = false }) => {
                 src={item.image_url}
                 alt={item.item_name}
                 className="trending-food-image"
-                style={isOutOfStock ? { filter: 'grayscale(100%) brightness(0.6)' } : {}}
                 loading="lazy"
                 decoding="async"
                 width="320"
@@ -107,8 +101,8 @@ const TrendingFoodCard = ({ item, isTopOne = false }) => {
 
             {/* Add / Quantity Controls - Static position responding only while clicking */}
             {isOutOfStock ? (
-              <button className="btn-out-of-stock-badge" disabled style={{ opacity: 0.9 }}>
-                Out of Stock
+              <button className="trending-add-btn disabled" disabled>
+                Unavailable
               </button>
             ) : quantity > 0 ? (
               <div className="trending-qty-controls">

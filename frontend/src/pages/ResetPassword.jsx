@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
@@ -14,6 +14,14 @@ const ResetPassword = () => {
   const { resetPassword } = useAuth();
   const { transition } = useMotionSafe();
   const cardRef = useRef(null);
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const [formData, setFormData] = useState({ newPassword: '', confirmPassword: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -68,30 +76,32 @@ const ResetPassword = () => {
           overflow: 'hidden',
         }}
       >
-        <MagicRings
-          color="#ff4500"
-          colorTwo="#f97316"
-          colorThree="#ffb703"
-          ringCount={4}
-          speed={0.6}
-          attenuation={8}
-          lineThickness={1.5}
-          baseRadius={0.36}
-          radiusStep={0.16}
-          scaleRate={0.1}
-          opacity={0.68}
-          blur={0}
-          noiseAmount={0.02}
-          rotation={0}
-          ringGap={1.35}
-          fadeIn={0.7}
-          fadeOut={0.5}
-          followMouse={false}
-          mouseInfluence={0}
-          hoverScale={1.0}
-          parallax={0}
-          clickBurst={false}
-        />
+        {!isMobile && (
+          <MagicRings
+            color="#ff4500"
+            colorTwo="#f97316"
+            colorThree="#ffb703"
+            ringCount={4}
+            speed={0.6}
+            attenuation={8}
+            lineThickness={1.5}
+            baseRadius={0.36}
+            radiusStep={0.16}
+            scaleRate={0.1}
+            opacity={0.68}
+            blur={0}
+            noiseAmount={0.02}
+            rotation={0}
+            ringGap={1.35}
+            fadeIn={0.7}
+            fadeOut={0.5}
+            followMouse={false}
+            mouseInfluence={0}
+            hoverScale={1.0}
+            parallax={0}
+            clickBurst={false}
+          />
+        )}
       </div>
 
       <motion.div

@@ -47,11 +47,11 @@ router.post('/', protect, async (req, res) => {
     for (const item of items) {
       const menuItem = menuItemsMap.get(item.menuItem);
 
-      if (!menuItem) {
-        return res.status(404).json({ success: false, message: `Menu item not found: ${item.menuItem}` });
+      if (!menuItem || menuItem.is_visible_to_customer === false) {
+        return res.status(404).json({ success: false, message: `Menu item not available: ${item.menuItem}` });
       }
       if (!menuItem.is_available) {
-        return res.status(400).json({ success: false, message: `${menuItem.item_name} is currently unavailable` });
+        return res.status(400).json({ success: false, message: `${menuItem.item_name} is currently out of stock` });
       }
 
       const quantity = parseInt(item.quantity) || 1;

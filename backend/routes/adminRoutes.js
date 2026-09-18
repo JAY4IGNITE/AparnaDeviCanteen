@@ -48,18 +48,21 @@ router.put(['/menu/visibility', '/orders-status'], async (req, res) => {
 // POST /api/admin/menu — Add a new menu item
 router.post('/menu', async (req, res) => {
   try {
-    const { itemName, price, category, isAvailable, isVeg, imageUrl, image_url } = req.body;
+    const { itemName, price, category, isAvailable, isVeg, imageUrl, image_url, isVisibleToCustomer, is_visible_to_customer } = req.body;
 
     if (!itemName || price === undefined) {
       return res.status(400).json({ success: false, message: 'Item name and price are required' });
     }
+
+    const vis = isVisibleToCustomer !== undefined ? isVisibleToCustomer : (is_visible_to_customer !== undefined ? is_visible_to_customer : true);
 
     const payload = {
       item_name: itemName,
       price,
       category: category || 'General',
       is_available: isAvailable !== undefined ? isAvailable : true,
-      is_veg: isVeg !== undefined ? isVeg : true
+      is_veg: isVeg !== undefined ? isVeg : true,
+      is_visible_to_customer: Boolean(vis)
     };
 
     if (imageUrl !== undefined || image_url !== undefined) {
@@ -105,7 +108,7 @@ router.get('/menu', async (req, res) => {
 // PUT /api/admin/menu/:id — Edit a menu item
 router.put('/menu/:id', async (req, res) => {
   try {
-    const { itemName, price, category, isAvailable, isVeg, imageUrl, image_url } = req.body;
+    const { itemName, price, category, isAvailable, isVeg, imageUrl, image_url, isVisibleToCustomer, is_visible_to_customer } = req.body;
 
     const payload = {};
     if (itemName !== undefined) payload.item_name = itemName;
@@ -115,6 +118,9 @@ router.put('/menu/:id', async (req, res) => {
     if (isVeg !== undefined) payload.is_veg = isVeg;
     if (imageUrl !== undefined) payload.image_url = imageUrl;
     else if (image_url !== undefined) payload.image_url = image_url;
+
+    if (isVisibleToCustomer !== undefined) payload.is_visible_to_customer = Boolean(isVisibleToCustomer);
+    else if (is_visible_to_customer !== undefined) payload.is_visible_to_customer = Boolean(is_visible_to_customer);
 
     const { data: menuItem, error } = await supabase
       .from('menu_items')

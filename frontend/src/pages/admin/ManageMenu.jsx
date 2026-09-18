@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Plus, Edit2, Trash2, Eye, EyeOff, Power, X, CheckCircle, AlertCircle, Image as ImageIcon, Upload, Link as LinkIcon, UtensilsCrossed } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, EyeOff, PackageCheck, PackageX, Power, X, CheckCircle, AlertCircle, Image as ImageIcon, Upload, Link as LinkIcon, UtensilsCrossed } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageHeader from '../../components/ui/PageHeader';
 import AnimatedModal from '../../components/ui/AnimatedModal';
@@ -14,7 +14,7 @@ const ManageMenu = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState(null);
-  const [formData, setFormData] = useState({ itemName: '', price: '', category: '', isAvailable: true, isVeg: true, imageUrl: '' });
+  const [formData, setFormData] = useState({ itemName: '', price: '', category: '', isAvailable: true, isVisibleToCustomer: true, isVeg: true, imageUrl: '' });
   const [imageMode, setImageMode] = useState('url'); // 'url' | 'upload'
   const [message, setMessage] = useState({ type: '', text: '' });
   const [menuVisible, setMenuVisible] = useState(true);
@@ -83,6 +83,7 @@ const ManageMenu = () => {
       price: '',
       category: selectedCategory === 'All' ? '' : selectedCategory,
       isAvailable: true,
+      isVisibleToCustomer: true,
       isVeg: true,
       imageUrl: ''
     });
@@ -97,6 +98,7 @@ const ManageMenu = () => {
       price: item.price.toString(),
       category: item.category || '',
       isAvailable: item.is_available,
+      isVisibleToCustomer: item.is_visible_to_customer !== false,
       isVeg: item.is_veg !== false,
       imageUrl: item.image_url || ''
     });
@@ -186,11 +188,24 @@ const ManageMenu = () => {
   };
 
   const toggleAvailability = async (item) => {
+    const nextAvailable = !item.is_available;
     try {
-      await axios.put(`/admin/menu/${item.id}`, { ...item, isAvailable: !item.is_available });
+      await axios.put(`/admin/menu/${item.id}`, { ...item, isAvailable: nextAvailable });
+      toast.success(`${item.item_name} is now ${nextAvailable ? 'In Stock' : 'Out of Stock'}`);
       fetchMenu();
     } catch (err) {
       setMessage({ type: 'error', text: err.response?.data?.message || 'Update failed' });
+    }
+  };
+
+  const toggleCustomerVisibility = async (item) => {
+    const nextVisible = !(item.is_visible_to_customer !== false);
+    try {
+      await axios.put(`/admin/menu/${item.id}`, { ...item, isVisibleToCustomer: nextVisible });
+      toast.success(nextVisible ? `${item.item_name} is now visible to customers` : `${item.item_name} is hidden from customer menu`);
+      fetchMenu();
+    } catch (err) {
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Visibility update failed' });
     }
   };
 
@@ -260,7 +275,8 @@ const ManageMenu = () => {
               <th>Item Name</th>
               <th>Price</th>
               <th>Category</th>
-              <th>Status</th>
+              <th>Stock</th>
+              <th>Customer Menu</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -294,15 +310,41 @@ const ManageMenu = () => {
                 </td>
                 <td data-label="Price" style={{ color: 'var(--primary-400)', fontWeight: 600 }}>₹{item.price}</td>
                 <td data-label="Category">{item.category || 'General'}</td>
-                <td data-label="Status">
+                <td data-label="Stock">
                   <span className={`badge ${item.is_available ? 'badge-active' : 'badge-blocked'}`}>
-                    {item.is_available ? 'Available' : 'Hidden'}
+                    {item.is_available ? 'In Stock' : 'Out of Stock'}
+                  </span>
+                </td>
+                <td data-label="Customer Menu">
+                  <span
+                    className="badge"
+                    style={{
+                      fontSize: '0.75rem',
+                      backgroundColor: item.is_visible_to_customer !== false ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                      color: item.is_visible_to_customer !== false ? '#4ade80' : '#f87171',
+                      border: item.is_visible_to_customer !== false ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)'
+                    }}
+                  >
+                    {item.is_visible_to_customer !== false ? 'Visible' : 'Hidden'}
                   </span>
                 </td>
                 <td data-label="Actions">
                   <div style={{ display: 'flex', gap: '0.35rem' }}>
-                    <MotionButton className="btn btn-ghost btn-sm" onClick={() => toggleAvailability(item)} title={item.is_available ? 'Hide' : 'Show'}>
-                      {item.is_available ? <EyeOff size={16} /> : <Eye size={16} />}
+                    <MotionButton
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => toggleCustomerVisibility(item)}
+                      title={item.is_visible_to_customer !== false ? 'Hide completely from Customer Menu' : 'Show in Customer Menu'}
+                      style={{ color: item.is_visible_to_customer !== false ? '#38bdf8' : '#f87171' }}
+                    >
+                      {item.is_visible_to_customer !== false ? <Eye size={16} /> : <EyeOff size={16} />}
+                    </MotionButton>
+                    <MotionButton
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => toggleAvailability(item)}
+                      title={item.is_available ? 'Set as Out of Stock' : 'Set as In Stock'}
+                      style={{ color: item.is_available ? '#fbbf24' : '#9ca3af' }}
+                    >
+                      {item.is_available ? <PackageX size={16} /> : <PackageCheck size={16} />}
                     </MotionButton>
                     <MotionButton className="btn btn-ghost btn-sm" onClick={() => openEditModal(item)} title="Edit">
                       <Edit2 size={16} />
@@ -316,7 +358,7 @@ const ManageMenu = () => {
             ))}
             {menuItems.length === 0 && (
               <tr>
-                <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
                   No menu items. Click "Add Item" to get started.
                 </td>
               </tr>
@@ -429,10 +471,15 @@ const ManageMenu = () => {
               )}
             </div>
 
-            <div className="form-group">
+            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                 <input type="checkbox" checked={formData.isAvailable} onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })} />
-                <span className="form-label" style={{ margin: 0 }}>Available for ordering</span>
+                <span className="form-label" style={{ margin: 0 }}>Available for ordering (In Stock)</span>
+              </label>
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input type="checkbox" checked={formData.isVisibleToCustomer} onChange={(e) => setFormData({ ...formData, isVisibleToCustomer: e.target.checked })} />
+                <span className="form-label" style={{ margin: 0 }}>Visible in Customer Menu (Uncheck to completely hide from customers)</span>
               </label>
             </div>
           </div>

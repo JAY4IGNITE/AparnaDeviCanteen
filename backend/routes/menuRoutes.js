@@ -49,7 +49,7 @@ router.get('/public-stats', async (req, res) => {
 
     const [usersRes, menuRes, ordersRes] = await Promise.all([
       supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'customer'),
-      supabase.from('menu_items').select('id', { count: 'exact', head: true }).eq('is_available', true),
+      supabase.from('menu_items').select('id', { count: 'exact', head: true }).eq('is_available', true).neq('is_visible_to_customer', false),
       supabase.from('orders').select('id', { count: 'exact', head: true })
     ]);
 
@@ -203,8 +203,8 @@ router.get('/trending-today', protect, async (req, res) => {
       const menuItem = (agg.menu_item_id && menuMapById.get(agg.menu_item_id)) ||
         menuMapByName.get((agg.item_name || '').toLowerCase().trim());
 
-      // Only include dishes that exist in the active menu
-      if (menuItem) {
+      // Only include dishes that exist in the active menu and are visible to customers
+      if (menuItem && menuItem.is_visible_to_customer !== false) {
         rankedTrending.push({
           id: menuItem.id,
           item_name: menuItem.item_name,
@@ -263,7 +263,9 @@ router.get('/', protect, async (req, res) => {
       return res.status(500).json({ success: false, message: error.message });
     }
 
-    const menuPayload = { success: true, data: menuItems };
+    const visibleMenuItems = (menuItems || []).filter(item => item.is_visible_to_customer !== false);
+
+    const menuPayload = { success: true, data: visibleMenuItems };
     menuItemsCache = {
       data: menuPayload,
       timestamp: Date.now(),

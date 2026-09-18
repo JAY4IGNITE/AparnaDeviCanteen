@@ -109,6 +109,15 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   }, [updateUser, user]);
 
+  const checkVerificationStatus = useCallback(async (identifier) => {
+    try {
+      const res = await axios.post('/auth/check-verification', { identifier });
+      return res.data;
+    } catch {
+      return { success: false, isVerified: false };
+    }
+  }, []);
+
   const forgotPassword = useCallback(async (email) => {
     const res = await axios.post('/auth/forgot-password', { email });
     return res.data;
@@ -133,6 +142,7 @@ export const AuthProvider = ({ children }) => {
     updateEmail,
     resendVerification,
     verifyEmail,
+    checkVerificationStatus,
     forgotPassword,
     resetPassword,
     isAuthenticated,
@@ -148,6 +158,7 @@ export const AuthProvider = ({ children }) => {
     updateEmail,
     resendVerification,
     verifyEmail,
+    checkVerificationStatus,
     forgotPassword,
     resetPassword,
     isAuthenticated,

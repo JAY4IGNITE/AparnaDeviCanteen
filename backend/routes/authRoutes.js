@@ -535,6 +535,39 @@ router.post('/resend-verification', protect, async (req, res) => {
   }
 });
 
+// POST /api/auth/check-verification
+router.post('/check-verification', async (req, res) => {
+  try {
+    const { identifier } = req.body;
+    if (!identifier || typeof identifier !== 'string' || !identifier.trim()) {
+      return res.json({ success: true, isVerified: false });
+    }
+
+    const value = identifier.trim().toLowerCase();
+    const isEmail = value.includes('@');
+
+    let query = supabase.from('users').select('id, email, email_verified');
+    if (isEmail) {
+      query = query.eq('email', value);
+    } else {
+      query = query.eq('phone', value);
+    }
+
+    const { data: user, error } = await query.maybeSingle();
+
+    if (error || !user) {
+      return res.json({ success: true, isVerified: false });
+    }
+
+    return res.json({
+      success: true,
+      isVerified: !!user.email_verified
+    });
+  } catch (err) {
+    return res.json({ success: false, isVerified: false });
+  }
+});
+
 // POST /api/auth/forgot-password
 router.post('/forgot-password', async (req, res) => {
   try {
@@ -547,33 +580,41 @@ router.post('/forgot-password', async (req, res) => {
 
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, email')
+      .select('id, email, email_verified')
       .eq('email', trimmedEmail)
       .maybeSingle();
 
-    if (!error && user) {
-      const resetToken = crypto.randomBytes(32).toString('hex');
-      const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    if (error || !user) {
+      return res.json({ success: true, message: 'If an account exists with a verified email, a password reset link has been sent.' });
+    }
 
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({ 
-          reset_token: resetToken,
-          reset_expires: resetExpires.toISOString()
-        })
-        .eq('id', user.id);
+    if (!user.email_verified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password reset is only available for accounts with a verified email address. Please verify your email first.'
+      });
+    }
 
-      if (!updateError) {
-        try {
-          await emailService.sendPasswordResetEmail(user.email, resetToken);
-        } catch (emailErr) {
-          console.error('Failed to send password reset email', emailErr);
-        }
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ 
+        reset_token: resetToken,
+        reset_expires: resetExpires.toISOString()
+      })
+      .eq('id', user.id);
+
+    if (!updateError) {
+      try {
+        await emailService.sendPasswordResetEmail(user.email, resetToken);
+      } catch (emailErr) {
+        console.error('Failed to send password reset email', emailErr);
       }
     }
 
-    // Always return success to prevent email enumeration
-    res.json({ success: true, message: 'If an account exists for this email, a password reset link has been sent.' });
+    res.json({ success: true, message: 'If an account exists with a verified email, a password reset link has been sent.' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

@@ -21,7 +21,8 @@ const Login = () => {
   const [emailInput, setEmailInput] = useState('');
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
-  const { user, login, updateEmail, resendVerification, logout } = useAuth();
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const { user, login, updateEmail, resendVerification, logout, checkVerificationStatus } = useAuth();
   const navigate = useNavigate();
   const { transition } = useMotionSafe();
   const cardRef = useRef(null);
@@ -33,6 +34,25 @@ const Login = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    const rawVal = formData.identifier.trim();
+    if (!rawVal || rawVal.length < 3) {
+      setIsEmailVerified(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await checkVerificationStatus(rawVal);
+        setIsEmailVerified(!!res?.isVerified);
+      } catch {
+        setIsEmailVerified(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [formData.identifier, checkVerificationStatus]);
 
 
 
@@ -301,9 +321,11 @@ const Login = () => {
           </form>
 
           <div className="auth-footer">
-            <div style={{ marginBottom: '0.45rem' }}>
-              <Link to="/forgot-password" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '500' }}>Forgot Password?</Link>
-            </div>
+            {isEmailVerified && (
+              <div style={{ marginBottom: '0.45rem' }}>
+                <Link to="/forgot-password" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '500' }}>Forgot Password?</Link>
+              </div>
+            )}
             <div>
               Don't have an account? <Link to="/register" replace>Sign Up</Link>
             </div>

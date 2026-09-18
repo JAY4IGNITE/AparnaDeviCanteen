@@ -7,6 +7,7 @@ import DashboardHero from '../../components/customer/DashboardHero';
 import TrendingToday from '../../components/customer/TrendingToday';
 import ActiveOrderCard from '../../components/customer/ActiveOrderCard';
 import OrderAgain from '../../components/customer/OrderAgain';
+import AnnouncementTicker from '../../components/customer/AnnouncementTicker';
 import ErrorBoundary from '../../components/ui/ErrorBoundary';
 import { useCart } from '../../context/CartContext';
 import { staggerContainer, fadeUp } from '../../lib/motion';
@@ -90,6 +91,13 @@ const CustomerHome = () => {
             <span className="text-xs underline opacity-90 shrink-0">View Details</span>
           </motion.div>
         )}
+
+        {/* Live Canteen Announcement Ticker */}
+        <motion.div variants={fadeUp}>
+          <ErrorBoundary>
+            <AnnouncementTicker />
+          </ErrorBoundary>
+        </motion.div>
 
         {/* 2. Food-Focused Hero Banner */}
         <motion.div variants={fadeUp}>

@@ -195,7 +195,7 @@ router.get('/trending-today', protect, async (req, res) => {
     const sorted = Array.from(quantityMap.values())
       .sort((a, b) => b.orders_today - a.orders_today);
 
-    // 5. Match with menu details and limit to top 6
+    // 5. Match with menu details and limit to top 3
     const rankedTrending = [];
     let rank = 1;
 
@@ -217,7 +217,7 @@ router.get('/trending-today', protect, async (req, res) => {
           rank
         });
         rank += 1;
-        if (rankedTrending.length >= 6) break;
+        if (rankedTrending.length >= 3) break;
       }
     }
 

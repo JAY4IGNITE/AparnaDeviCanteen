@@ -97,10 +97,10 @@ const TrendingToday = () => {
         </div>
       )}
 
-      {/* Dynamic Trending Dish Grid */}
+      {/* Dynamic Trending Dish Grid (Top 3 Only) */}
       {!loading && !error && trendingDishes.length > 0 && (
         <div className="trending-grid" role="list">
-          {trendingDishes.map((dish, index) => (
+          {trendingDishes.slice(0, 3).map((dish, index) => (
             <TrendingFoodCard
               key={dish.id}
               item={dish}

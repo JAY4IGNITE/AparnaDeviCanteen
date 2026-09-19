@@ -654,7 +654,7 @@ export default function LandingPage() {
               >
                 DIRECT HELPLINE
               </h3>
-              <p className="text-sm font-semibold text-white mb-0.5">+91 960369488</p>
+              <p className="text-sm font-semibold text-white mb-0.5">+91 9603649488</p>
             </motion.div>
           </div>
 

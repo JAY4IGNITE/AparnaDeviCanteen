@@ -57,6 +57,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem('foodnest_token');
     localStorage.removeItem('foodnest_user');
+    sessionStorage.removeItem('dosa_modal_shown');
     delete axios.defaults.headers.common['Authorization'];
   }, []);
 

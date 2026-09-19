@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import OrderingPausedModal from '../components/OrderingPausedModal';
+import DosaComingSoonModal from '../components/customer/DosaComingSoonModal';
 import { 
   LayoutGrid, 
   UtensilsCrossed, 
@@ -21,10 +22,26 @@ import ErrorBoundary from '../components/ui/ErrorBoundary';
 
 const CustomerLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showDosaModal, setShowDosaModal] = useState(false);
   const { user, logout } = useAuth();
   const { isPausedModalOpen, setIsPausedModalOpen, statusMessage } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Show Dosa coming soon pop-up once after customer login
+  useEffect(() => {
+    if (user) {
+      const hasSeen = sessionStorage.getItem('dosa_modal_shown');
+      if (!hasSeen) {
+        setShowDosaModal(true);
+      }
+    }
+  }, [user]);
+
+  const handleCloseDosaModal = () => {
+    sessionStorage.setItem('dosa_modal_shown', 'true');
+    setShowDosaModal(false);
+  };
 
   // Reset any open modal automatically when navigating between pages
   useEffect(() => {
@@ -114,6 +131,12 @@ const CustomerLayout = () => {
           </NavLink>
         ))}
       </nav>
+
+      {/* Dosa Coming Soon Pop-up Modal */}
+      <DosaComingSoonModal
+        open={showDosaModal}
+        onClose={handleCloseDosaModal}
+      />
 
       {/* Global Customer Ordering Inactive Pop-up Modal */}
       <OrderingPausedModal

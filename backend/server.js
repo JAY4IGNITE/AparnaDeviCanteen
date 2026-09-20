@@ -15,6 +15,9 @@ const feedbackRoutes = require('./routes/feedbackRoutes');
 
 const app = express();
 
+// Trust the first proxy (Render load balancer) so rate limiting tracks actual client IPs
+app.set('trust proxy', 1);
+
 // Enable Gzip / Brotli compression for all API responses and assets
 app.use(compression());
 
@@ -24,10 +27,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rate limiting (500 requests per 15 minutes per IP)
+// Rate limiting (5000 requests per 15 minutes per IP)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
-  max: 500,
+  max: 5000,
   message: { success: false, message: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
